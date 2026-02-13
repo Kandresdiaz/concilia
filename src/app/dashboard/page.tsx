@@ -24,6 +24,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { SecurityBanner } from "@/components/SecurityBanner";
+import { PrivacyModal } from "@/components/PrivacyModal";
 
 export default function ConciliAI() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -818,6 +819,9 @@ export default function ConciliAI() {
 
   return (
     <div className="flex min-h-screen bg-base-100 font-sans text-gray-900 overflow-x-hidden">
+      {/* Privacy Modal */}
+      <PrivacyModal />
+
       <Sidebar
         currentView={currentView}
         onViewChange={(view) => {
