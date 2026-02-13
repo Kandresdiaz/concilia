@@ -11,6 +11,7 @@ import {
   BarChart3,
   Bot
 } from "lucide-react";
+import { SecurityBanner } from "@/components/SecurityBanner";
 
 export default function LandingPage() {
   return (
@@ -73,6 +74,13 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Security Banner */}
+      <section className="px-6 -mt-16">
+        <div className="max-w-5xl mx-auto">
+          <SecurityBanner />
         </div>
       </section>
 

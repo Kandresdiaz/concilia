@@ -37,15 +37,28 @@ export async function saveConciliation(data: any, finalBalance: number) {
         throw new Error("Límite de plan gratuito alcanzado.");
     }
 
-    // Save conciliation
+    // Extract month and year from current date
+    const now = new Date();
+    const month = now.getMonth() + 1; // JavaScript months are 0-indexed
+    const year = now.getFullYear();
+
+    // Save conciliation with organized structure
     const { error: insertError } = await supabase
         .from("conciliations")
         .insert({
             user_id: user.id,
-            data: data,
+            company_name: data.company_name || "Sin nombre",
+            month: month,
+            year: year,
+            precision_score: data.precision_score,
             final_balance: finalBalance,
-            company_name: data.company_name, // Map explicitly
-            precision_score: data.precision_score
+            bank_data: data.bank || {},
+            book_data: data.book || {},
+            matches: data.matches || [],
+            discrepancies: {
+                pendingBank: data.pendingBank || [],
+                pendingBook: data.pendingBook || []
+            }
         });
 
     if (insertError) throw insertError;
@@ -55,7 +68,8 @@ export async function saveConciliation(data: any, finalBalance: number) {
         .from("profiles")
         .update({
             usage_count: currentUsage + 1,
-            reconciliations_count: (profile?.reconciliations_count ?? 0) + 1
+            reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
+            last_reconciliation_at: new Date().toISOString()
         })
         .eq("id", user.id);
 

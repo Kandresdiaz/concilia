@@ -23,6 +23,7 @@ import { generatePDF, generateCSV } from "@/lib/export";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import { SecurityBanner } from "@/components/SecurityBanner";
 
 export default function ConciliAI() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -255,6 +256,9 @@ export default function ConciliAI() {
       case "dashboard":
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Security Banner */}
+            <SecurityBanner />
+
             {/* Premium Hero Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 glass-card rounded-[32px] p-8 md:p-12 flex flex-col justify-between relative overflow-hidden group">
