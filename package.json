@@ -1,0 +1,38 @@
+{
+  "name": "temp_app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.95.3",
+    "daisyui": "^5.5.18",
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7",
+    "next": "16.1.6",
+    "pdfjs-dist": "^5.4.624",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.33",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "clsx": "^2.1.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "groq-sdk": "^0.37.0",
+    "lucide-react": "^0.563.0",
+    "stripe": "^20.3.1",
+    "tailwind-merge": "^3.4.0",
+    "tailwindcss": "^4",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  }
+}
