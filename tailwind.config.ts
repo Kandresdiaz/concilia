@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
-import daisyui from "daisyui";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const daisyui = require("daisyui");
 
 export default {
   content: [
@@ -21,4 +22,4 @@ export default {
   daisyui: {
     themes: ["light", "dark"],
   },
-} satisfies Config;
+} as Config;

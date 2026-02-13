@@ -86,9 +86,10 @@ export async function getConciliationHistory() {
 
     const { data, error } = await supabase
         .from("conciliations")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(20);
+        .select("id, company_name, month, year, precision_score, final_balance, created_at")
+        .order("year", { ascending: false })
+        .order("month", { ascending: false })
+        .limit(50);
 
     if (error) {
         console.error("Error fetching history:", error);

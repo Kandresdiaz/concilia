@@ -777,32 +777,51 @@ export default function ConciliAI() {
                 <table className="table table-md w-full">
                   <thead>
                     <tr className="uppercase text-[10px] tracking-widest text-gray-400 border-b border-base-200">
-                      <th className="py-6">Fecha</th>
+                      <th className="py-6">Empresa</th>
+                      <th className="py-6">Período</th>
+                      <th className="py-6">Precisión</th>
                       <th className="py-6">Diferencia Neta</th>
                       <th className="py-6 text-right">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className={cn(tier === "FREE" && "opacity-20 pointer-events-none")}>
                     {history.length > 0 ? (
-                      history.map((h) => (
-                        <tr key={h.id} className="hover:bg-base-200/50 transition-colors">
-                          <td className="py-6 font-mono text-sm">{new Date(h.created_at).toLocaleDateString()}</td>
-                          <td className={cn(
-                            "py-6 font-black text-sm",
-                            h.final_balance === 0 ? "text-success" : "text-error"
-                          )}>
-                            $ {Number(h.final_balance).toLocaleString()}
-                          </td>
-                          <td className="py-6 text-right">
-                            <button className="btn btn-ghost btn-sm rounded-xl gap-2">
-                              <Eye className="w-4 h-4" /> Ver
-                            </button>
-                          </td>
-                        </tr>
-                      ))
+                      history.map((h) => {
+                        const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+                        const period = h.month && h.year
+                          ? `${monthNames[h.month - 1]} ${h.year}`
+                          : new Date(h.created_at).toLocaleDateString();
+                        return (
+                          <tr key={h.id} className="hover:bg-base-200/50 transition-colors">
+                            <td className="py-6 font-bold text-sm">{h.company_name || "Sin nombre"}</td>
+                            <td className="py-6 font-mono text-sm">{period}</td>
+                            <td className="py-6">
+                              <span className={cn(
+                                "px-3 py-1 rounded-full text-xs font-black",
+                                (h.precision_score || 0) >= 95
+                                  ? "bg-emerald-50 text-emerald-700"
+                                  : "bg-amber-50 text-amber-700"
+                              )}>
+                                {h.precision_score || 0}%
+                              </span>
+                            </td>
+                            <td className={cn(
+                              "py-6 font-black text-sm",
+                              h.final_balance === 0 ? "text-success" : "text-error"
+                            )}>
+                              $ {Number(h.final_balance).toLocaleString()}
+                            </td>
+                            <td className="py-6 text-right">
+                              <button className="btn btn-ghost btn-sm rounded-xl gap-2">
+                                <Eye className="w-4 h-4" /> Ver
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
-                        <td colSpan={3} className="py-20 text-center text-gray-300 italic">No hay registros aún</td>
+                        <td colSpan={5} className="py-20 text-center text-gray-300 italic">No hay registros aún</td>
                       </tr>
                     )}
                   </tbody>

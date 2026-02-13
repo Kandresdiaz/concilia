@@ -66,8 +66,14 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="pt-6 text-center">
-                    <p className="text-[11px] text-slate-400 font-medium">
+                <div className="pt-6 space-y-4">
+                    <div className="flex items-center justify-center gap-2 py-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                        <span className="text-[11px] font-bold text-emerald-700">
+                            Datos 100% encriptados. La IA no se entrena con tu información.
+                        </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-medium text-center">
                         Al continuar, aceptas nuestros <span className="underline cursor-pointer">Términos de Servicio</span> y <span className="underline cursor-pointer">Política de Privacidad</span>.
                     </p>
                 </div>
