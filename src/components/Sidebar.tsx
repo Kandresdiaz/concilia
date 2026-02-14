@@ -19,6 +19,7 @@ interface SidebarProps {
     currentView: string;
     onViewChange: (view: string) => void;
     usageCount: number;
+    limit: number; // Dynamic limit
     tier: "FREE" | "PRO";
     email: string;
     isOpen: boolean;
@@ -27,7 +28,7 @@ interface SidebarProps {
     onUpgrade: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange, usageCount, tier, email, isOpen, onClose, onLogout, onUpgrade }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, email, isOpen, onClose, onLogout, onUpgrade }: SidebarProps) {
     const isFree = tier === "FREE";
 
     const navItems = [
@@ -111,13 +112,13 @@ export function Sidebar({ currentView, onViewChange, usageCount, tier, email, is
                         )}>
                             {tier} Plan
                         </span>
-                        <span className="text-[10px] font-bold text-slate-400">{usageCount}/5</span>
+                        <span className="text-[10px] font-bold text-slate-400">{usageCount}/{limit}</span>
                     </div>
                     <p className="text-[11px] font-semibold text-slate-900 truncate mb-1">{email || "usuario@correo.com"}</p>
                     <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
                         <div
                             className="bg-indigo-600 h-full transition-all duration-500"
-                            style={{ width: `${(usageCount / 5) * 100}%` }}
+                            style={{ width: `${Math.min(100, (usageCount / Math.max(1, limit)) * 100)}%` }}
                         ></div>
                     </div>
                 </div>

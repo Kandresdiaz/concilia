@@ -37,6 +37,7 @@ export default function ConciliAI() {
   const [bookData, setBookData] = useState<any>(null);
   const [tier, setTier] = useState<"FREE" | "PRO">("FREE");
   const [usageCount, setUsageCount] = useState(0);
+  const [limit, setLimit] = useState(3); // Default to Free limit
   const [history, setHistory] = useState<any[]>([]);
   const [companyName, setCompanyName] = useState("");
   const [precisionScore, setPrecisionScore] = useState<number | null>(null);
@@ -54,6 +55,7 @@ export default function ConciliAI() {
       if (profile) {
         setTier(profile.tier);
         setUsageCount(profile.usage_count);
+        setLimit(profile.plans_usage_limit || 3);
       }
       const historyData = await getConciliationHistory();
       setHistory(historyData);
@@ -848,6 +850,7 @@ export default function ConciliAI() {
           setIsSidebarOpen(false);
         }}
         usageCount={usageCount}
+        limit={limit}
         tier={tier}
         email={user?.email || ""}
         isOpen={isSidebarOpen}

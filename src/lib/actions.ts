@@ -63,17 +63,25 @@ export async function saveConciliation(data: any, finalBalance: number) {
 
     if (insertError) throw insertError;
 
-    // Increment usage count 
+    // Increment usage count - REMOVED (Handled in API for security)
+    /* 
     const { error: updateError } = await supabase
         .from("profiles")
         .update({
-            usage_count: currentUsage + 1,
+            // usage_count: currentUsage + 1, // Handled in API
             reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
             last_reconciliation_at: new Date().toISOString()
         })
         .eq("id", user.id);
 
     if (updateError) throw updateError;
+    */
+
+    // Only update stats, not usage limits
+    await supabase.from("profiles").update({
+        reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
+        last_reconciliation_at: new Date().toISOString()
+    }).eq("id", user.id);
 
     revalidatePath("/");
 }

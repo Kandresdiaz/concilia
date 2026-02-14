@@ -22,16 +22,36 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Debes iniciar sesión para usar la IA." }, { status: 401 });
         }
 
-        // Fetch profile to verify tier and usage
+        // --- Marc Lou Optimization: Smart Limits & Auto-Reset ---
         const { data: profile } = await supabase
             .from("profiles")
-            .select("tier, usage_count")
+            .select("tier, usage_count, plans_usage_limit, current_period_end")
             .eq("id", user.id)
             .single();
 
-        if (profile?.tier === "FREE" && (profile?.usage_count || 0) >= 5) {
+        let currentUsage = profile?.usage_count || 0;
+        let limit = profile?.plans_usage_limit || 3; // Default to 3 (Free)
+
+        // 1. Lazy Reset: If period expired, reset usage for the new month
+        const now = new Date();
+        const periodEnd = profile?.current_period_end ? new Date(profile.current_period_end) : new Date(0);
+
+        if (now > periodEnd) {
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 1);
+
+            await supabase.from("profiles").update({
+                usage_count: 0,
+                current_period_end: nextMonth.toISOString()
+            }).eq("id", user.id);
+
+            currentUsage = 0; // Reset local variable for check below
+        }
+
+        // 2. Strict Limit Check
+        if (currentUsage >= limit) {
             return NextResponse.json({
-                error: "Límite de plan gratuito alcanzado. Actualiza a PRO para conciliaciones ilimitadas.",
+                error: `Has alcanzado tu límite de ${limit} conciliaciones este mes. Actualiza a PRO para más.`,
                 is_limited: true
             }, { status: 402 });
         }
@@ -158,6 +178,10 @@ export async function POST(req: Request) {
 
         // Tolerancia de 5 centavos
         const is_verified = Math.abs(total_in - summary_in) < 0.05 && Math.abs(total_out - summary_out) < 0.05;
+
+        // --- Marc Lou Optimization: Instant Usage Increment ---
+        // Increment usage count immediately. Do not wait for client save.
+        await supabase.from("profiles").increment("usage_count", 1).eq("id", user.id);
 
         return NextResponse.json({
             transactions,

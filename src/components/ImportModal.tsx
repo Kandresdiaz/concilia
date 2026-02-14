@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Upload, FileText, Search, Mail, Loader2 } from "lucide-react";
+import { X, Upload, FileText, Search, Mail, Loader2, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { extractTextFromPdf } from "@/lib/pdf";
@@ -19,6 +19,9 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
     const [country, setCountry] = useState("Colombia 🇨🇴");
     const [source, setSource] = useState<"file" | "ai" | "gmail">("ai");
     const [text, setText] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPasswordInput, setShowPasswordInput] = useState(false);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -26,6 +29,35 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
             else if (bookLoaded && !bankLoaded) setTab("bank");
         }
     }, [isOpen, bankLoaded, bookLoaded]);
+
+    const processPdf = async (file: File, pwd?: string) => {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const arrayBuffer = event.target?.result as ArrayBuffer;
+            try {
+                const extractedText = await extractTextFromPdf(arrayBuffer, pwd);
+
+                if (!extractedText || extractedText.trim().length < 10) {
+                    alert("Este PDF parece ser una imagen o escáner (sin texto). Por favor, usa la opción de 'Archivo' y procesalo como 'Escáner IA'.");
+                    return;
+                }
+
+                onImport(tab, "file", extractedText, false, country);
+                setPendingFile(null);
+                setShowPasswordInput(false);
+                setPassword("");
+            } catch (err: any) {
+                console.error("PDF Extraction failed:", err);
+                if (err.name === 'PasswordException' || err.message?.includes('Password') || err.code === 1) {
+                    setPendingFile(file);
+                    setShowPasswordInput(true);
+                } else {
+                    alert("Error al leer el PDF: " + (err.message || "Desconocido"));
+                }
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -42,24 +74,7 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
             };
             reader.readAsDataURL(file);
         } else if (isPdf) {
-            reader.onload = async (event) => {
-                const arrayBuffer = event.target?.result as ArrayBuffer;
-                try {
-                    // Extract text and import immediately (One-Click)
-                    const extractedText = await extractTextFromPdf(arrayBuffer);
-
-                    if (!extractedText || extractedText.trim().length < 10) {
-                        alert("Este PDF parece ser una imagen o escáner (sin texto). Por favor, usa la opción de 'Archivo' y selecciona el PDF para que la IA lo lea como imagen.");
-                        return;
-                    }
-
-                    onImport(tab, "file", extractedText, false, country);
-                } catch (err) {
-                    console.error("PDF Extraction failed:", err);
-                    alert("No se pudo extraer el texto del PDF automáticamente. Intenta con una imagen o copia el texto.");
-                }
-            };
-            reader.readAsArrayBuffer(file);
+            processPdf(file);
         } else {
             // Text files (CSV, TXT, etc.)
             reader.onload = (event) => {
@@ -223,6 +238,50 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                             <Mail className="w-12 h-12 mx-auto text-gray-300" />
                             <p className="text-sm text-gray-500 px-12">Estamos trabajando en la integración con Gmail para automatizar tus extractos.</p>
                             <button className="btn btn-disabled btn-sm rounded-lg">Próximamente</button>
+                        </div>
+                    )}
+
+                    {showPasswordInput && (
+                        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                            <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-sm w-full space-y-4">
+                                <div className="text-center">
+                                    <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Lock className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-lg font-black text-slate-900">PDF Protegido</h3>
+                                    <p className="text-sm text-slate-500 mt-1">Este archivo requiere contraseña para abrirse.</p>
+                                </div>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Contraseña del documento"
+                                    className="input input-bordered w-full rounded-xl"
+                                    autoFocus
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && pendingFile) processPdf(pendingFile, password);
+                                    }}
+                                />
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => {
+                                            setShowPasswordInput(false);
+                                            setPendingFile(null);
+                                            setPassword("");
+                                        }}
+                                        className="btn btn-ghost flex-1 rounded-xl"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={() => pendingFile && processPdf(pendingFile, password)}
+                                        className="btn btn-primary flex-1 rounded-xl font-bold"
+                                        disabled={!password}
+                                    >
+                                        Desbloquear
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

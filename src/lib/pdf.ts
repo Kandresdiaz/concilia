@@ -1,4 +1,4 @@
-export async function extractTextFromPdf(data: ArrayBuffer): Promise<string> {
+export async function extractTextFromPdf(data: ArrayBuffer, password?: string): Promise<string> {
     // Dynamic import to avoid SSR issues
     const pdfjs = await import('pdfjs-dist');
 
@@ -7,6 +7,7 @@ export async function extractTextFromPdf(data: ArrayBuffer): Promise<string> {
 
     const loadingTask = pdfjs.getDocument({
         data,
+        password, // Pass the password if provided
         useWorkerFetch: true,
         isEvalSupported: true,
     });
