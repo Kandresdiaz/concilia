@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 
 export async function POST(req: Request) {
     try {
@@ -14,6 +14,7 @@ export async function POST(req: Request) {
         // Replace with your real Stripe Price ID
         const priceId = process.env.STRIPE_PRICE_ID_PRO || 'price_placeholder'
 
+        const stripe = getStripe()
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: [
