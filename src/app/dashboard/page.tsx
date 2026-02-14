@@ -577,14 +577,14 @@ export default function ConciliAI() {
               </button>
 
               <button
-                onClick={() => generatePDF(bankData, bookData, matchedData, netDifference, companyName)}
+                onClick={() => generatePDF(bankData, bookData, matchedData, netDifference, companyName, tier)}
                 className="btn btn-neutral px-8 md:px-12 h-14 rounded-2xl font-black flex gap-3 shadow-xl"
               >
                 <Printer className="w-5 h-5" /> Exportar PDF
               </button>
 
               <button
-                onClick={() => generateCSV(bankData, bookData, matchedData, companyName)}
+                onClick={() => generateCSV(bankData, bookData, matchedData, companyName, tier)}
                 className="btn btn-ghost px-8 md:px-12 h-14 rounded-2xl font-black border-slate-200 flex gap-3 shadow-sm"
               >
                 <Database className="w-5 h-5" /> Exportar CSV

@@ -4,7 +4,7 @@ import autoTable from "jspdf-autotable";
 /**
  * Generates a professional PDF "Acta Final"
  */
-export function generatePDF(bankData: any, bookData: any, matchedData: any, netDifference: number, companyName: string) {
+export function generatePDF(bankData: any, bookData: any, matchedData: any, netDifference: number, companyName: string, tier: "FREE" | "PRO") {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -124,13 +124,23 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
     doc.text("FIRMA RESPONSABLE / AUDITOR", 20, signatureY + 5);
     doc.text("REVISADO / GERENCIA", pageWidth - 20, signatureY + 5, { align: "right" });
 
-    // 6. Footer Professional
+    // 6. Footer Professional with Tier Logic
     const bottomY = pageHeight - 15;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
-    doc.text("Este documento es una representación digital de la auditoría realizada mediante ConciliAI.", pageWidth / 2, bottomY, { align: "center" });
-    doc.text(`ID CERTIFICACIÓN: ${Math.random().toString(36).substring(2).toUpperCase()} - FECHA: ${new Date().toLocaleString()}`, pageWidth / 2, bottomY + 4, { align: "center" });
+
+    const footerText = tier === "FREE"
+        ? "Generado con ConciliAI (Versión Gratuita) - AUDITORÍA NO CERTIFICADA"
+        : "Este documento es una representación digital de la auditoría realizada mediante ConciliAI Professional.";
+
+    doc.text(footerText, pageWidth / 2, bottomY, { align: "center" });
+
+    const certId = tier === "FREE"
+        ? "SIN CERTIFICACIÓN - ACTUALICE A PRO"
+        : `ID CERTIFICACIÓN: ${Math.random().toString(36).substring(2).toUpperCase()} - FECHA: ${new Date().toLocaleString()}`;
+
+    doc.text(certId, pageWidth / 2, bottomY + 4, { align: "center" });
 
     doc.save(`Auditoria_${companyName.replace(/\s+/g, "_") || "ConciliAI"}.pdf`);
 }
@@ -138,8 +148,9 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
 /**
  * Generates a clean CSV grouped by comparison
  */
-export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string) {
-    let csv = "ESTADO,TIPO,FECHA,DESCRIPCION,VALOR,REFERENCIA\n";
+export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO") {
+    let csv = `EMPRESA,${companyName || "S/N"},GENERADO,${new Date().toLocaleDateString()},PLAN,${tier}\n`;
+    csv += "ESTADO,TIPO,FECHA,DESCRIPCION,VALOR,REFERENCIA\n";
 
     // 1. Matches (Conciliados)
     matchedData.matches.forEach((m: any) => {

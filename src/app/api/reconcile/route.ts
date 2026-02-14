@@ -25,12 +25,13 @@ export async function POST(req: Request) {
         // --- Marc Lou Optimization: Smart Limits & Auto-Reset ---
         const { data: profile } = await supabase
             .from("profiles")
-            .select("tier, usage_count, plans_usage_limit, current_period_end")
+            .select("tier, usage_count, plans_usage_limit, current_period_end, role")
             .eq("id", user.id)
             .single();
 
         let currentUsage = profile?.usage_count || 0;
         let limit = profile?.plans_usage_limit || 3; // Default to 3 (Free)
+        const isAdmin = profile?.role === "admin";
 
         // 1. Lazy Reset: If period expired, reset usage for the new month
         const now = new Date();
@@ -48,8 +49,8 @@ export async function POST(req: Request) {
             currentUsage = 0; // Reset local variable for check below
         }
 
-        // 2. Strict Limit Check
-        if (currentUsage >= limit) {
+        // 2. Strict Limit Check (Bypass for Admins)
+        if (!isAdmin && currentUsage >= limit) {
             return NextResponse.json({
                 error: `Has alcanzado tu límite de ${limit} conciliaciones este mes. Actualiza a PRO para más.`,
                 is_limited: true
