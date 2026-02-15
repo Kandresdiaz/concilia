@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { User } from "@supabase/supabase-js";
 import { SecurityBanner } from "@/components/SecurityBanner";
 import { PrivacyModal } from "@/components/PrivacyModal";
+import { SocialProofToast } from "@/components/SocialProofToast";
 
 export default function ConciliAI() {
   const [currentView, setCurrentView] = useState("dashboard");
