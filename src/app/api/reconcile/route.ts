@@ -182,7 +182,9 @@ export async function POST(req: Request) {
 
         // --- Marc Lou Optimization: Instant Usage Increment ---
         // Increment usage count immediately. Do not wait for client save.
-        await supabase.from("profiles").increment("usage_count", 1).eq("id", user.id);
+        await supabase.from("profiles").update({
+            usage_count: (profile?.usage_count || 0) + 1
+        }).eq("id", user.id);
 
         return NextResponse.json({
             transactions,
