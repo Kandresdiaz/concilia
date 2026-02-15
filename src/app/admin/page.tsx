@@ -97,6 +97,7 @@ export default function AdminDashboard() {
                 onClose={() => setIsSidebarOpen(false)}
                 onLogout={handleLogout}
                 onUpgrade={() => { }}
+                onDeleteAccount={() => { }} // No self-delete in admin for safety
             />
 
             <div className="flex-1 p-8 space-y-8 overflow-y-auto">
