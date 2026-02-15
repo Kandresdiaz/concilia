@@ -125,9 +125,10 @@ export default function AdminDashboard() {
                         <thead>
                             <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                 <th className="p-6">Usuario</th>
-                                <th className="p-6">Plan Actual</th>
+                                <th className="p-6">Plan / Estado</th>
                                 <th className="p-6">Uso / Límite</th>
-                                <th className="p-6">Total Histórico</th>
+                                <th className="p-6">Vence / Fin</th>
+                                <th className="p-6">Motivo Cancelación</th>
                                 <th className="p-6 text-right">Acciones</th>
                             </tr>
                         </thead>
@@ -139,12 +140,22 @@ export default function AdminDashboard() {
                                         <div className="text-xs text-slate-400 font-mono mt-0.5">{user.id}</div>
                                     </td>
                                     <td className="p-6">
-                                        <span className={cn(
-                                            "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide",
-                                            user.tier === "PRO" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
-                                        )}>
-                                            {user.tier}
-                                        </span>
+                                        <div className="flex flex-col gap-1">
+                                            <span className={cn(
+                                                "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide inline-block w-fit",
+                                                user.tier === "PRO" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
+                                            )}>
+                                                {user.tier}
+                                            </span>
+                                            {user.current_period_end && (
+                                                <span className={cn(
+                                                    "text-[9px] font-bold uppercase",
+                                                    new Date(user.current_period_end) > new Date() ? "text-emerald-500" : "text-rose-500"
+                                                )}>
+                                                    {new Date(user.current_period_end) > new Date() ? "• Activo" : "• Churn"}
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="p-6">
                                         <div className="flex items-center gap-2">
@@ -157,8 +168,16 @@ export default function AdminDashboard() {
                                             <span className="text-xs font-bold text-slate-600">{user.usage_count} / {user.plans_usage_limit || 3}</span>
                                         </div>
                                     </td>
-                                    <td className="p-6 font-mono text-sm text-slate-500">
-                                        {user.reconciliations_count || 0} audits
+                                    <td className="p-6">
+                                        <div className="text-xs font-bold text-slate-600">
+                                            {user.current_period_end ? new Date(user.current_period_end).toLocaleDateString() : "-"}
+                                        </div>
+                                        <div className="text-[9px] text-slate-400">Vence</div>
+                                    </td>
+                                    <td className="p-6">
+                                        <div className="text-xs text-slate-600 italic max-w-[150px] truncate">
+                                            {user.cancellation_reason || "Sin comentarios"}
+                                        </div>
                                     </td>
                                     <td className="p-6 text-right">
                                         {user.tier === "FREE" ? (

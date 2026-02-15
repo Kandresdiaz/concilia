@@ -22,6 +22,7 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
     const [password, setPassword] = useState("");
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
@@ -31,30 +32,48 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
     }, [isOpen, bankLoaded, bookLoaded]);
 
     const processPdf = async (file: File, pwd?: string) => {
+        setIsProcessing(true);
         const reader = new FileReader();
         reader.onload = async (event) => {
             const arrayBuffer = event.target?.result as ArrayBuffer;
+            if (!arrayBuffer) {
+                alert("No se pudo leer el contenido del archivo.");
+                setIsProcessing(false);
+                return;
+            }
+
             try {
                 const extractedText = await extractTextFromPdf(arrayBuffer, pwd);
 
-                if (!extractedText || extractedText.trim().length < 10) {
-                    alert("Este PDF parece ser una imagen o escáner (sin texto). Por favor, usa la opción de 'Archivo' y procesalo como 'Escáner IA'.");
+                if (!extractedText || extractedText.trim().length < 5) {
+                    alert("No logramos extraer texto de este documento. Si es un escaneo o imagen, por favor súbelo como Imagen directa.");
+                    setIsProcessing(false);
                     return;
                 }
 
-                onImport(tab, "file", extractedText, false, country);
+                await onImport(tab, "file", extractedText, false, country);
                 setPendingFile(null);
                 setShowPasswordInput(false);
                 setPassword("");
             } catch (err: any) {
-                console.error("PDF Extraction failed:", err);
-                if (err.name === 'PasswordException' || err.message?.includes('Password') || err.code === 1) {
+                console.error("PDF extraction error details:", err);
+                const isPasswordError = err.name === 'PasswordException' ||
+                    err.message?.toLowerCase().includes('password') ||
+                    err.code === 1;
+
+                if (isPasswordError) {
                     setPendingFile(file);
                     setShowPasswordInput(true);
                 } else {
-                    alert("Error al leer el PDF: " + (err.message || "Desconocido"));
+                    alert(`Ocurrió un error al procesar el PDF: ${err.message || "Error desconocido"}`);
                 }
+            } finally {
+                setIsProcessing(false);
             }
+        };
+        reader.onerror = () => {
+            alert("Error crítico al leer el archivo desde tu dispositivo.");
+            setIsProcessing(false);
         };
         reader.readAsArrayBuffer(file);
     };
@@ -202,11 +221,11 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                                     onChange={handleFileChange}
                                 />
                                 <div className="w-12 h-12 bg-base-100 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                    <FileText className="w-6 h-6 text-primary" />
+                                    {isProcessing ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <FileText className="w-6 h-6 text-primary" />}
                                 </div>
                                 <p className="text-sm font-bold text-gray-500 text-center">
-                                    Subir PDF, Imagen o Texto<br />
-                                    <span className="text-[10px] opacity-60 font-normal">Soporta capturas de pantalla de extractos</span>
+                                    {isProcessing ? "Leyendo PDF..." : "Subir PDF, Imagen o Texto"}<br />
+                                    <span className="text-[10px] opacity-60 font-normal">{isProcessing ? "Extrayendo texto del documento..." : "Soporta capturas de pantalla de extractos"}</span>
                                 </p>
                             </label>
                         </div>
@@ -222,7 +241,6 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                             ></textarea>
                             <button
                                 onClick={() => {
-                                    alert(`Click en Procesar: Tab=${tab}, Source=${source}, TextLen=${text.length}`);
                                     onImport(tab, source, text, false, country);
                                 }}
                                 disabled={loading || !text.trim()}
@@ -276,9 +294,9 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                                     <button
                                         onClick={() => pendingFile && processPdf(pendingFile, password)}
                                         className="btn btn-primary flex-1 rounded-xl font-bold"
-                                        disabled={!password}
+                                        disabled={!password || isProcessing}
                                     >
-                                        Desbloquear
+                                        {isProcessing ? <Loader2 className="animate-spin" /> : "Desbloquear"}
                                     </button>
                                 </div>
                             </div>

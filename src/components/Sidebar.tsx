@@ -9,7 +9,8 @@ import {
     Send,
     LogOut,
     Lock,
-    Zap
+    Zap,
+    Shield
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,13 +23,14 @@ interface SidebarProps {
     limit: number; // Dynamic limit
     tier: "FREE" | "PRO";
     email: string;
+    role?: string;
     isOpen: boolean;
     onClose: () => void;
     onLogout: () => void;
     onUpgrade: () => void;
 }
 
-export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, email, isOpen, onClose, onLogout, onUpgrade }: SidebarProps) {
+export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, email, role, isOpen, onClose, onLogout, onUpgrade }: SidebarProps) {
     const isFree = tier === "FREE";
 
     const navItems = [
@@ -37,6 +39,8 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
         { id: "acta", label: "Auditoría Final", icon: FileCheck },
         { id: "historial", label: "Historial", icon: History, locked: isFree },
     ];
+
+    const isAdmin = role === "admin";
 
     return (
         <div className={cn(
@@ -87,6 +91,18 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             )}
                         </button>
                     ))}
+
+                    {isAdmin && (
+                        <Link
+                            href="/admin"
+                            className={cn(
+                                "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
+                            )}
+                        >
+                            <Shield className="w-4 h-4 text-indigo-400" />
+                            Panel Admin
+                        </Link>
+                    )}
                 </div>
 
                 <div className="space-y-1">

@@ -42,6 +42,7 @@ export default function ConciliAI() {
   const [companyName, setCompanyName] = useState("");
   const [precisionScore, setPrecisionScore] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [role, setRole] = useState<string>("user");
   const router = useRouter();
   const supabase = createClient();
 
@@ -56,6 +57,7 @@ export default function ConciliAI() {
         setTier(profile.tier);
         setUsageCount(profile.usage_count);
         setLimit(profile.plans_usage_limit || 3);
+        setRole(profile.role || "user");
       }
       const historyData = await getConciliationHistory();
       setHistory(historyData);
@@ -853,6 +855,7 @@ export default function ConciliAI() {
         limit={limit}
         tier={tier}
         email={user?.email || ""}
+        role={role}
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         onLogout={handleLogout}
