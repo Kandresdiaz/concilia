@@ -35,7 +35,24 @@ body {
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-linear-to-r from-slate-900 to-slate-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900;
+  }
+
+  /* Premium Animations */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-up {
+    animation: slide-up 0.8s ease-out forwards;
   }
 }
 

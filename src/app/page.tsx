@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -9,15 +10,160 @@ import {
   FileText,
   Lock,
   BarChart3,
-  Bot
+  Bot,
+  Star,
+  Clock,
+  ChevronRight,
+  Sparkles
 } from "lucide-react";
-import { SecurityBanner } from "@/components/SecurityBanner";
+import { cn } from "@/lib/utils";
 
+// --- Subcomponent: FOMO Banner ---
+function LimitedOfferBanner() {
+  const [timeLeft, setTimeLeft] = useState(3600); // 1 hour mock
+
+  useEffect(() => {
+    const timer = setInterval(() => setTimeLeft(prev => prev > 0 ? prev - 1 : 0), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  };
+
+  return (
+    <div className="bg-indigo-600 text-white py-2 px-4 text-center text-[11px] font-black uppercase tracking-[0.2em] relative z-[60] flex items-center justify-center gap-4">
+      <span className="animate-pulse">🔥 OFERTA DE LANZAMIENTO: 50% DCTO DE POR VIDA</span>
+      <div className="bg-white/10 px-3 py-1 rounded-lg flex items-center gap-2">
+        <Clock className="w-3 h-3" />
+        {formatTime(timeLeft)}
+      </div>
+      <span className="hidden md:inline opacity-70">Quedan 12 lugares disponibles</span>
+    </div>
+  );
+}
+
+// --- Subcomponent: Interactive Demo ---
+function DemoSection() {
+  const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  const steps = [
+    { title: "Sube tu extracto", icon: <FileText className="w-6 h-6" /> },
+    { title: "IA Analiza Tablas", icon: <Bot className="w-6 h-6" /> },
+    { title: "Resultado Auditado", icon: <CheckCircle2 className="w-6 h-6" /> }
+  ];
+
+  const handleSimulate = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setStep((prev) => (prev + 1) % 3);
+      setLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="w-full max-w-5xl mx-auto glass-card rounded-[40px] border border-white p-8 md:p-12 shadow-2xl relative overflow-hidden">
+      <div className="absolute top-0 right-0 p-8 opacity-10">
+        <Bot className="w-32 h-32" />
+      </div>
+
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-8 text-left">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full">
+            <Sparkles className="w-3 h-3" /> Demo Interactiva
+          </div>
+          <h3 className="text-4xl font-black tracking-tighter text-slate-900 leading-none">
+            Mira la IA en <span className="text-indigo-600 italic">acción</span>
+          </h3>
+
+          <div className="space-y-4">
+            {steps.map((s, i) => (
+              <div key={i} className={cn(
+                "flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 border border-transparent",
+                step === i ? "bg-white shadow-xl border-slate-100 scale-105" : "opacity-40"
+              )}>
+                <div className={cn(
+                  "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+                  step === i ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"
+                )}>
+                  {s.icon}
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paso 0{i + 1}</p>
+                  <p className="font-bold text-slate-900">{s.title}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={handleSimulate}
+            disabled={loading}
+            className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-lg shadow-2xl shadow-indigo-200 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+          >
+            {loading ? <Bot className="w-6 h-6 animate-spin" /> : "Simular Conciliación"}
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="bg-slate-900 rounded-[30px] aspect-square md:aspect-video p-6 shadow-inner relative overflow-hidden border-8 border-slate-800">
+          <div className="absolute top-0 left-0 w-full p-4 border-b border-white/5 flex gap-2">
+            <div className="w-2 h-2 rounded-full bg-rose-500/50"></div>
+            <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
+            <div className="w-2 h-2 rounded-full bg-emerald-500/50"></div>
+          </div>
+
+          <div className="mt-8 font-mono text-[10px] text-indigo-400 space-y-2">
+            {step === 0 && (
+              <div className="animate-pulse space-y-4 text-center pt-12">
+                <FileText className="w-16 h-16 mx-auto opacity-20" />
+                <p className="animate-bounce">Esperando archivo...</p>
+              </div>
+            )}
+            {step === 1 && (
+              <div className="space-y-2">
+                <p className="text-emerald-400">{"[LOG]: Cargando modelo Llama 3.2 Vision..."}</p>
+                <p>{"[OCR]: Escaneando PDF Bancario..."}</p>
+                <p>{"[AI]: Identificando 45 transacciones."}</p>
+                <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-500 animate-[progress_1.5s_infinite]"></div>
+                </div>
+              </div>
+            )}
+            {step === 2 && (
+              <div className="space-y-4">
+                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
+                  <p className="text-emerald-400 font-bold uppercase">✓ Conciliación Exitosa</p>
+                  <div className="flex justify-between mt-2">
+                    <span>Libros: $45,230.00</span>
+                    <span>Bancos: $45,230.00</span>
+                  </div>
+                  <p className="text-white font-black text-xl mt-2">$ 0.00 Diferencia</p>
+                </div>
+                <div className="grid grid-cols-2 gap-2 opacity-50">
+                  <div className="h-10 bg-white/5 rounded-lg"></div>
+                  <div className="h-10 bg-white/5 rounded-lg"></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Main Page Component ---
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
+      <LimitedOfferBanner />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200">
+      <nav className="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -25,192 +171,210 @@ export default function LandingPage() {
             </div>
             <span className="text-xl font-black tracking-tighter">ConciliAI</span>
           </div>
-          <div className="hidden md:flex items-center gap-10">
-            <a href="#features" className="text-[13px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Características</a>
-            <a href="#pricing" className="text-[13px] font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Precios</a>
+          <div className="hidden lg:flex items-center gap-10">
+            <a href="#features" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Tecnología</a>
+            <a href="#demo" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest text-indigo-600">Demo Vivo</a>
+            <a href="#pricing" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Precios</a>
             <Link
               href="/login"
-              className="px-6 py-3 bg-slate-900 text-white text-[13px] font-black rounded-xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-slate-200 uppercase tracking-widest"
+              className="px-6 py-3 bg-slate-900 text-white text-[11px] font-black rounded-xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-indigo-100 uppercase tracking-widest"
             >
-              Empezar Ahora
+              Iniciar mi auditoría
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-48 pb-32 px-6">
-        <div className="max-w-7xl mx-auto text-center space-y-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-600 text-[11px] font-black uppercase tracking-widest animate-fade-in">
-            <Zap className="w-3 h-3" /> Conciliaciones en segundos, no horas
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black tracking-tightest leading-[0.9] text-slate-900 max-w-5xl mx-auto italic uppercase">
-            La IA que <span className="text-indigo-600">audita</span> como un experto.
-          </h1>
-          <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto leading-relaxed">
-            ConciliAI lee tus extractos bancarios y auxiliares contables con visión artificial, detectando discrepancias con precisión quirúrgica del 99.9%.
-          </p>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-6">
-            <Link
-              href="/login"
-              className="group px-10 py-5 bg-slate-900 text-white text-lg font-black rounded-2xl hover:bg-slate-800 transition-all shadow-2xl shadow-indigo-200 flex items-center gap-3 active:scale-95"
-            >
-              Automatizar mi contabilidad <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-            <p className="text-[12px] font-bold text-slate-400 uppercase tracking-widest">Prueba gratuita de 5 conciliaciones</p>
-          </div>
+      <main>
+        {/* Hero Section */}
+        <section className="relative pt-32 pb-48 px-6 text-center overflow-hidden">
+          {/* Background Decorations */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-50/50 via-transparent to-transparent"></div>
 
-          {/* Hero Visual Mockup */}
-          <div className="relative pt-24 max-w-6xl mx-auto">
-            <div className="absolute inset-0 bg-indigo-500/20 blur-[120px] rounded-full transform -translate-y-24"></div>
-            <div className="glass-card rounded-[40px] border border-white shadow-2xl overflow-hidden aspect-video bg-white/40 relative z-10">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center space-y-6">
-                  <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white mx-auto shadow-2xl animate-pulse">
-                    <Bot className="w-10 h-10" />
+          <div className="max-w-7xl mx-auto space-y-12">
+            <div className="animate-slide-up flex flex-col items-center gap-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-full text-indigo-600 text-[10px] font-black uppercase tracking-widest shadow-sm">
+                <Zap className="w-3 h-3 fill-indigo-600" /> IA especializada en Auditoría Contable
+              </div>
+              <h1 className="text-6xl md:text-[9rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-6xl mx-auto uppercase">
+                Concilia tus bancos <span className="text-indigo-600 italic">como un rayo.</span>
+              </h1>
+              <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
+                Deja de pelearte con Excel. La IA que lee tablas, extrae cifras y certifica diferencias con precisión del 99.9%.
+              </p>
+            </div>
+
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-6 animate-slide-up [animation-delay:200ms]">
+              <Link
+                href="/login"
+                className="group px-12 py-6 bg-slate-900 text-white text-xl font-black rounded-[24px] hover:bg-slate-800 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-4 active:scale-95"
+              >
+                Empezar Auditoría Gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+              </Link>
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {[1, 2, 3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-slate-200" />)}
+                </div>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">+500 Contadores ahorrando horas</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Demo Section */}
+        <section id="demo" className="py-24 px-6 bg-white relative">
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 to-white"></div>
+          <DemoSection />
+        </section>
+
+        {/* Benefits Section */}
+        <section className="py-32 px-6">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
+            <div className="space-y-8 animate-float">
+              <div className="bg-indigo-600/5 aspect-square rounded-[60px] p-12 relative overflow-hidden flex items-center justify-center">
+                <div className="absolute inset-24 bg-indigo-600/10 blur-3xl rounded-full"></div>
+                <Bot className="w-64 h-64 text-indigo-600 opacity-20 relative z-10" />
+                <div className="absolute bottom-12 right-12 glass-card p-6 rounded-3xl space-y-2 translate-x-12 translate-y-12 shadow-2xl">
+                  <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <p className="text-sm font-black text-indigo-600 uppercase tracking-widest">Motor Pro activado</p>
+                  <p className="text-xl font-black text-slate-900 underline decoration-indigo-500 decoration-4 underline-offset-4">Error: 0.0%</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Validado por IA</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Security Banner */}
-      <section className="px-6 -mt-16">
-        <div className="max-w-5xl mx-auto">
-          <SecurityBanner />
-        </div>
-      </section>
-
-      {/* Features Grid */}
-      <section id="features" className="py-32 px-6">
-        <div className="max-w-7xl mx-auto space-y-24">
-          <div className="text-center space-y-4">
-            <h2 className="text-4xl font-black tracking-tight text-slate-900 uppercase italic">Tecnología de Grado Auditoría</h2>
-            <div className="h-1.5 w-24 bg-indigo-600 mx-auto rounded-full"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              {
-                icon: <Zap className="w-8 h-8" />,
-                title: "Visión Artificial 90B",
-                desc: "Equipado con modelos Llama 3.2 90B optimizados para leer tablas financieras complejas y densas."
-              },
-              {
-                icon: <Lock className="w-8 h-8" />,
-                title: "Verificación por Código",
-                desc: "Cada cifra extraída es validada matemáticamente por algoritmos determinísticos para asegurar error cero."
-              },
-              {
-                icon: <FileText className="w-8 h-8" />,
-                title: "Acta Final Certificada",
-                desc: "Exporta resultados en PDF profesional con estilo de auditoría, listo para firmas y presentación legal."
-              }
-            ].map((f, i) => (
-              <div key={i} className="glass-card p-10 rounded-[32px] space-y-6 hover:translate-y-[-8px] transition-all duration-500 group">
-                <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                  {f.icon}
-                </div>
-                <h3 className="text-xl font-black text-slate-900 uppercase italic">{f.title}</h3>
-                <p className="text-slate-500 font-medium leading-relaxed">{f.desc}</p>
+            <div className="space-y-12">
+              <div className="space-y-4">
+                <h2 className="text-5xl font-black tracking-tightest leading-none uppercase italic">Ahorra tiempo,<br /><span className="text-indigo-600">reduce el estrés.</span></h2>
+                <p className="text-xl text-slate-500 font-medium leading-relaxed">
+                  Ya no tendrás que trasnochar comparando filas. ConciliAI automatiza lo aburrido para que tú te enfoques en lo estratégico.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-32 px-6 bg-slate-900 text-white rounded-[60px] mx-6">
-        <div className="max-w-7xl mx-auto space-y-24">
-          <div className="text-center space-y-4">
-            <h2 className="text-5xl font-black tracking-tighter uppercase italic">Precios Simples</h2>
-            <p className="text-slate-400 font-medium font-bold uppercase tracking-widest text-[10px]">Sin costos ocultos, escala con tu despacho</p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Free Plan */}
-            <div className="bg-white/5 border border-white/10 p-10 rounded-[40px] space-y-8 flex flex-col justify-between">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Para empezar</span>
-                  <h3 className="text-2xl font-black uppercase italic">Plan Gratis</h3>
-                  <p className="text-4xl font-black">$ 0</p>
-                </div>
-                <ul className="space-y-4">
-                  {["2 Conciliaciones por mes", "IA Llama 3.3 70B", "Visión Artificial", "Exportación PDF básica"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-300">
-                      <CheckCircle2 className="w-5 h-5 text-indigo-500" /> {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="space-y-8">
+                {[
+                  { title: "Precisión Quirúrgica", desc: "No más errores humanos en la captura de datos." },
+                  { title: "Vision-AI Nativa", desc: "Leemos PDFs, fotos borrosas y Excels corruptos." },
+                  { title: "Seguridad Bancaria", desc: "Tus datos viven en Supabase, no los compartimos." }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-6">
+                    <div className="flex-shrink-0 w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center shadow-lg">
+                      <Star className="w-5 h-5 fill-white" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-black uppercase tracking-tight italic">{item.title}</h4>
+                      <p className="text-slate-500 font-medium">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <Link href="/login" className="block text-center py-4 bg-white/10 hover:bg-white/20 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-[10px]">
-                Empezar Gratis
-              </Link>
-            </div>
-
-            {/* Pro Plan */}
-            <div className="bg-white p-10 rounded-[40px] space-y-8 relative overflow-hidden text-slate-900 shadow-2xl shadow-indigo-500/20 ring-4 ring-indigo-500/20 flex flex-col justify-between">
-              <div className="absolute top-8 right-8 bg-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Más popular</div>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <span className="text-indigo-600 text-[10px] font-black uppercase tracking-widest">Para contadores PRO</span>
-                  <h3 className="text-2xl font-black uppercase italic">Profesional</h3>
-                  <p className="text-4xl font-black">$ 24.99 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-widest">/ mes</span></p>
-                </div>
-                <ul className="space-y-4">
-                  {["50 Conciliaciones por mes", "IA Llama 3.3 70B", "IA Llama 3.2 90B (Vision)", "Acta Final Certificada", "Soporte Prioritario"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-600">
-                      <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link href="/login" className="block text-center py-4 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl transition-all shadow-xl shadow-slate-200 uppercase tracking-widest text-[10px]">
-                Comprar Profesional
-              </Link>
-            </div>
-
-            {/* Enterprise Plan */}
-            <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-white/10 p-10 rounded-[40px] space-y-8 flex flex-col justify-between">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Para firmas contables</span>
-                  <h3 className="text-2xl font-black uppercase italic">Despacho</h3>
-                  <p className="text-4xl font-black">$ 79.00 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-widest">/ mes</span></p>
-                </div>
-                <ul className="space-y-4">
-                  {["300 Conciliaciones por mes", "IA Llama 3.2 90B (Vision)", "Multipresa / Multiusuario", "Integración Directa", "Soporte 24/7 VIP"].map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-300">
-                      <CheckCircle2 className="w-5 h-5 text-indigo-400" /> {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link href="/login" className="block text-center py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/50 uppercase tracking-widest text-[10px]">
-                Suscribir Despacho
-              </Link>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-24 px-6">
+          <div className="max-w-7xl mx-auto bg-slate-900 rounded-[80px] p-12 md:p-24 space-y-24 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/10 blur-[150px] -z-10 translate-x-24 -translate-y-24"></div>
+
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl md:text-7xl font-black tracking-tightest uppercase italic">Precios Simples.</h2>
+              <p className="text-slate-400 text-lg md:text-xl font-medium max-w-2xl mx-auto">Selecciona el motor que impulsará tu rentabilidad.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Free Plan */}
+              <div className="bg-white/5 border border-white/10 p-12 rounded-[50px] space-y-10 hover:bg-white/10 transition-all group">
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest opacity-50">Trial</span>
+                    <h3 className="text-3xl font-black uppercase italic">Base</h3>
+                    <p className="text-5xl font-black">$ 0</p>
+                  </div>
+                  <ul className="space-y-4">
+                    {["2 Conciliaciones / mes", "IA Llama 3.3 70B", "Motor OCR Básico", "PDF con Marca de Agua"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-3 text-slate-300 font-medium text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-indigo-500" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link href="/login" className="block w-full py-5 bg-white/10 group-hover:bg-white/20 text-white text-center font-black rounded-3xl transition-all uppercase tracking-widest text-xs">
+                  Empezar ahora
+                </Link>
+              </div>
+
+              {/* Pro Plan */}
+              <div className="bg-white p-12 rounded-[50px] space-y-10 scale-105 shadow-3xl text-slate-900 relative ring-8 ring-indigo-500/10">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">OFERTA LIMITADA</div>
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="text-indigo-600 text-[10px] font-black uppercase tracking-widest">Contador Elite</span>
+                    <h3 className="text-3xl font-black uppercase italic">Profesional</h3>
+                    <p className="text-5xl font-black">$ 24.99 <span className="text-lg opacity-40">/mes</span></p>
+                  </div>
+                  <ul className="space-y-4">
+                    {["50 Conciliaciones / mes", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-3 text-slate-600 font-medium text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link href="/login" className="block w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white text-center font-black rounded-3xl transition-all shadow-xl shadow-indigo-200 uppercase tracking-widest text-xs">
+                  Comprar Profesional
+                </Link>
+              </div>
+
+              {/* Lifetime Deal */}
+              <div className="bg-gradient-to-br from-indigo-900 to-indigo-700 border border-white/20 p-12 rounded-[50px] space-y-10 relative overflow-hidden group">
+                <div className="absolute bottom-0 right-0 p-4 rotate-12 translate-x-4 opacity-10">
+                  <Zap className="w-32 h-32" />
+                </div>
+                <div className="space-y-6">
+                  <div className="space-y-2 text-white">
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest animate-pulse">LIFETIME ACCESS</span>
+                    <h3 className="text-3xl font-black uppercase italic">Despacho</h3>
+                    <p className="text-5xl font-black">$ 149.00 <span className="text-lg opacity-40 uppercase">(PAGO ÚNICO)</span></p>
+                  </div>
+                  <ul className="space-y-4 text-indigo-100">
+                    {["300 Conciliaciones / mes", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"].map((f, i) => (
+                      <li key={i} className="flex items-center gap-3 font-medium text-sm">
+                        <CheckCircle2 className="w-5 h-5 text-white" /> {f}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Link href="/login" className="block w-full py-5 bg-white text-indigo-900 text-center font-black rounded-3xl transition-all shadow-2xl hover:bg-slate-50 uppercase tracking-widest text-xs">
+                  Asegurar de por vida
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="py-24 px-6 border-t border-slate-200 mt-24">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-slate-900" />
-            <span className="text-lg font-black tracking-tighter">ConciliAI</span>
+      <footer className="pt-24 pb-12 px-6 border-t border-slate-200">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl">
+                <ShieldCheck className="w-7 h-7" />
+              </div>
+              <div>
+                <span className="text-2xl font-black tracking-tighter">ConciliAI</span>
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Built in Medellín with Love</p>
+              </div>
+            </div>
+            <div className="flex gap-12 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+              <a href="#" className="hover:text-indigo-600 transition-colors">Características</a>
+              <a href="#" className="hover:text-indigo-600 transition-colors">Seguridad</a>
+              <a href="#" className="hover:text-indigo-600 transition-colors">Legal</a>
+            </div>
           </div>
-          <p className="text-slate-400 text-sm font-medium">© 2026 ConciliAI. Todos los derechos reservados.</p>
-          <div className="flex gap-8">
-            <a href="#" className="text-xs font-bold text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors">Twitter</a>
-            <a href="#" className="text-xs font-bold text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors">Linkedin</a>
-            <a href="#" className="text-xs font-bold text-slate-400 hover:text-slate-900 uppercase tracking-widest transition-colors">Privacidad</a>
-          </div>
+          <p className="text-center text-slate-300 text-xs font-medium italic">Transformando el futuro de la contabilidad, una línea a la vez.</p>
         </div>
       </footer>
     </div>
