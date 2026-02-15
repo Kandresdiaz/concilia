@@ -31,16 +31,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, email, role, isOpen, onClose, onLogout, onUpgrade }: SidebarProps) {
+    const isAdmin = role === "admin";
     const isFree = tier === "FREE";
+    const pathname = usePathname();
 
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
         { id: "partidas", label: "Transacciones", icon: ArrowLeftRight },
         { id: "acta", label: "Auditoría Final", icon: FileCheck },
-        { id: "historial", label: "Historial", icon: History, locked: isFree },
+        { id: "historial", label: "Historial", icon: History, locked: isFree && !isAdmin },
     ];
-
-    const isAdmin = role === "admin";
 
     return (
         <div className={cn(
@@ -93,15 +93,29 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                     ))}
 
                     {isAdmin && (
-                        <Link
-                            href="/admin"
-                            className={cn(
-                                "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
+                        <>
+                            {pathname === "/admin" ? (
+                                <Link
+                                    href="/dashboard"
+                                    className={cn(
+                                        "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 mt-4"
+                                    )}
+                                >
+                                    <LayoutDashboard className="w-4 h-4" />
+                                    Volver a la App
+                                </Link>
+                            ) : (
+                                <Link
+                                    href="/admin"
+                                    className={cn(
+                                        "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
+                                    )}
+                                >
+                                    <Shield className="w-4 h-4 text-indigo-400" />
+                                    Panel Admin
+                                </Link>
                             )}
-                        >
-                            <Shield className="w-4 h-4 text-indigo-400" />
-                            Panel Admin
-                        </Link>
+                        </>
                     )}
                 </div>
 

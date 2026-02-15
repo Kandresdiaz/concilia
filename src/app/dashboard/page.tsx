@@ -753,7 +753,7 @@ export default function ConciliAI() {
             <div className="bg-base-100 border border-base-200 rounded-[48px] overflow-hidden shadow-sm">
               <div className="p-8 bg-gray-50 border-b border-base-200 flex justify-between items-center">
                 <h3 className="font-black uppercase text-[10px] tracking-[0.3em]">Historial de Auditorías</h3>
-                {tier === "FREE" && (
+                {tier === "FREE" && role !== "admin" && (
                   <span className="badge badge-warning font-bold gap-2">
                     <Lock className="w-3 h-3" /> Solo PRO
                   </span>
@@ -762,10 +762,10 @@ export default function ConciliAI() {
 
               <div className={cn(
                 "p-8",
-                tier === "FREE" && "relative"
+                tier === "FREE" && role !== "admin" && "relative"
               )}>
-                {/* Blur overlay for FREE */}
-                {tier === "FREE" && (
+                {/* Blur overlay for FREE (Skip if Admin) */}
+                {tier === "FREE" && role !== "admin" && (
                   <div className="absolute inset-0 z-10 backdrop-blur-md flex items-center justify-center p-12 text-center bg-white/20">
                     <div className="max-w-md space-y-6">
                       <HistoryIcon className="w-16 h-16 mx-auto text-primary opacity-20" />
@@ -788,7 +788,7 @@ export default function ConciliAI() {
                       <th className="py-6 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className={cn(tier === "FREE" && "opacity-20 pointer-events-none")}>
+                  <tbody className={cn(tier === "FREE" && role !== "admin" && "opacity-20 pointer-events-none")}>
                     {history.length > 0 ? (
                       history.map((h) => {
                         const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
