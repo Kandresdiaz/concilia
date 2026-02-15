@@ -1,12 +1,23 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogIn, Github, Mail, ShieldCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const supabase = createClient();
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const ref = searchParams.get("ref");
+        if (ref) {
+            // Guardar referido en cookie por 7 días
+            document.cookie = `concilia_ref=${ref}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
+            console.log("Referencia detectada y guardada:", ref);
+        }
+    }, [searchParams]);
 
     const handleGoogleLogin = async () => {
         setLoading(true);
