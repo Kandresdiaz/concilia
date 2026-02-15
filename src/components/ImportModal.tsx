@@ -17,7 +17,7 @@ interface ImportModalProps {
 export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bookLoaded }: ImportModalProps) {
     const [tab, setTab] = useState<"bank" | "book">("bank");
     const [country, setCountry] = useState("Colombia 🇨🇴");
-    const [source, setSource] = useState<"file" | "ai" | "gmail">("ai");
+    const [source, setSource] = useState<"file" | "ai" | "gmail">("file");
     const [text, setText] = useState("");
     const [password, setPassword] = useState("");
     const [showPasswordInput, setShowPasswordInput] = useState(false);
@@ -192,18 +192,19 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                 {/* Source Switcher */}
                 <div className="px-8 flex gap-6 border-b border-base-200">
                     {[
-                        { id: "file", label: "Archivo", icon: Upload },
-                        { id: "ai", label: "Escáner IA", icon: Search },
+                        { id: "file", label: "Subir Archivo", icon: Upload },
+                        { id: "ai", label: "Pegar Texto", icon: Search },
                         { id: "gmail", label: "Gmail Sync", icon: Mail },
                     ].map((s) => (
                         <button
                             key={s.id}
                             onClick={() => setSource(s.id as any)}
                             className={cn(
-                                "pb-3 text-sm font-bold transition-all border-b-2",
+                                "pb-3 text-sm font-bold transition-all border-b-2 flex items-center gap-2",
                                 source === s.id ? "border-primary text-primary" : "border-transparent text-gray-400"
                             )}
                         >
+                            <s.icon className="w-4 h-4" />
                             {s.label}
                         </button>
                     ))}
