@@ -125,22 +125,28 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
     doc.text("REVISADO / GERENCIA", pageWidth - 20, signatureY + 5, { align: "right" });
 
     // 6. Footer Professional with Tier Logic
-    const bottomY = pageHeight - 15;
+    const bottomY = pageHeight - 20;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
 
-    const footerText = tier === "FREE"
-        ? "Generado con ConciliAI (Versión Gratuita) - AUDITORÍA NO CERTIFICADA"
-        : "Este documento es una representación digital de la auditoría realizada mediante ConciliAI Professional.";
+    if (tier === "FREE") {
+        // Marca de agua diagonal
+        doc.setFontSize(40);
+        doc.setTextColor(241, 245, 249); // slate-100 (muy sutil)
+        doc.setFont("helvetica", "bold");
+        doc.text("CONCILIAI GRATIS", pageWidth / 2, pageHeight / 2, { align: "center", angle: 45 });
 
-    doc.text(footerText, pageWidth / 2, bottomY, { align: "center" });
-
-    const certId = tier === "FREE"
-        ? "SIN CERTIFICACIÓN - ACTUALICE A PRO"
-        : `ID CERTIFICACIÓN: ${Math.random().toString(36).substring(2).toUpperCase()} - FECHA: ${new Date().toLocaleString()}`;
-
-    doc.text(certId, pageWidth / 2, bottomY + 4, { align: "center" });
+        // Aviso inferior prominente
+        doc.setFontSize(8);
+        doc.setTextColor(79, 70, 229); // indigo-600
+        doc.text("ESTE REPORTE FUE GENERADO CON LA VERSIÓN GRATUITA DE CONCILIAI", pageWidth / 2, bottomY, { align: "center" });
+        doc.text("PARA ELIMINAR ESTA MARCA Y PERSONALIZAR EMPRESA, ACTUALICE A PRO EN CONCILIA.AI", pageWidth / 2, bottomY + 5, { align: "center" });
+    } else {
+        doc.text("Este documento es una representación digital de la auditoría realizada mediante ConciliAI Professional.", pageWidth / 2, bottomY, { align: "center" });
+        const certId = `ID CERTIFICACIÓN: ${Math.random().toString(36).substring(2).toUpperCase()} - FECHA: ${new Date().toLocaleString()}`;
+        doc.text(certId, pageWidth / 2, bottomY + 5, { align: "center" });
+    }
 
     doc.save(`Auditoria_${companyName.replace(/\s+/g, "_") || "ConciliAI"}.pdf`);
 }

@@ -30,7 +30,14 @@ export async function POST(req: Request) {
             .single();
 
         let currentUsage = profile?.usage_count || 0;
-        let limit = profile?.plans_usage_limit || 3; // Default to 3 (Free)
+
+        // --- 3-Tier Limit Logic ---
+        let limit = 2; // Default Gratis
+        if (profile?.tier === "PRO") limit = 50;
+        if (profile?.tier === "ENTERPRISE") limit = 300;
+        if (profile?.tier === "LIFETIME") limit = 9999;
+        if (profile?.plans_usage_limit) limit = profile.plans_usage_limit; // Override if explicitly set in DB
+
         const isAdmin = profile?.role === "admin";
 
         // 1. Lazy Reset: If period expired, reset usage for the new month
@@ -189,7 +196,7 @@ export async function POST(req: Request) {
         return NextResponse.json({
             transactions,
             summary,
-            empresa: rawData.empresa,
+            empresa: profile?.tier === "FREE" ? "Usuario ConciliAI" : rawData.empresa,
             banco: rawData.banco,
             tipo_documento: rawData.tipo_documento,
             precision_score: is_verified ? 100 : Math.round(Number(rawData.precision_score || 0) > 1 ? Number(rawData.precision_score) : Number(rawData.precision_score || 0) * 100),

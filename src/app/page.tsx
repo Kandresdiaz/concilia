@@ -127,46 +127,71 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="text-center space-y-4">
             <h2 className="text-5xl font-black tracking-tighter uppercase italic">Precios Simples</h2>
-            <p className="text-slate-400 font-medium">Empieza gratis, escala cuando lo necesites.</p>
+            <p className="text-slate-400 font-medium font-bold uppercase tracking-widest text-[10px]">Sin costos ocultos, escala con tu despacho</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {/* Free Plan */}
-            <div className="bg-white/5 border border-white/10 p-12 rounded-[40px] space-y-8">
-              <div className="space-y-2">
-                <span className="text-indigo-400 text-xs font-black uppercase tracking-widest">Ideal para Freelancers</span>
-                <h3 className="text-3xl font-black uppercase italic">Plan Gratuito</h3>
-                <p className="text-5xl font-black">$ 0</p>
+            <div className="bg-white/5 border border-white/10 p-10 rounded-[40px] space-y-8 flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Para empezar</span>
+                  <h3 className="text-2xl font-black uppercase italic">Plan Gratis</h3>
+                  <p className="text-4xl font-black">$ 0</p>
+                </div>
+                <ul className="space-y-4">
+                  {["2 Conciliaciones por mes", "IA Llama 3.3 70B", "Visión Artificial", "Exportación PDF básica"].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-300">
+                      <CheckCircle2 className="w-5 h-5 text-indigo-500" /> {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-4">
-                {["5 Conciliaciones por mes", "IA Llama 3.2 11B", "Exportación PDF básica", "Soporte comunitario"].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-300">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-500" /> {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/login" className="block text-center py-4 bg-white/10 hover:bg-white/20 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-xs">
+              <Link href="/login" className="block text-center py-4 bg-white/10 hover:bg-white/20 text-white font-black rounded-2xl transition-all uppercase tracking-widest text-[10px]">
                 Empezar Gratis
               </Link>
             </div>
 
             {/* Pro Plan */}
-            <div className="bg-white p-12 rounded-[40px] space-y-8 relative overflow-hidden text-slate-900 shadow-2xl shadow-indigo-500/20 ring-4 ring-indigo-500/20">
+            <div className="bg-white p-10 rounded-[40px] space-y-8 relative overflow-hidden text-slate-900 shadow-2xl shadow-indigo-500/20 ring-4 ring-indigo-500/20 flex flex-col justify-between">
               <div className="absolute top-8 right-8 bg-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">Más popular</div>
-              <div className="space-y-2">
-                <span className="text-indigo-600 text-xs font-black uppercase tracking-widest">Para contadores PRO</span>
-                <h3 className="text-3xl font-black uppercase italic">Plan Vitalicio</h3>
-                <p className="text-5xl font-black">$ 99 <span className="text-base text-slate-400 font-bold uppercase tracking-widest">pago único</span></p>
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-indigo-600 text-[10px] font-black uppercase tracking-widest">Para contadores PRO</span>
+                  <h3 className="text-2xl font-black uppercase italic">Profesional</h3>
+                  <p className="text-4xl font-black">$ 24.99 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-widest">/ mes</span></p>
+                </div>
+                <ul className="space-y-4">
+                  {["50 Conciliaciones por mes", "IA Llama 3.3 70B", "IA Llama 3.2 90B (Vision)", "Acta Final Certificada", "Soporte Prioritario"].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-600">
+                      <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="space-y-4">
-                {["Conciliaciones ilimitadas", "IA Llama 3.2 90B (Vision)", "Acta Final Certificada", "Carga por imágenes/PDF", "Soporte Prioritario"].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-600">
-                    <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {item}
-                  </li>
-                ))}
-              </ul>
-              <Link href="/login" className="block text-center py-4 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl transition-all shadow-xl shadow-slate-200 uppercase tracking-widest text-xs">
-                Comprar Pro
+              <Link href="/login" className="block text-center py-4 bg-slate-900 hover:bg-slate-800 text-white font-black rounded-2xl transition-all shadow-xl shadow-slate-200 uppercase tracking-widest text-[10px]">
+                Comprar Profesional
+              </Link>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="bg-gradient-to-br from-slate-800 to-slate-950 border border-white/10 p-10 rounded-[40px] space-y-8 flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="space-y-2">
+                  <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest">Para firmas contables</span>
+                  <h3 className="text-2xl font-black uppercase italic">Despacho</h3>
+                  <p className="text-4xl font-black">$ 79.00 <span className="text-[12px] text-slate-400 font-bold uppercase tracking-widest">/ mes</span></p>
+                </div>
+                <ul className="space-y-4">
+                  {["300 Conciliaciones por mes", "IA Llama 3.2 90B (Vision)", "Multipresa / Multiusuario", "Integración Directa", "Soporte 24/7 VIP"].map((item, i) => (
+                    <li key={i} className="flex items-center gap-3 text-sm font-medium text-slate-300">
+                      <CheckCircle2 className="w-5 h-5 text-indigo-400" /> {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <Link href="/login" className="block text-center py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-900/50 uppercase tracking-widest text-[10px]">
+                Suscribir Despacho
               </Link>
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { ImportModal } from "@/components/ImportModal";
+import { UsageLimitCard } from "@/components/UsageLimitCard";
 import {
   Plus,
   CheckCircle,
@@ -18,7 +19,7 @@ import {
   FileCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveConciliation, getConciliationHistory, getProfile } from "@/lib/actions";
+import { saveConciliation, getConciliationHistory, getProfile, deleteAccount } from "@/lib/actions";
 import { generatePDF, generateCSV } from "@/lib/export";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -35,9 +36,9 @@ export default function ConciliAI() {
   // App State
   const [bankData, setBankData] = useState<any>(null);
   const [bookData, setBookData] = useState<any>(null);
-  const [tier, setTier] = useState<"FREE" | "PRO">("FREE");
+  const [tier, setTier] = useState<string>("FREE");
   const [usageCount, setUsageCount] = useState(0);
-  const [limit, setLimit] = useState(3); // Default to Free limit
+  const [limit, setLimit] = useState(2); // Default to Free limit (2)
   const [history, setHistory] = useState<any[]>([]);
   const [companyName, setCompanyName] = useState("");
   const [precisionScore, setPrecisionScore] = useState<number | null>(null);
@@ -56,7 +57,15 @@ export default function ConciliAI() {
       if (profile) {
         setTier(profile.tier);
         setUsageCount(profile.usage_count);
-        setLimit(profile.plans_usage_limit || 3);
+
+        // --- 3-Tier Limit Logic (Sync with API) ---
+        let calculatedLimit = 2; // Default Gratis
+        if (profile.tier === "PRO") calculatedLimit = 50;
+        if (profile.tier === "ENTERPRISE") calculatedLimit = 300;
+        if (profile.tier === "LIFETIME") calculatedLimit = 9999;
+        if (profile.plans_usage_limit) calculatedLimit = profile.plans_usage_limit;
+
+        setLimit(calculatedLimit);
         setRole(profile.role || "user");
       }
       const historyData = await getConciliationHistory();
@@ -66,8 +75,23 @@ export default function ConciliAI() {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const handleDeleteAccount = async () => {
+    setLoading(true);
+    try {
+      const result = await deleteAccount();
+      if (result.success) {
+        await supabase.auth.signOut();
+        router.push("/");
+        alert("Tu cuenta y datos han sido eliminados correctamente.");
+      }
+    } catch (err: any) {
+      alert("Error al eliminar la cuenta: " + err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleImport = async (type: "bank" | "book", source: string, content: string, isImage: boolean = false, country: string = "Colombia") => {
@@ -405,6 +429,11 @@ export default function ConciliAI() {
               </div>
             </div>
 
+            {/* Usage & Limits */}
+            <div className="max-w-md">
+              <UsageLimitCard usageCount={usageCount} tier={tier} limit={limit} />
+            </div>
+
             {/* Insights Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="rounded-[40px] p-10 bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
@@ -579,14 +608,14 @@ export default function ConciliAI() {
               </button>
 
               <button
-                onClick={() => generatePDF(bankData, bookData, matchedData, netDifference, companyName, tier)}
+                onClick={() => generatePDF(bankData, bookData, matchedData, netDifference, companyName, tier as "FREE" | "PRO")}
                 className="btn btn-neutral px-8 md:px-12 h-14 rounded-2xl font-black flex gap-3 shadow-xl"
               >
                 <Printer className="w-5 h-5" /> Exportar PDF
               </button>
 
               <button
-                onClick={() => generateCSV(bankData, bookData, matchedData, companyName, tier)}
+                onClick={() => generateCSV(bankData, bookData, matchedData, companyName, tier as "FREE" | "PRO")}
                 className="btn btn-ghost px-8 md:px-12 h-14 rounded-2xl font-black border-slate-200 flex gap-3 shadow-sm"
               >
                 <Database className="w-5 h-5" /> Exportar CSV
@@ -611,13 +640,24 @@ export default function ConciliAI() {
                       </div>
                     </div>
                     <div className="space-y-1 pl-1">
-                      <input
-                        type="text"
-                        value={companyName}
-                        onChange={(e) => setCompanyName(e.target.value)}
-                        placeholder="Nombre de la Empresa"
-                        className="text-xl font-bold text-slate-900 bg-transparent border-b border-dashed border-slate-300 focus:border-primary outline-none w-full max-w-md"
-                      />
+                      <div className="relative group/input">
+                        <input
+                          type="text"
+                          value={companyName}
+                          onChange={(e) => setCompanyName(e.target.value)}
+                          disabled={tier === "FREE"}
+                          placeholder="Nombre de la Empresa"
+                          className={cn(
+                            "text-xl font-bold bg-transparent border-b border-dashed border-slate-300 focus:border-primary outline-none w-full max-w-md transition-colors",
+                            tier === "FREE" ? "text-slate-400 cursor-not-allowed" : "text-slate-900"
+                          )}
+                        />
+                        {tier === "FREE" && (
+                          <div className="absolute -top-6 left-0 opacity-0 group-hover/input:opacity-100 transition-opacity bg-indigo-600 text-white text-[8px] font-black px-2 py-1 rounded uppercase tracking-widest whitespace-nowrap shadow-xl">
+                            Actualiza a PRO para editar nombre
+                          </div>
+                        )}
+                      </div>
                       <p className="text-[10px] font-medium text-slate-500 flex items-center gap-2">
                         <span className="font-bold">Periodo:</span> {bankData?.summary?.periodo || "Enero 2024"}
                         <span className="w-1 h-1 rounded-full bg-slate-200"></span>
@@ -860,6 +900,7 @@ export default function ConciliAI() {
         onClose={() => setIsSidebarOpen(false)}
         onLogout={handleLogout}
         onUpgrade={handleUpgrade}
+        onDeleteAccount={handleDeleteAccount}
       />
 
       <div className="flex-1 flex flex-col min-w-0 max-w-full">

@@ -1,28 +1,25 @@
 
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Zap } from 'lucide-react';
 
 interface UsageLimitCardProps {
     usageCount: number;
-    tier: 'FREE' | 'PRO';
+    tier: string;
+    limit: number;
 }
 
-export function UsageLimitCard({ usageCount, tier }: UsageLimitCardProps) {
+export function UsageLimitCard({ usageCount, tier, limit }: UsageLimitCardProps) {
     const isFree = tier === 'FREE';
-    const limit = 5;
-    const percentage = Math.min((usageCount / limit) * 100, 100);
+    const percentage = Math.min((usageCount / (limit || 1)) * 100, 100);
 
     return (
         <div className="card w-full bg-base-100 shadow-xl border border-base-200">
             <div className="card-body">
                 <h2 className="card-title flex justify-between">
                     <span>Uso Mensual</span>
-                    {isFree ? (
-                        <span className="badge badge-warning">Plan Gratuito</span>
-                    ) : (
-                        <span className="badge badge-primary gap-2">
-                            <CheckCircle className="w-4 h-4" /> PRO
-                        </span>
-                    )}
+                    {tier === 'FREE' && <span className="badge badge-warning">Plan Gratis</span>}
+                    {tier === 'PRO' && <span className="badge badge-primary gap-2"><CheckCircle className="w-4 h-4" /> PROFESIONAL</span>}
+                    {tier === 'ENTERPRISE' && <span className="badge badge-secondary gap-2"><CheckCircle className="w-4 h-4" /> DESPACHO</span>}
+                    {tier === 'LIFETIME' && <span className="badge badge-accent gap-2"><Zap className="w-4 h-4" /> VITALICIO</span>}
                 </h2>
 
                 {isFree ? (

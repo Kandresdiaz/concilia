@@ -25,11 +25,22 @@ export async function POST(req: Request) {
     if (event.type === 'checkout.session.completed') {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.metadata?.userId
+        const priceId = session.line_items?.data[0]?.price?.id || session.metadata?.priceId
 
         if (userId) {
+            // Determine tier based on Price ID (User should set these in env)
+            let tier = 'PRO'
+            if (priceId === process.env.STRIPE_PRICE_ID_DESPACHO) {
+                tier = 'ENTERPRISE'
+            }
+
             const { error } = await supabaseAdmin
                 .from('profiles')
-                .update({ tier: 'PRO' })
+                .update({
+                    tier,
+                    stripe_customer_id: session.customer as string,
+                    updated_at: new Date().toISOString()
+                })
                 .eq('id', userId)
 
             if (error) console.error('Error updating profile tier:', error)
