@@ -41,6 +41,10 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: "https://concilia.ai",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
   }
 };
 
