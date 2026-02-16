@@ -228,7 +228,7 @@ export default function LandingPage() {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-32 px-6">
+        <section id="features" className="py-32 px-6">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
             <div className="space-y-8 animate-float">
               <div className="bg-indigo-600/5 aspect-square rounded-[60px] p-12 relative overflow-hidden flex items-center justify-center">
@@ -336,7 +336,7 @@ export default function LandingPage() {
                   <div className="space-y-2 text-white">
                     <span className="text-white text-[10px] font-black uppercase tracking-widest animate-pulse">LIFETIME ACCESS</span>
                     <h3 className="text-3xl font-black uppercase italic">Despacho</h3>
-                    <p className="text-5xl font-black">$ 149.00 <span className="text-lg opacity-40 uppercase">(PAGO ÚNICO)</span></p>
+                    <p className="text-5xl font-black">$ 79.00 <span className="text-lg opacity-40 uppercase">/ mes</span></p>
                   </div>
                   <ul className="space-y-4 text-indigo-100">
                     {["300 Conciliaciones / mes", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"].map((f, i) => (
