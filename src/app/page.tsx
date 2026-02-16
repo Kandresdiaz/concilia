@@ -353,6 +353,33 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* FAQ Section */}
+        <section className="py-32 px-6 bg-slate-900 text-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div className="max-w-4xl mx-auto space-y-20 relative z-10">
+            <div className="text-center space-y-4 animate-slide-up">
+              <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tightest leading-none">Preguntas <br /><span className="text-indigo-400">Frecuentes</span></h2>
+              <p className="text-slate-400 text-lg font-medium">Resolvemos tus dudas para que empieces hoy mismo.</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {[
+                { q: "¿Es seguro subir mis extractos?", a: "Absolutamente. Usamos encriptación AES-256 de grado bancario. Tus datos se procesan en tiempo real y NO se utilizan para entrenar modelos públicos de IA." },
+                { q: "¿Qué bancos son compatibles?", a: "ConciliAI es universal. Nuestro motor de Vision IA lee extractos de cualquier entidad: Bancolombia, BBVA, Davivienda, Santander, y más." },
+                { q: "¿Qué pasa si la IA se equivoca?", a: "Contamos con un sistema de verificación dual. Si las transacciones no coinciden con los saldos del balance al centavo, el sistema te avisará inmediatamente." },
+                { q: "¿Hay permanencia en los planes?", a: "Ninguna. Puedes cancelar o cambiar de plan cuando quieras desde tu panel de control, sin preguntas." }
+              ].map((item, i) => (
+                <div key={i} className="group p-8 bg-white/5 border border-white/10 rounded-[40px] hover:bg-white/10 transition-all cursor-default">
+                  <h4 className="text-xl font-black uppercase tracking-tight text-indigo-300 italic flex gap-4">
+                    <span className="opacity-30">0{i + 1}</span> {item.q}
+                  </h4>
+                  <p className="pl-12 mt-4 text-slate-400 text-sm leading-relaxed font-medium group-hover:text-slate-300 transition-colors">{item.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Footer */}
@@ -377,6 +404,30 @@ export default function LandingPage() {
           <p className="text-center text-slate-300 text-xs font-medium italic">Transformando el futuro de la contabilidad, una línea a la vez.</p>
         </div>
       </footer>
+
+      {/* JSON-LD for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "ConciliAI",
+            "operatingSystem": "Web",
+            "applicationCategory": "BusinessApplication",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "ratingCount": "150"
+            }
+          })
+        }}
+      />
     </div>
   );
 }
