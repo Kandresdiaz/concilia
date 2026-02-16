@@ -1,4 +1,4 @@
-import { groq } from "@/lib/groq";
+import { generateAICompletion } from "@/lib/ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -106,40 +106,8 @@ export async function POST(req: Request) {
             });
         }
 
-        const models = image
-            ? ["llama-3.2-90b-vision-preview", "llama-3.2-11b-vision-preview"]
-            : ["llama-3.3-70b-versatile", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"];
-
-        let completion;
-        let lastError;
-
-        for (const model of models) {
-            try {
-                console.log(`Intentando con modelo: ${model}`);
-                completion = await groq.chat.completions.create({
-                    messages,
-                    model,
-                    response_format: { type: "json_object" },
-                });
-                if (completion) break;
-            } catch (err: any) {
-                lastError = err;
-                if (err.status === 429 || err.status === 503) {
-                    console.warn(`Límite alcanzado para ${model}. Intentando siguiente...`);
-                    continue;
-                }
-                throw err; // Otros errores (401, etc) se lanzan inmediato
-            }
-        }
-
-        if (!completion) {
-            throw lastError || new Error("No se pudo obtener respuesta de ningún modelo de IA");
-        }
-
-        const content = completion.choices[0]?.message?.content;
-        if (!content) {
-            throw new Error("No response from AI");
-        }
+        const { content, provider, model } = await generateAICompletion(messages, image);
+        console.log(`[Reconcile] Procesado por ${provider} (${model})`);
 
         const rawData = JSON.parse(content);
         let transactions = rawData.transactions || [];
