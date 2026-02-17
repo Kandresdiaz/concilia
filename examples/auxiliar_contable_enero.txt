@@ -1,0 +1,19 @@
+EMPRESA DEMO SAS
+AUXILIAR CONTABLE - CUENTA BANCO EJEMPLO
+FECHA: 01/01/2026 AL 31/01/2026
+
+SALDO ANTERIOR: 10.000.000
+
+FECHA       CONCEPTO                            DOCUMENTO       DEBITO          CREDITO
+02/01/2026  NOMINA QUINCENAL                   CE-101          5.000.000       0
+05/01/2026  PAGO PAPELERIA SAS                 EG-5001         0               450.000
+08/01/2026  CONSIGNACION VENTAS DIA            RC-202          2.500.000       0
+10/01/2026  COMPRA INSUMOS OFICINA             EG-882          0               920.000
+12/01/2026  PAGO FACTURA CLIENTE MULTICOM      RC-303          8.000.000       0
+15/01/2026  RETIRO PARA CAJA MENOR             EG-11           0               600.000
+18/01/2026  CANON ARRENDAMIENTO                CE-404          0               3.500.000
+24/01/2026  PAGO FACTURA ENEL                  CE-505          0               1.200.000
+28/01/2026  RECREACION PERSONAL                EG-991          0               150.000
+30/01/2026  CHEQUE PENDIENTE COBRO             CH-999          0               2.000.000
+
+SALDO FINAL: 16.680.000

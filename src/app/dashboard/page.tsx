@@ -17,9 +17,11 @@ import {
   Loader2,
   Menu,
   FileCheck,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveConciliation, getConciliationHistory, getProfile, deleteAccount } from "@/lib/actions";
+import { saveConciliation, getConciliationHistory, getProfile, deleteAccount, deleteConciliation } from "@/lib/actions";
+
 import { generatePDF, generateCSV } from "@/lib/export";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
@@ -45,6 +47,8 @@ export default function ConciliAI() {
   const [precisionScore, setPrecisionScore] = useState<number | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string>("user");
+  const [notification, setNotification] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -86,13 +90,14 @@ export default function ConciliAI() {
       if (result.success) {
         await supabase.auth.signOut();
         router.push("/");
-        alert("Tu cuenta y datos han sido eliminados correctamente.");
+        setNotification({ type: "success", message: "Tu cuenta y datos han sido eliminados correctamente." });
       }
     } catch (err: any) {
-      alert("Error al eliminar la cuenta: " + err.message);
+      setNotification({ type: "error", message: "Error al eliminar la cuenta: " + err.message });
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleImport = async (type: "bank" | "book", source: string, content: string, isImage: boolean = false, country: string = "Colombia") => {
@@ -111,9 +116,10 @@ export default function ConciliAI() {
       const data = await response.json();
 
       if (data.error) {
-        alert("Error de la IA: " + data.error);
+        setNotification({ type: "error", message: "Error de la IA: " + data.error });
         return;
       }
+
 
       // Add a unique ID to each transaction for tracking
       const transactionsWithId = data.transactions?.map((t: any, i: number) => ({
@@ -148,10 +154,11 @@ export default function ConciliAI() {
       setIsImportOpen(false);
     } catch (err: any) {
       console.error("Import failed:", err);
-      alert("Error en la importación: " + err.message);
+      setNotification({ type: "error", message: "Error en la importación: " + err.message });
     } finally {
       setLoading(false);
     }
+
   };
 
   // Logic to "Cross" (Match) transactions - Algoritmo Maestro
@@ -255,13 +262,42 @@ export default function ConciliAI() {
       const historyData = await getConciliationHistory();
       setHistory(historyData);
 
-      alert("Conciliación guardada con éxito.");
+      setNotification({ type: "success", message: "Conciliación guardada con éxito." });
     } catch (err: any) {
-      alert(err.message || "Error al guardar la conciliación.");
+      setNotification({ type: "error", message: err.message || "Error al guardar la conciliación." });
     } finally {
       setLoading(false);
     }
   };
+
+  const handleViewHistoryItem = (item: any) => {
+    setBankData(item.bank_data);
+    setBookData(item.book_data);
+    setCompanyName(item.company_name);
+    setPrecisionScore(item.precision_score);
+    setCurrentView("acta");
+    setNotification({ type: "info", message: `Cargada conciliación de ${item.company_name}` });
+  };
+
+  const handleDeleteConciliation = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas eliminar esta conciliación? Esta acción no se puede deshacer.")) return;
+
+    setLoading(true);
+    try {
+      const result = await deleteConciliation(id);
+      if (result.success) {
+        setNotification({ type: "success", message: "Conciliación eliminada con éxito." });
+        const historyData = await getConciliationHistory();
+        setHistory(historyData);
+      }
+    } catch (err: any) {
+      setNotification({ type: "error", message: "Error al eliminar: " + err.message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
 
   const handleUpgrade = async () => {
     try {
@@ -270,11 +306,12 @@ export default function ConciliAI() {
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert("Error al iniciar el pago: " + (data.error || "Desconocido"));
+        setNotification({ type: "error", message: "Error al iniciar el pago: " + (data.error || "Desconocido") });
       }
     } catch (err: any) {
-      alert("Error de conexión: " + err.message);
+      setNotification({ type: "error", message: "Error de conexión: " + err.message });
     }
+
   };
 
   const renderView = () => {
@@ -886,7 +923,52 @@ export default function ConciliAI() {
       {/* Privacy Modal */}
       <PrivacyModal />
 
+      {/* Modern Notification System */}
+      {notification && (
+        <div className="fixed top-8 right-8 z-[200] animate-in fade-in slide-in-from-top-8 duration-500">
+          <div className={cn(
+            "flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border backdrop-blur-md",
+            notification.type === "success" ? "bg-emerald-50/90 border-emerald-100 text-emerald-900" :
+              notification.type === "error" ? "bg-rose-50/90 border-rose-100 text-rose-900" :
+                "bg-indigo-50/90 border-indigo-100 text-indigo-900"
+          )}>
+            {notification.type === "success" && <CheckCircle className="w-5 h-5 text-emerald-500" />}
+            {notification.type === "error" && <Plus className="w-5 h-5 text-rose-500 rotate-45" />}
+            {notification.type === "info" && <Eye className="w-5 h-5 text-indigo-500" />}
+
+            <p className="text-sm font-black tracking-tight">{notification.message}</p>
+
+            <button
+              onClick={() => setNotification(null)}
+              className="ml-4 p-1 hover:bg-black/5 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4 rotate-45" />
+            </button>
+          </div>
+          {/* Progress bar for auto-hide */}
+          <div className="mt-1 h-1 w-full bg-slate-100 rounded-full overflow-hidden">
+            <div
+              className={cn(
+                "h-full transition-all duration-3000 ease-linear",
+                notification.type === "success" ? "bg-emerald-500" :
+                  notification.type === "error" ? "bg-rose-500" :
+                    "bg-indigo-500"
+              )}
+              style={{ animation: "shrink 3s linear forwards" }}
+              onAnimationEnd={() => setNotification(null)}
+            ></div>
+          </div>
+          <style jsx>{`
+            @keyframes shrink {
+              from { width: 100%; }
+              to { width: 0%; }
+            }
+          `}</style>
+        </div>
+      )}
+
       <Sidebar
+
         currentView={currentView}
         onViewChange={(view) => {
           setCurrentView(view);

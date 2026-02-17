@@ -133,3 +133,21 @@ export async function deleteAccount() {
     // The user will be signed out and their data is gone.
     return { success: true };
 }
+
+export async function deleteConciliation(id: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("Unauthorized");
+
+    const { error } = await supabase
+        .from("conciliations")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", user.id); // Seguridad extra: validar que pertenezca al usuario
+
+    if (error) throw error;
+
+    revalidatePath("/");
+    return { success: true };
+}

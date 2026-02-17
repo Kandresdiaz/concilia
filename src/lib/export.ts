@@ -45,6 +45,15 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
     }
     doc.text(`$ ${netDifference.toLocaleString(undefined, { minimumFractionDigits: 2 })}`, pageWidth - 30, 67, { align: "right" });
 
+    // 3.1 Resumen Detallado
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    const bankTotal = bankData?.verified_totals?.net || 0;
+    const bookTotal = bookData?.verified_totals?.net || 0;
+    doc.text(`TOTAL BANCO: $ ${bankTotal.toLocaleString()}`, 30, 72);
+    doc.text(`TOTAL LIBROS: $ ${bookTotal.toLocaleString()}`, pageWidth - 30, 72, { align: "right" });
+
+
     // 4. Tables with matching UI style
     const tableStyles = {
         theme: 'plain' as const,
@@ -156,7 +165,13 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
  */
 export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO") {
     let csv = `EMPRESA,${companyName || "S/N"},GENERADO,${new Date().toLocaleDateString()},PLAN,${tier}\n`;
+    const bankTotal = bankData?.verified_totals?.net || 0;
+    const bookTotal = bookData?.verified_totals?.net || 0;
+    const netDifference = bankTotal - bookTotal;
+    csv += `TOTAL BANCO,${bankTotal},TOTAL LIBROS,${bookTotal},DIFERENCIA,${netDifference}\n`;
+
     csv += "ESTADO,TIPO,FECHA,DESCRIPCION,VALOR,REFERENCIA\n";
+
 
     // 1. Matches (Conciliados)
     matchedData.matches.forEach((m: any) => {
