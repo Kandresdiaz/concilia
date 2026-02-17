@@ -9,8 +9,11 @@ const BANK_DATA: Record<string, { name: string; country: string; tips: string[] 
     "santander": { name: "Banco Santander", country: "España/Latam", tips: ["Extrae movimientos globales", "Sube el archivo sin contraseña", "ConciliAI mapea los códigos de operación"] },
 };
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
+type Params = Promise<{ slug: string }>;
+
+export async function generateMetadata(props: { params: Params }) {
+    const params = await props.params;
+    const slug = params.slug;
     const bank = BANK_DATA[slug];
     if (!bank) return { title: "Banco no encontrado" };
     return {
@@ -19,10 +22,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
 }
 
-export default async function BankSEOPage({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
+export default async function BankSEOPage(props: { params: Params }) {
+    const params = await props.params;
+    const slug = params.slug;
     const bank = BANK_DATA[slug];
     if (!bank) notFound();
+
 
 
     return (
