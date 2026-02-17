@@ -20,7 +20,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveConciliation, getConciliationHistory, getProfile, deleteAccount, deleteConciliation } from "@/lib/actions";
+import { saveConciliation, getConciliationHistory, getProfile, deleteAccount, deleteConciliation, getConciliationById } from "@/lib/actions";
 
 import { generatePDF, generateCSV } from "@/lib/export";
 import { createClient } from "@/lib/supabase/client";
@@ -30,6 +30,7 @@ import { SecurityBanner } from "@/components/SecurityBanner";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { SocialProofToast } from "@/components/SocialProofToast";
 import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
+import { ReportViewModal } from "@/components/ReportViewModal";
 
 
 export default function ConciliAI() {
@@ -53,6 +54,10 @@ export default function ConciliAI() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
 
+
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -275,13 +280,17 @@ export default function ConciliAI() {
     }
   };
 
-  const handleViewHistoryItem = (item: any) => {
-    setBankData(item.bank_data);
-    setBookData(item.book_data);
-    setCompanyName(item.company_name);
-    setPrecisionScore(item.precision_score);
-    setCurrentView("acta");
-    setNotification({ type: "info", message: `Cargada conciliación de ${item.company_name}` });
+  const handleViewHistoryItem = async (item: any) => {
+    setLoading(true); // Usamos el loading general para el inicio de la carga
+    try {
+      const fullData = await getConciliationById(item.id);
+      setSelectedReport(fullData);
+      setIsReportModalOpen(true);
+    } catch (err: any) {
+      setNotification({ type: "error", message: "Error al cargar historial: " + err.message });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDeleteConciliation = async (id: string) => {
@@ -1074,6 +1083,14 @@ export default function ConciliAI() {
           title={itemToDelete?.company_name || "esta auditoría"}
           loading={loading}
         />
+
+        <ReportViewModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          data={selectedReport}
+          tier={tier as any}
+        />
+
 
 
         {loading && (

@@ -109,6 +109,23 @@ export async function getConciliationHistory() {
     return data;
 }
 
+export async function getConciliationById(id: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) throw new Error("Unauthorized");
+
+    const { data, error } = await supabase
+        .from("conciliations")
+        .select("*")
+        .eq("id", id)
+        .eq("user_id", user.id)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export async function deleteAccount() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -142,14 +159,22 @@ export async function deleteConciliation(id: string) {
 
     if (!user) throw new Error("Unauthorized");
 
+    // Borrado físico en la base de datos con doble chequeo de seguridad
     const { error } = await supabase
         .from("conciliations")
         .delete()
         .eq("id", id)
-        .eq("user_id", user.id); // Seguridad extra: validar que pertenezca al usuario
+        .eq("user_id", user.id);
 
-    if (error) throw error;
+    if (error) {
+        console.error("Critical: Error deleting from Supabase:", error);
+        throw error;
+    }
 
+    // Forzamos la revalidación de las rutas para limpiar el data cache de Next.js
+    revalidatePath("/dashboard");
     revalidatePath("/");
+
     return { success: true };
 }
+
