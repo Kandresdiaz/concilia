@@ -382,8 +382,39 @@ export default function LandingPage() {
         </section>
       </main>
 
+      {/* Free Tools Section */}
+      <section className="py-24 px-6 bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Herramientas Gratis</h4>
+            <ul className="space-y-3">
+              <li><Link href="/calculadora-uvt" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Calculadora UVT 2025</Link></li>
+              <li><Link href="/validador-nit" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Validador de NIT</Link></li>
+              <li><Link href="/calculadora-ahorro" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Calculadora de ROI</Link></li>
+              <li><Link href="/bancos" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Guías Bancarias</Link></li>
+            </ul>
+          </div>
+          <div className="space-y-4">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Recursos</h4>
+            <ul className="space-y-3">
+              <li><a href="#" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Blog Contable</a></li>
+              <li><a href="#" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Plantillas Excel</a></li>
+              <li><a href="#" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">API Docs</a></li>
+            </ul>
+          </div>
+          <div className="md:col-span-2 bg-slate-900 rounded-[40px] p-10 text-white flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400">¿Eres contador liberado?</p>
+              <h3 className="text-2xl font-black uppercase italic">Únete a la revolución IA</h3>
+            </div>
+            <Link href="/login" className="px-8 py-4 bg-indigo-600 rounded-2xl font-black hover:bg-indigo-500 transition-all text-xs uppercase tracking-widest">Registrarme Gratis</Link>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="pt-24 pb-12 px-6 border-t border-slate-200">
+
         <div className="max-w-7xl mx-auto space-y-12">
           <div className="flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
             <div className="flex items-center gap-3">

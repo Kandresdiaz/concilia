@@ -1,27 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { ShieldCheck, ArrowRight, Calculator, CheckCircle2, AlertCircle, TrendingUp } from "lucide-react";
+import { ShieldCheck, ArrowRight, Calculator, CheckCircle2, AlertCircle, TrendingUp, RefreshCw } from "lucide-react";
 
 export default function UvtCalculatorPage() {
-    const [pesos, setPesos] = useState("");
+    const [inputValue, setInputValue] = useState("");
     const [year, setYear] = useState(2025);
+    const [mode, setMode] = useState<"pesosToUvt" | "uvtToPesos">("pesosToUvt");
 
     // UVT Values Colombia
     const UVT_VALUES: Record<number, number> = {
         2024: 47065,
         2025: 49786,
-        2026: 52674, // Estimated/Projected for context
+        2026: 52674,
     };
 
-    const handleCalculate = (val: string) => {
-        setPesos(val.replace(/\D/g, ""));
-    };
-
-    const pesosNum = parseInt(pesos) || 0;
     const uvtValue = UVT_VALUES[year];
-    const uvtResult = (pesosNum / uvtValue).toFixed(2);
+
+    const handleInputChange = (val: string) => {
+        // Permitir números y un solo punto decimal
+        const cleaned = val.replace(/[^0-9.]/g, "");
+        setInputValue(cleaned);
+    };
+
+    const numValue = parseFloat(inputValue) || 0;
+
+    const result = mode === "pesosToUvt"
+        ? (numValue / uvtValue).toFixed(2)
+        : (numValue * uvtValue).toLocaleString("es-CO", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+    const toggleMode = () => {
+        setMode(prev => prev === "pesosToUvt" ? "uvtToPesos" : "pesosToUvt");
+        setInputValue("");
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100">
@@ -44,11 +56,20 @@ export default function UvtCalculatorPage() {
                         Calculadora <span className="text-indigo-600">UVT</span>
                     </h1>
                     <p className="text-xl text-slate-500 font-medium">
-                        Convierte pesos colombianos a Unidades de Valor Tributario (UVT) al instante.
+                        Convierte {mode === "pesosToUvt" ? "Pesos a UVTs" : "UVTs a Pesos"} al instante.
                     </p>
                 </header>
 
                 <div className="glass-card p-12 rounded-[40px] bg-white shadow-2xl shadow-indigo-100 border border-slate-100 space-y-8">
+                    <div className="flex justify-end">
+                        <button
+                            onClick={toggleMode}
+                            className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-700 transition-colors"
+                        >
+                            <RefreshCw className="w-3 h-3" /> Cambiar Sentido
+                        </button>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-4">
                             <label className="text-xs font-black uppercase tracking-widest text-slate-400">Año Tributario</label>
@@ -63,29 +84,37 @@ export default function UvtCalculatorPage() {
                             </select>
                         </div>
                         <div className="space-y-4">
-                            <label className="text-xs font-black uppercase tracking-widest text-slate-400">Valor en Pesos (COP)</label>
+                            <label className="text-xs font-black uppercase tracking-widest text-slate-400">
+                                {mode === "pesosToUvt" ? "Valor en Pesos (COP)" : "Cantidad de UVTs"}
+                            </label>
                             <input
                                 type="text"
-                                placeholder="Ej: 1000000"
-                                value={pesos}
-                                onChange={(e) => handleCalculate(e.target.value)}
+                                placeholder={mode === "pesosToUvt" ? "Ej: 1000000" : "Ej: 10"}
+                                value={inputValue}
+                                onChange={(e) => handleInputChange(e.target.value)}
                                 className="w-full h-16 px-8 text-xl font-black bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-indigo-600 focus:outline-none transition-all"
                             />
                         </div>
                     </div>
 
-                    {pesosNum > 0 && (
+                    {numValue > 0 && (
                         <div className="p-8 bg-slate-900 rounded-3xl text-white text-center animate-in zoom-in-95 duration-300 shadow-xl shadow-slate-200">
                             <p className="text-[10px] font-black uppercase tracking-widest opacity-50 mb-2">Resultado equivalente</p>
-                            <h2 className="text-6xl font-black text-indigo-400">{uvtResult} <span className="text-2xl text-white/40 italic font-medium">UVT</span></h2>
-                            <p className="text-xs font-bold mt-4 opacity-70">Cálculo basado en $ {uvtValue.toLocaleString()} por UVT ({year})</p>
+                            <h2 className="text-6xl font-black text-indigo-400">
+                                {mode === "pesosToUvt" ? "" : "$ "}
+                                {result}
+                                <span className="text-2xl text-white/40 italic font-medium ml-2">
+                                    {mode === "pesosToUvt" ? "UVT" : "COP"}
+                                </span>
+                            </h2>
+                            <p className="text-xs font-bold mt-4 opacity-70">Basado en UVT {year}: $ {uvtValue.toLocaleString()}</p>
                         </div>
                     )}
 
                     <div className="flex items-center gap-4 p-6 bg-indigo-50/50 rounded-2xl border border-indigo-100">
                         <TrendingUp className="w-6 h-6 text-indigo-600 shrink-0" />
                         <p className="text-xs font-medium text-slate-600">
-                            La UVT es la medida que define topes para declaración de renta, multas y sanciones en Colombia.
+                            El valor de la UVT en Colombia es actualizado anualmente por la DIAN mediante resolución.
                         </p>
                     </div>
                 </div>
@@ -93,17 +122,18 @@ export default function UvtCalculatorPage() {
                 <section className="bg-indigo-600 rounded-[40px] p-12 text-white space-y-8 shadow-3xl flex flex-col items-center text-center">
                     <div className="space-y-2">
                         <h3 className="text-2xl font-black uppercase italic">¿Tantos cálculos te quitan tiempo?</h3>
-                        <p className="text-indigo-100 font-medium max-w-md">Usa Inteligencia Artificial para tus conciliaciones bancarias y ahorra horas cada mes.</p>
+                        <p className="text-indigo-100 font-medium max-w-md">ConciliaIA automatiza lo aburrido. Dedícate a asesorar, no a digitar.</p>
                     </div>
                     <Link href="/login" className="group btn bg-white text-indigo-600 h-16 px-10 rounded-2xl font-black flex items-center gap-4 w-fit shadow-2xl transition-all hover:scale-105 border-none">
-                        PROBAR CONCILIAIA GRATIS <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        PROBAR GRATIS <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                     </Link>
                 </section>
             </main>
 
             <footer className="py-20 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest border-t border-slate-200">
-                © 2026 ConciliAI • Optimizando la Contabilidad Moderna
+                © 2026 ConciliAI • Potenciando Contadores con IA
             </footer>
         </div>
     );
 }
+
