@@ -9,8 +9,9 @@ const BANK_DATA: Record<string, { name: string; country: string; tips: string[] 
     "santander": { name: "Banco Santander", country: "España/Latam", tips: ["Extrae movimientos globales", "Sube el archivo sin contraseña", "ConciliAI mapea los códigos de operación"] },
 };
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-    const bank = BANK_DATA[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const bank = BANK_DATA[slug];
     if (!bank) return { title: "Banco no encontrado" };
     return {
         title: `Conciliar Extracto de ${bank.name} con IA | ConciliAI`,
@@ -18,9 +19,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
 }
 
-export default function BankSEOPage({ params }: { params: { slug: string } }) {
-    const bank = BANK_DATA[params.slug];
+export default async function BankSEOPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
+    const bank = BANK_DATA[slug];
     if (!bank) notFound();
+
 
     return (
         <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100">

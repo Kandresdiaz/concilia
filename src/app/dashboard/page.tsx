@@ -879,7 +879,8 @@ export default function ConciliAI() {
                       <th className="py-6 text-right">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className={cn(tier === "FREE" && role !== "admin" && "opacity-20 pointer-events-none")}>
+                  <tbody className={cn(tier === "FREE" && role !== "admin" && "opacity-50")}>
+
                     {history.length > 0 ? (
                       history.map((h) => {
                         const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
