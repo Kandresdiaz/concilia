@@ -29,6 +29,8 @@ import { User } from "@supabase/supabase-js";
 import { SecurityBanner } from "@/components/SecurityBanner";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { SocialProofToast } from "@/components/SocialProofToast";
+import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
+
 
 export default function ConciliAI() {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -48,6 +50,9 @@ export default function ConciliAI() {
   const [user, setUser] = useState<User | null>(null);
   const [role, setRole] = useState<string>("user");
   const [notification, setNotification] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+
 
   const router = useRouter();
   const supabase = createClient();
@@ -280,8 +285,6 @@ export default function ConciliAI() {
   };
 
   const handleDeleteConciliation = async (id: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar esta conciliación? Esta acción no se puede deshacer.")) return;
-
     setLoading(true);
     try {
       const result = await deleteConciliation(id);
@@ -289,6 +292,8 @@ export default function ConciliAI() {
         setNotification({ type: "success", message: "Conciliación eliminada con éxito." });
         const historyData = await getConciliationHistory();
         setHistory(historyData);
+        setDeleteModalOpen(false);
+        setItemToDelete(null);
       }
     } catch (err: any) {
       setNotification({ type: "error", message: "Error al eliminar: " + err.message });
@@ -296,6 +301,7 @@ export default function ConciliAI() {
       setLoading(false);
     }
   };
+
 
 
 
@@ -893,11 +899,25 @@ export default function ConciliAI() {
                             )}>
                               $ {Number(h.final_balance).toLocaleString()}
                             </td>
-                            <td className="py-6 text-right">
-                              <button className="btn btn-ghost btn-sm rounded-xl gap-2">
+                            <td className="py-6 text-right flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => handleViewHistoryItem(h)}
+                                className="btn btn-ghost btn-sm rounded-xl gap-2 hover:bg-slate-100"
+                              >
                                 <Eye className="w-4 h-4" /> Ver
                               </button>
+                              <button
+                                onClick={() => {
+                                  setItemToDelete(h);
+                                  setDeleteModalOpen(true);
+                                }}
+                                className="btn btn-ghost btn-sm rounded-xl text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition-all active:scale-90"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
                             </td>
+
                           </tr>
                         );
                       })
@@ -1035,6 +1055,18 @@ export default function ConciliAI() {
           bankLoaded={!!bankData}
           bookLoaded={!!bookData}
         />
+
+        <DeleteConfirmationModal
+          isOpen={deleteModalOpen}
+          onClose={() => {
+            setDeleteModalOpen(false);
+            setItemToDelete(null);
+          }}
+          onConfirm={() => handleDeleteConciliation(itemToDelete?.id)}
+          title={itemToDelete?.company_name || "esta auditoría"}
+          loading={loading}
+        />
+
 
         {loading && (
           <div className="fixed inset-0 z-[100] bg-black/20 backdrop-blur-sm flex items-center justify-center pointer-events-none">
