@@ -285,22 +285,29 @@ export default function ConciliAI() {
   };
 
   const handleDeleteConciliation = async (id: string) => {
-    setLoading(true);
+    // Guardar copia del estado anterior para revertir si falla
+    const previousHistory = [...history];
+
+    // UI Optimista: Borrar de inmediato en el front
+    setHistory(history.filter(h => h.id !== id));
+    setDeleteModalOpen(false);
+    setItemToDelete(null);
+
     try {
       const result = await deleteConciliation(id);
       if (result.success) {
         setNotification({ type: "success", message: "Conciliación eliminada con éxito." });
+        // Opcional: Re-validar desde el servidor para estar 100% seguros
         const historyData = await getConciliationHistory();
         setHistory(historyData);
-        setDeleteModalOpen(false);
-        setItemToDelete(null);
       }
     } catch (err: any) {
+      // Revertir si hay error
+      setHistory(previousHistory);
       setNotification({ type: "error", message: "Error al eliminar: " + err.message });
-    } finally {
-      setLoading(false);
     }
   };
+
 
 
 
