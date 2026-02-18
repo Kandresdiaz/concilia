@@ -390,8 +390,8 @@ export default function LandingPage() {
             <ul className="space-y-3">
               <li><Link href="/calculadora-uvt" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Calculadora UVT 2025</Link></li>
               <li><Link href="/validador-nit" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Validador de NIT</Link></li>
+              <li><Link href="/convertidor-extractos" className="text-sm font-bold text-slate-600 hover:text-indigo-900 transition-colors font-black uppercase tracking-tighter">Convertidor PDF a Excel ✨</Link></li>
               <li><Link href="/calculadora-ahorro" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Calculadora de ROI</Link></li>
-              <li><Link href="/bancos" className="text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">Guías Bancarias</Link></li>
             </ul>
           </div>
           <div className="space-y-4">
