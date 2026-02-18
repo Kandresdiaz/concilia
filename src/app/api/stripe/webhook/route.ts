@@ -3,12 +3,14 @@ import { NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY! // Needs service role to update profiles
-)
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
+    const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+
     const body = await req.text()
     const sig = req.headers.get('stripe-signature')!
 
@@ -28,7 +30,6 @@ export async function POST(req: Request) {
         const priceId = session.line_items?.data[0]?.price?.id || session.metadata?.priceId
 
         if (userId) {
-            // Determine tier based on Price ID (User should set these in env)
             let tier = 'PRO'
             if (priceId === process.env.STRIPE_PRICE_ID_DESPACHO) {
                 tier = 'ENTERPRISE'

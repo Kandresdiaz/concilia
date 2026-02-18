@@ -114,21 +114,75 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
                         </div>
                     </div>
 
-                    {/* Pending Items Summary */}
-                    <div className="space-y-4">
-                        <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4" /> Partidas Pendientes
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="p-6 rounded-3xl bg-rose-50/50 border border-rose-100">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-rose-600 mb-2">Solo en Banco</p>
-                                <p className="text-2xl font-black text-rose-900">{data.discrepancies?.pendingBank?.length || 0}</p>
+                    {/* Detailed Tables */}
+                    <div className="space-y-8 pb-12">
+                        {/* Matches */}
+                        {data.matches && data.matches.length > 0 && (
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Movimientos Conciliados ({data.matches.length})</h4>
+                                <div className="border border-slate-100 rounded-[32px] overflow-hidden bg-white">
+                                    <table className="w-full text-left text-[11px]">
+                                        <thead className="bg-slate-50 border-b border-slate-100">
+                                            <tr>
+                                                <th className="p-4 font-black uppercase tracking-widest text-slate-400">Concepto</th>
+                                                <th className="p-4 text-right font-black uppercase tracking-widest text-slate-400">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-50">
+                                            {data.matches.slice(0, 10).map((m: any, i: number) => (
+                                                <tr key={i}>
+                                                    <td className="p-4 font-bold text-slate-700 truncate max-w-[200px]">{m.bank.description}</td>
+                                                    <td className="p-4 text-right font-black text-emerald-600">$ {m.bank.amount.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                            {data.matches.length > 10 && (
+                                                <tr>
+                                                    <td colSpan={2} className="p-4 text-center text-slate-400 italic">Y {data.matches.length - 10} más...</td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div className="p-6 rounded-3xl bg-amber-50/50 border border-amber-100">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 mb-2">Solo en Libros</p>
-                                <p className="text-2xl font-black text-amber-900">{data.discrepancies?.pendingBook?.length || 0}</p>
+                        )}
+
+                        {/* Pending Bank */}
+                        {data.discrepancies?.pendingBank && data.discrepancies.pendingBank.length > 0 && (
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-rose-500">Pendientes en Banco ({data.discrepancies.pendingBank.length})</h4>
+                                <div className="border border-rose-100 rounded-[32px] overflow-hidden bg-rose-50/20">
+                                    <table className="w-full text-left text-[11px]">
+                                        <tbody className="divide-y divide-rose-100">
+                                            {data.discrepancies.pendingBank.map((t: any, i: number) => (
+                                                <tr key={i}>
+                                                    <td className="p-4 font-bold text-slate-700">{t.description}</td>
+                                                    <td className="p-4 text-right font-black text-rose-600">$ {t.amount.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* Pending Book */}
+                        {data.discrepancies?.pendingBook && data.discrepancies.pendingBook.length > 0 && (
+                            <div className="space-y-4">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Pendientes en Libros ({data.discrepancies.pendingBook.length})</h4>
+                                <div className="border border-amber-100 rounded-[32px] overflow-hidden bg-amber-50/20">
+                                    <table className="w-full text-left text-[11px]">
+                                        <tbody className="divide-y divide-amber-100">
+                                            {data.discrepancies.pendingBook.map((t: any, i: number) => (
+                                                <tr key={i}>
+                                                    <td className="p-4 font-bold text-slate-700">{t.description}</td>
+                                                    <td className="p-4 text-right font-black text-amber-600">$ {t.amount.toLocaleString()}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 

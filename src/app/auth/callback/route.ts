@@ -3,12 +3,13 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createClient as createClientAdmin } from '@supabase/supabase-js'
 
-const supabaseAdmin = createClientAdmin(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
+    const supabaseAdmin = createClientAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
     // if "next" is in search params, use it as the redirection URL

@@ -77,15 +77,36 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
     const totalPendingBank = matchedData.pendingBank.reduce((acc: number, t: any) => acc + (t.amount || 0), 0);
     const totalPendingBook = matchedData.pendingBook.reduce((acc: number, t: any) => acc + (t.amount || 0), 0);
 
-    // Bank Table
+    // 4. Tables with matching UI style
+    // ... (tableStyles defined above)
+
+    // A. Matches Table (CONCILIADOS)
     doc.setTextColor(15, 23, 42);
     doc.setFontSize(8);
     doc.setFont("helvetica", "bold");
-    doc.text("PENDIENTES BANCO (DÉBITOS EXTRACTO)", 20, 85);
+    doc.text("MOVIMIENTOS CONCILIADOS (CRUZADOS CON ÉXITO)", 20, 85);
 
     autoTable(doc, {
         ...tableStyles,
         startY: 90,
+        head: [['CONCEPTO', 'FECHA', 'MONTO', 'TIPO']],
+        body: [
+            ...matchedData.matches.map((m: any) => [
+                m.bank.description.toUpperCase(),
+                m.bank.date,
+                `$ ${(m.bank.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+                (m.type || 'perfecto').toUpperCase()
+            ]),
+        ],
+    });
+
+    // B. Bank Table
+    const bankTableY = (doc as any).lastAutoTable.finalY + 15;
+    doc.text("PENDIENTES BANCO (DÉBITOS EXTRACTO)", 20, bankTableY);
+
+    autoTable(doc, {
+        ...tableStyles,
+        startY: bankTableY + 5,
         head: [['CONCEPTO', 'FECHA', 'MONTO']],
         body: [
             ...matchedData.pendingBank.map((t: any) => [
