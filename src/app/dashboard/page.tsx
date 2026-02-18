@@ -263,7 +263,10 @@ export default function ConciliAI() {
         bank: bankData,
         book: bookData,
         company_name: companyName,
-        precision_score: precisionScore
+        precision_score: precisionScore,
+        matches: matchedData.matches,
+        pendingBank: matchedData.pendingBank,
+        pendingBook: matchedData.pendingBook
       }, finalBalance);
 
       // Refresh local state

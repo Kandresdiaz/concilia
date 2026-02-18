@@ -4,7 +4,7 @@ import autoTable from "jspdf-autotable";
 /**
  * Generates a professional PDF "Acta Final"
  */
-export function generatePDF(bankData: any, bookData: any, matchedData: any, netDifference: number, companyName: string, tier: "FREE" | "PRO") {
+export function generatePDF(bankData: any, bookData: any, matchedData: any, netDifference: number, companyName: string, tier: "FREE" | "PRO" | "ENTERPRISE" | "LIFETIME") {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
@@ -163,7 +163,7 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
 /**
  * Generates a clean CSV grouped by comparison
  */
-export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO") {
+export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO" | "ENTERPRISE" | "LIFETIME") {
     let csv = `EMPRESA,${companyName || "S/N"},GENERADO,${new Date().toLocaleDateString()},PLAN,${tier}\n`;
     const bankTotal = bankData?.verified_totals?.net || 0;
     const bookTotal = bookData?.verified_totals?.net || 0;

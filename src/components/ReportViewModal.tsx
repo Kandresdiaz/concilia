@@ -28,11 +28,21 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
     const diff = bankTotal - bookTotal;
 
     const handleDownloadPDF = () => {
-        generatePDF(data.bank_data, data.book_data, data.matches, data.company_name, tier);
+        const matchedData = {
+            matches: data.matches || [],
+            pendingBank: data.discrepancies?.pendingBank || [],
+            pendingBook: data.discrepancies?.pendingBook || []
+        };
+        generatePDF(data.bank_data, data.book_data, matchedData, diff, data.company_name, tier);
     };
 
     const handleDownloadCSV = () => {
-        generateCSV(data.bank_data, data.book_data, data.matches, data.company_name, tier);
+        const matchedData = {
+            matches: data.matches || [],
+            pendingBank: data.discrepancies?.pendingBank || [],
+            pendingBook: data.discrepancies?.pendingBook || []
+        };
+        generateCSV(data.bank_data, data.book_data, matchedData, data.company_name, tier);
     };
 
     return (
