@@ -129,7 +129,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         href="https://www.linkedin.com/in/kevin-diaz-192873177"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
                     >
                         <Users className="w-4 h-4" />
                         Comunidad
@@ -139,7 +139,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             const text = `Me acabo de ahorrar horas de trabajo manual conciliando mi banco con ConciliAI. 🔥 ¡Es increíble! \n\nPruébalo aquí: https://concilia.ai`;
                             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer"
                     >
                         <Zap className="w-4 h-4" />
                         Compartir Ahorro
@@ -148,7 +148,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         href="https://t.me/c/3814382001/3"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
                     >
                         <Send className="w-4 h-4" />
                         Soporte Directo
