@@ -28,7 +28,7 @@ interface SidebarProps {
     isOpen: boolean;
     onClose: () => void;
     onLogout: () => void;
-    onUpgrade: () => void;
+    onUpgrade: (tier?: string) => void;
     onDeleteAccount: () => void;
 }
 
@@ -129,7 +129,13 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         href="https://www.linkedin.com/in/kevin-diaz-192873177"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
+                        onClick={(e) => {
+                            // Fallback if the link doesn't trigger for some reason
+                            if (typeof window !== 'undefined') {
+                                window.open("https://www.linkedin.com/in/kevin-diaz-192873177", "_blank");
+                            }
+                        }}
+                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
                     >
                         <Users className="w-4 h-4" />
                         Comunidad
@@ -139,7 +145,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             const text = `Me acabo de ahorrar horas de trabajo manual conciliando mi banco con ConciliAI. 🔥 ¡Es increíble! \n\nPruébalo aquí: https://concilia.ai`;
                             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer"
+                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer"
                     >
                         <Zap className="w-4 h-4" />
                         Compartir Ahorro
@@ -148,7 +154,13 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         href="https://t.me/c/3814382001/3"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
+                        onClick={(e) => {
+                            // Fallback
+                            if (typeof window !== 'undefined') {
+                                window.open("https://t.me/c/3814382001/3", "_blank");
+                            }
+                        }}
+                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
                     >
                         <Send className="w-4 h-4" />
                         Soporte Directo
@@ -179,7 +191,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
                 {isFree && (
                     <button
-                        onClick={onUpgrade}
+                        onClick={() => onUpgrade("PRO")}
                         className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
                     >
                         <Zap className="w-3.5 h-3.5 fill-current" />

@@ -18,6 +18,8 @@ import {
   Landmark
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 // --- Subcomponent: FOMO Banner ---
 function LimitedOfferBanner() {
@@ -159,6 +161,38 @@ function DemoSection() {
 
 // --- Main Page Component ---
 export default function LandingPage() {
+  const [user, setUser] = useState<any>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+  }, []);
+
+  const handleCheckout = async (tier: string) => {
+    if (!user) {
+      router.push(`/login?tier=${tier}`);
+      return;
+    }
+
+    setIsRedirecting(true);
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier }),
+      });
+      const { url } = await response.json();
+      if (url) window.location.href = url;
+    } catch (err) {
+      console.error(err);
+      router.push("/dashboard");
+    } finally {
+      setIsRedirecting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
       <LimitedOfferBanner />
@@ -323,9 +357,13 @@ export default function LandingPage() {
                     ))}
                   </ul>
                 </div>
-                <Link href="/login" className="block w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white text-center font-black rounded-3xl transition-all shadow-xl shadow-indigo-200 uppercase tracking-widest text-xs">
-                  Comprar Profesional
-                </Link>
+                <button
+                  onClick={() => handleCheckout("PRO")}
+                  disabled={isRedirecting}
+                  className="block w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white text-center font-black rounded-3xl transition-all shadow-xl shadow-indigo-200 uppercase tracking-widest text-xs disabled:opacity-50"
+                >
+                  {isRedirecting ? "Cargando..." : "Comprar Profesional"}
+                </button>
               </div>
 
               {/* Lifetime Deal */}
@@ -347,9 +385,13 @@ export default function LandingPage() {
                     ))}
                   </ul>
                 </div>
-                <Link href="/login" className="block w-full py-5 bg-white text-indigo-900 text-center font-black rounded-3xl transition-all shadow-2xl hover:bg-slate-50 uppercase tracking-widest text-xs">
-                  Asegurar de por vida
-                </Link>
+                <button
+                  onClick={() => handleCheckout("ENTERPRISE")}
+                  disabled={isRedirecting}
+                  className="block w-full py-5 bg-white text-indigo-900 text-center font-black rounded-3xl transition-all shadow-2xl hover:bg-slate-50 uppercase tracking-widest text-xs disabled:opacity-50"
+                >
+                  {isRedirecting ? "Cargando..." : "Asegurar de por vida"}
+                </button>
               </div>
             </div>
           </div>

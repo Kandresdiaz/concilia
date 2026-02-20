@@ -11,8 +11,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        // Replace with your real Stripe Price ID
-        const priceId = process.env.STRIPE_PRICE_ID_PRO || 'price_placeholder'
+        const { tier } = await req.json()
+
+        let priceId = process.env.STRIPE_PRICE_ID_PRO || 'price_placeholder'
+        if (tier === 'ENTERPRISE') {
+            priceId = process.env.STRIPE_PRICE_ID_DESPACHO || 'price_placeholder'
+        }
 
         const stripe = getStripe()
         const session = await stripe.checkout.sessions.create({
@@ -29,6 +33,7 @@ export async function POST(req: Request) {
             customer_email: user.email,
             metadata: {
                 userId: user.id,
+                tier: tier
             },
         })
 

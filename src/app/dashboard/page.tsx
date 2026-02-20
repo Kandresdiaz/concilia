@@ -331,9 +331,13 @@ export default function ConciliAI() {
 
 
 
-  const handleUpgrade = async () => {
+  const handleUpgrade = async (tier: string = "PRO") => {
     try {
-      const response = await fetch("/api/stripe/checkout", { method: "POST" });
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier })
+      });
       const data = await response.json();
       if (data.url) {
         window.location.href = data.url;
