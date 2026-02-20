@@ -12,9 +12,26 @@ interface ImportModalProps {
     loading: boolean;
     bankLoaded?: boolean;
     bookLoaded?: boolean;
+    usageCount: number;
+    limit: number;
+    role?: string;
+    onUpgrade: () => void;
 }
 
-export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bookLoaded }: ImportModalProps) {
+export function ImportModal({
+    isOpen,
+    onClose,
+    onImport,
+    loading,
+    bankLoaded,
+    bookLoaded,
+    usageCount,
+    limit,
+    role,
+    onUpgrade
+}: ImportModalProps) {
+    const isAdmin = role === "admin" || role === "superadmin";
+    const isLimited = !isAdmin && usageCount >= limit;
     const [tab, setTab] = useState<"bank" | "book">("bank");
     const [country, setCountry] = useState("Colombia 🇨🇴");
     const [source, setSource] = useState<"file" | "ai" | "gmail">("file");
@@ -211,54 +228,82 @@ export function ImportModal({ isOpen, onClose, onImport, loading, bankLoaded, bo
                 </div>
 
                 {/* Content */}
-                <div className="p-8">
-                    {source === "file" && (
-                        <div className="space-y-4">
-                            <label className="border-2 border-dashed border-base-200 rounded-[24px] p-12 flex flex-col items-center justify-center gap-4 bg-base-200/50 hover:bg-base-200 transition-colors cursor-pointer group">
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept=".txt,.csv,.json,.pdf,.png,.jpg,.jpeg"
-                                    onChange={handleFileChange}
-                                />
-                                <div className="w-12 h-12 bg-base-100 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                                    {isProcessing ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <FileText className="w-6 h-6 text-primary" />}
-                                </div>
-                                <p className="text-sm font-bold text-gray-500 text-center">
-                                    {isProcessing ? "Leyendo PDF..." : "Subir PDF, Imagen o Texto"}<br />
-                                    <span className="text-[10px] opacity-60 font-normal">{isProcessing ? "Extrayendo texto del documento..." : "Soporta capturas de pantalla de extractos"}</span>
-                                </p>
-                            </label>
-                        </div>
-                    )}
-
-                    {source === "ai" && (
-                        <div className="space-y-4">
-                            <textarea
-                                className="textarea textarea-bordered w-full h-40 rounded-2xl font-mono text-sm"
-                                placeholder="Pega aquí el texto extraído o cualquier dato desordenado..."
-                                value={text}
-                                onChange={(e) => setText(e.target.value)}
-                            ></textarea>
+                <div className="p-8 relative">
+                    {isLimited && (
+                        <div className="absolute inset-0 z-40 bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-300">
+                            <div className="w-16 h-16 bg-slate-900 rounded-[20px] shadow-2xl flex items-center justify-center text-white mb-6 -rotate-6 animate-bounce">
+                                <Lock className="w-8 h-8" />
+                            </div>
+                            <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Límite Alcanzado</h3>
+                            <p className="text-sm text-slate-500 font-medium max-w-[280px] mb-8 leading-relaxed">
+                                Has consumido tus {limit} conciliaciones mensuales. Actualiza tu plan para seguir ahorrando horas de trabajo.
+                            </p>
                             <button
-                                onClick={() => {
-                                    onImport(tab, source, text, false, country);
-                                }}
-                                disabled={loading || !text.trim()}
-                                className="btn btn-primary btn-block rounded-xl font-bold"
+                                onClick={onUpgrade}
+                                className="w-full max-w-[280px] bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-xl shadow-indigo-100 hover:bg-indigo-700 transition-all active:scale-95"
                             >
-                                {loading ? <Loader2 className="animate-spin" /> : "Procesar con IA"}
+                                Actualizar a PRO
+                            </button>
+                            <button
+                                onClick={onClose}
+                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 transition-all"
+                            >
+                                Quizás más tarde
                             </button>
                         </div>
                     )}
 
-                    {source === "gmail" && (
-                        <div className="text-center py-12 space-y-4">
-                            <Mail className="w-12 h-12 mx-auto text-gray-300" />
-                            <p className="text-sm text-gray-500 px-12">Estamos trabajando en la integración con Gmail para automatizar tus extractos.</p>
-                            <button className="btn btn-disabled btn-sm rounded-lg">Próximamente</button>
-                        </div>
-                    )}
+                    <div className={cn(isLimited && "opacity-20 pointer-events-none")}>
+                        {source === "file" && (
+                            <div className="space-y-4">
+                                <label className="border-2 border-dashed border-base-200 rounded-[24px] p-12 flex flex-col items-center justify-center gap-4 bg-base-200/50 hover:bg-base-200 transition-colors cursor-pointer group">
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        accept=".txt,.csv,.json,.pdf,.png,.jpg,.jpeg"
+                                        onChange={handleFileChange}
+                                        disabled={isLimited}
+                                    />
+                                    <div className="w-12 h-12 bg-base-100 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                                        {isProcessing ? <Loader2 className="w-6 h-6 text-primary animate-spin" /> : <FileText className="w-6 h-6 text-primary" />}
+                                    </div>
+                                    <p className="text-sm font-bold text-gray-500 text-center">
+                                        {isProcessing ? "Leyendo PDF..." : "Subir PDF, Imagen o Texto"}<br />
+                                        <span className="text-[10px] opacity-60 font-normal">{isProcessing ? "Extrayendo texto del documento..." : "Soporta capturas de pantalla de extractos"}</span>
+                                    </p>
+                                </label>
+                            </div>
+                        )}
+
+                        {source === "ai" && (
+                            <div className="space-y-4">
+                                <textarea
+                                    className="textarea textarea-bordered w-full h-40 rounded-2xl font-mono text-sm"
+                                    placeholder="Pega aquí el texto extraído o cualquier dato desordenado..."
+                                    value={text}
+                                    onChange={(e) => setText(e.target.value)}
+                                    disabled={isLimited}
+                                ></textarea>
+                                <button
+                                    onClick={() => {
+                                        onImport(tab, source, text, false, country);
+                                    }}
+                                    disabled={loading || !text.trim() || isLimited}
+                                    className="btn btn-primary btn-block rounded-xl font-bold"
+                                >
+                                    {loading ? <Loader2 className="animate-spin" /> : "Procesar con IA"}
+                                </button>
+                            </div>
+                        )}
+
+                        {source === "gmail" && (
+                            <div className="text-center py-12 space-y-4">
+                                <Mail className="w-12 h-12 mx-auto text-gray-300" />
+                                <p className="text-sm text-gray-500 px-12">Estamos trabajando en la integración con Gmail para automatizar tus extractos.</p>
+                                <button className="btn btn-disabled btn-sm rounded-lg">Próximamente</button>
+                            </div>
+                        )}
+                    </div>
 
                     {showPasswordInput && (
                         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">

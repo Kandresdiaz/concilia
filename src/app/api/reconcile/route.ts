@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         if (profile?.tier === "LIFETIME") limit = 9999;
         if (profile?.plans_usage_limit) limit = profile.plans_usage_limit; // Override if explicitly set in DB
 
-        const isAdmin = profile?.role === "admin";
+        const isAdmin = profile?.role === "admin" || profile?.role === "superadmin";
 
         // 1. Lazy Reset: If period expired, reset usage for the new month
         const now = new Date();

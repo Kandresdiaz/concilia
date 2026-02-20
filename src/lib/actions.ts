@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createClientAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 export async function getProfile() {
@@ -9,7 +10,14 @@ export async function getProfile() {
 
     if (!user) return null;
 
-    const { data: profile } = await supabase
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+    // We use the admin client to fetch the role bypassing RLS, but ONLY for this user's ID
+    const supabaseAdmin = createClientAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { data: profile } = await supabaseAdmin
         .from("profiles")
         .select("*")
         .eq("id", user.id)

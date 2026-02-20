@@ -6,10 +6,15 @@ import Stripe from 'stripe'
 export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
-    const supabaseAdmin = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+    if (!supabaseUrl || !serviceKey) {
+        console.error("Missing critical environment variables for Stripe Webhook");
+        return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
     const body = await req.text()
     const sig = req.headers.get('stripe-signature')!

@@ -6,9 +6,10 @@ import { createClient as createClientAdmin } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: Request) {
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
     const supabaseAdmin = createClientAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!
+        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const { searchParams, origin } = new URL(request.url)
     const code = searchParams.get('code')
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
                     }
                 }
 
-                if (profile?.role === "admin") {
+                if (profile?.role === "admin" || profile?.role === "superadmin") {
                     return NextResponse.redirect(`${origin}/admin`);
                 }
             }

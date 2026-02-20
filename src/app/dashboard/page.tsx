@@ -111,6 +111,13 @@ export default function ConciliAI() {
   };
 
   const handleImport = async (type: "bank" | "book", source: string, content: string, isImage: boolean = false, country: string = "Colombia") => {
+    // Marc Lou Optimization: Guard to block extraction if no credits
+    if (role !== "admin" && usageCount >= limit) {
+      setNotification({ type: "error", message: "Has alcanzado tu límite. Actualiza a PRO para seguir extrayendo datos." });
+      setIsImportOpen(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await fetch("/api/reconcile", {
@@ -1074,6 +1081,13 @@ export default function ConciliAI() {
           loading={loading}
           bankLoaded={!!bankData}
           bookLoaded={!!bookData}
+          usageCount={usageCount}
+          limit={limit}
+          role={role}
+          onUpgrade={() => {
+            setIsImportOpen(false);
+            handleUpgrade();
+          }}
         />
 
         <DeleteConfirmationModal

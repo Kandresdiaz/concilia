@@ -1,27 +1,34 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createClientAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
 export async function getAdminStats() {
     const supabase = await createClient();
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
 
-    // Check if current user is admin
+    const supabaseAdmin = createClientAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    // Check if current user is admin/superadmin
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized");
 
-    const { data: currentUserProfile } = await supabase
+    const { data: currentUserProfile } = await supabaseAdmin
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
 
-    if (currentUserProfile?.role !== "admin") {
+    if (currentUserProfile?.role !== "admin" && currentUserProfile?.role !== "superadmin") {
         throw new Error("Access Denied: Admin only");
     }
 
-    // Fetch all profiles
-    const { data: profiles, error } = await supabase
+    // Fetch all profiles using ADMIN client to bypass RLS
+    const { data: profiles, error } = await supabaseAdmin
         .from("profiles")
         .select("*")
         .order("created_at", { ascending: false });
@@ -47,21 +54,27 @@ export async function getAdminStats() {
 
 export async function updateUserPlan(userId: string, tier: "FREE" | "PRO", limit: number) {
     const supabase = await createClient();
+    const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
+
+    const supabaseAdmin = createClientAdmin(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     // Auth Check
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("Unauthorized");
 
-    const { data: adminProfile } = await supabase
+    const { data: adminProfile } = await supabaseAdmin
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
 
-    if (adminProfile?.role !== "admin") throw new Error("Access Denied");
+    if (adminProfile?.role !== "admin" && adminProfile?.role !== "superadmin") throw new Error("Access Denied");
 
-    // Update Target User
-    const { error } = await supabase
+    // Update Target User using Admin client
+    const { error } = await supabaseAdmin
         .from("profiles")
         .update({
             tier: tier,

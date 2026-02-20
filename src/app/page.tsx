@@ -14,7 +14,8 @@ import {
   Star,
   Clock,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  Landmark
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -102,14 +103,14 @@ function DemoSection() {
           <button
             onClick={handleSimulate}
             disabled={loading}
-            className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-lg shadow-2xl shadow-indigo-200 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3"
+            className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black text-lg shadow-purple hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase italic"
           >
             {loading ? <Bot className="w-6 h-6 animate-spin" /> : "Simular Conciliación"}
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="bg-slate-900 rounded-[30px] aspect-square md:aspect-video p-6 shadow-inner relative overflow-hidden border-8 border-slate-800">
+        <div className="bg-violet-950 rounded-[30px] aspect-square md:aspect-video p-6 shadow-inner relative overflow-hidden border-8 border-violet-900/50">
           <div className="absolute top-0 left-0 w-full p-4 border-b border-white/5 flex gap-2">
             <div className="w-2 h-2 rounded-full bg-rose-500/50"></div>
             <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
@@ -163,23 +164,23 @@ export default function LandingPage() {
       <LimitedOfferBanner />
 
       {/* Navigation */}
-      <nav className="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+      <nav className="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-violet-100 uppercase tracking-widest font-black">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
-              <ShieldCheck className="w-6 h-6" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center text-white shadow-purple">
+              <Landmark className="w-6 h-6" />
             </div>
-            <span className="text-xl font-black tracking-tighter">ConciliAI</span>
+            <span className="text-2xl font-black tracking-tighter uppercase">Concili<span className="text-violet-600">AI</span></span>
           </div>
           <div className="hidden lg:flex items-center gap-10">
-            <a href="#features" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Tecnología</a>
-            <a href="#demo" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest text-indigo-600">Demo Vivo</a>
-            <a href="#pricing" className="text-[11px] font-black text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-widest">Precios</a>
+            <a href="#features" className="text-[10px] text-slate-400 hover:text-violet-600 transition-colors">Tecnología</a>
+            <a href="#demo" className="text-[10px] text-violet-600">Demo Vivo</a>
+            <a href="#pricing" className="text-[10px] text-slate-400 hover:text-violet-600 transition-colors">Precios</a>
             <Link
               href="/login"
-              className="px-6 py-3 bg-slate-900 text-white text-[11px] font-black rounded-xl hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-indigo-100 uppercase tracking-widest"
+              className="px-8 py-3 bg-violet-600 text-white text-[11px] font-black rounded-xl hover:bg-violet-500 transition-all hover:scale-105 active:scale-95 shadow-purple"
             >
-              Iniciar mi auditoría
+              Auditoría IA
             </Link>
           </div>
         </div>
@@ -187,29 +188,29 @@ export default function LandingPage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative pt-32 pb-48 px-6 text-center overflow-hidden">
+        <section className="relative pt-32 pb-48 px-6 text-center overflow-hidden italic">
           {/* Background Decorations */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-50/50 via-transparent to-transparent"></div>
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-violet-100/30 via-transparent to-transparent"></div>
 
           <div className="max-w-7xl mx-auto space-y-12">
             <div className="animate-slide-up flex flex-col items-center gap-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-full text-indigo-600 text-[10px] font-black uppercase tracking-widest shadow-sm">
-                <Zap className="w-3 h-3 fill-indigo-600" /> IA especializada en Auditoría Contable
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-white border border-violet-100 rounded-full text-violet-600 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl animate-float">
+                <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
-              <h1 className="text-6xl md:text-[9rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-6xl mx-auto uppercase">
-                Concilia tus bancos <span className="text-indigo-600 italic">como un rayo.</span>
+              <h1 className="text-6xl md:text-[10rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-7xl mx-auto uppercase">
+                Cierres con <span className="text-gradient">precisión quirúrgica.</span>
               </h1>
-              <p className="text-lg md:text-2xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
-                Deja de pelearte con Excel. La IA que lee tablas, extrae cifras y certifica diferencias con precisión del 99.9%.
+              <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
+                El copiloto inteligente que lee tablas, extrae cifras y certifica diferencias en segundos.
               </p>
             </div>
 
             <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-6 animate-slide-up [animation-delay:200ms]">
               <Link
                 href="/login"
-                className="group px-12 py-6 bg-slate-900 text-white text-xl font-black rounded-[24px] hover:bg-slate-800 transition-all shadow-2xl shadow-indigo-100 flex items-center gap-4 active:scale-95"
+                className="group px-12 py-7 bg-violet-600 text-white text-2xl font-black rounded-[30px] hover:bg-violet-500 transition-all shadow-purple flex items-center gap-4 hover:scale-[1.02] active:scale-95 uppercase italic"
               >
-                Empezar Auditoría Gratis <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform" />
+                Empezar Auditoría con IA <Zap className="w-7 h-7 fill-white" />
               </Link>
               <div className="flex items-center gap-3">
                 <div className="flex -space-x-2">
@@ -231,23 +232,23 @@ export default function LandingPage() {
         <section id="features" className="py-32 px-6">
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24 items-center">
             <div className="space-y-8 animate-float">
-              <div className="bg-indigo-600/5 aspect-square rounded-[60px] p-12 relative overflow-hidden flex items-center justify-center">
-                <div className="absolute inset-24 bg-indigo-600/10 blur-3xl rounded-full"></div>
-                <Bot className="w-64 h-64 text-indigo-600 opacity-20 relative z-10" />
+              <div className="bg-violet-600/5 aspect-square rounded-[60px] p-12 relative overflow-hidden flex items-center justify-center">
+                <div className="absolute inset-24 bg-violet-600/10 blur-3xl rounded-full"></div>
+                <Landmark className="w-64 h-64 text-violet-600 opacity-20 relative z-10" />
                 <div className="absolute bottom-12 right-12 glass-card p-6 rounded-3xl space-y-2 translate-x-12 translate-y-12 shadow-2xl">
                   <div className="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <p className="text-xl font-black text-slate-900 underline decoration-indigo-500 decoration-4 underline-offset-4">Error: 0.0%</p>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Validado por IA</p>
+                  <p className="text-xl font-black text-slate-900 underline decoration-violet-500 decoration-4 underline-offset-4">Error: 0.0%</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Validado por ConciliAI</p>
                 </div>
               </div>
             </div>
 
             <div className="space-y-12">
               <div className="space-y-4">
-                <h2 className="text-5xl font-black tracking-tightest leading-none uppercase italic">Ahorra tiempo,<br /><span className="text-indigo-600">reduce el estrés.</span></h2>
-                <p className="text-xl text-slate-500 font-medium leading-relaxed">
+                <h2 className="text-5xl font-black tracking-tightest leading-none uppercase italic">Ahorra tiempo,<br /><span className="text-violet-600 text-gradient">reduce el estrés.</span></h2>
+                <p className="text-xl text-slate-500 font-medium leading-relaxed italic">
                   Ya no tendrás que trasnochar comparando filas. ConciliAI automatiza lo aburrido para que tú te enfoques en lo estratégico.
                 </p>
               </div>
@@ -427,9 +428,9 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex gap-12 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
-              <a href="#" className="hover:text-indigo-600 transition-colors">Características</a>
-              <a href="#" className="hover:text-indigo-600 transition-colors">Seguridad</a>
-              <a href="#" className="hover:text-indigo-600 transition-colors">Legal</a>
+              <a href="#features" className="hover:text-indigo-600 transition-colors">Características</a>
+              <a href="https://t.me/c/3814382001/3" target="_blank" className="hover:text-indigo-600 transition-colors font-bold text-indigo-500">Soporte Telegram</a>
+              <a href="https://www.linkedin.com/in/kevin-diaz-192873177" target="_blank" className="hover:text-indigo-600 transition-colors">LinkedIn</a>
             </div>
           </div>
           <p className="text-center text-slate-300 text-xs font-medium italic">Transformando el futuro de la contabilidad, una línea a la vez.</p>

@@ -2,12 +2,13 @@
 @plugin "daisyui";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --primary: #4f46e5;
-  --primary-focus: #4338ca;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.5);
+  --background: #fdfcff;
+  --foreground: #1e1b4b;
+  --primary: #7c3aed;
+  --primary-focus: #6d28d9;
+  --accent: #f43f5e;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(124, 58, 237, 0.1);
 }
 
 @theme {
@@ -35,22 +36,42 @@ body {
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-indigo-600 to-fuchsia-600 font-black;
+  }
+
+  .btn-premium {
+    @apply inline-flex items-center justify-center gap-3 px-10 py-5 bg-violet-600 text-white font-black rounded-3xl shadow-xl hover:bg-violet-500 hover:scale-105 active:scale-95 transition-all duration-300 uppercase tracking-widest text-sm shadow-violet-200;
   }
 
   /* Premium Animations */
   @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
   }
+
   .animate-float {
     animation: float 3s ease-in-out infinite;
   }
 
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   .animate-slide-up {
     animation: slide-up 0.8s ease-out forwards;
   }

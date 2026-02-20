@@ -33,7 +33,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, email, role, isOpen, onClose, onLogout, onUpgrade, onDeleteAccount }: SidebarProps) {
-    const isAdmin = role === "admin";
+    const isAdmin = role === "admin" || role === "superadmin";
     const isFree = tier === "FREE";
     const pathname = usePathname();
 
@@ -57,7 +57,9 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                     </div>
                     <div className="flex flex-col">
                         <span className="text-lg font-bold tracking-tight text-slate-900 leading-none">ConciliAI</span>
-                        <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">{tier === 'ENTERPRISE' ? 'DESPACHO' : tier === 'LIFETIME' ? 'VITALICIO' : 'PROFESSIONAL'}</span>
+                        <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mt-1">
+                            {tier === 'ENTERPRISE' ? 'DESPACHO' : tier === 'LIFETIME' ? 'VITALICIO' : tier === 'PRO' ? 'PROFESSIONAL' : 'GRATIS'}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -123,7 +125,10 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Ayuda</p>
-                    <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold">
+                    <button
+                        onClick={() => window.open("https://t.me/c/3814382001/3", "_blank")}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    >
                         <Users className="w-4 h-4" />
                         Comunidad
                     </button>
@@ -137,9 +142,19 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         <Zap className="w-4 h-4" />
                         Compartir Ahorro
                     </button>
-                    <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold">
+                    <button
+                        onClick={() => window.open("https://t.me/c/3814382001/3", "_blank")}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    >
                         <Send className="w-4 h-4" />
                         Soporte Directo
+                    </button>
+                    <button
+                        onClick={() => window.open("https://www.linkedin.com/in/kevin-diaz-192873177", "_blank")}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+                        LinkedIn
                     </button>
                 </div>
             </div>
