@@ -51,7 +51,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
         )}>
             {/* Brand Header */}
             <div className="p-8 pb-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-6">
                     <div className="w-9 h-9 bg-slate-900 rounded-lg flex items-center justify-center text-white shadow-lg">
                         <FileCheck className="w-5 h-5" />
                     </div>
@@ -62,9 +62,20 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         </span>
                     </div>
                 </div>
+
+                {isFree && (
+                    <button
+                        onClick={() => onUpgrade("modal")}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95 group/upgrade relative overflow-hidden"
+                    >
+                        <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 animate-pulse"></div>
+                        <Zap className="w-4 h-4 fill-current animate-pulse group-hover/upgrade:scale-110 transition-transform" />
+                        Actualizar a PRO
+                    </button>
+                )}
             </div>
 
-            {/* Navigation Section */}
+            {/* Main Navigation */}
             <div className="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Gestión</p>
@@ -74,7 +85,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             onClick={() => !item.locked && onViewChange(item.id)}
                             disabled={item.locked}
                             className={cn(
-                                "w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 group relative",
+                                "w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group relative",
                                 currentView === item.id
                                     ? "bg-indigo-50 text-indigo-700"
                                     : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
@@ -102,7 +113,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                                 <Link
                                     href="/dashboard"
                                     className={cn(
-                                        "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 mt-4"
+                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-bold text-[13px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 mt-4"
                                     )}
                                 >
                                     <LayoutDashboard className="w-4 h-4" />
@@ -112,7 +123,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                                 <Link
                                     href="/admin"
                                     className={cn(
-                                        "w-full flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
+                                        "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
                                     )}
                                 >
                                     <Shield className="w-4 h-4 text-indigo-400" />
@@ -121,49 +132,44 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             )}
                         </>
                     )}
-
-                    {isFree && (
-                        <button
-                            onClick={() => onUpgrade("modal")}
-                            className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95 group/upgrade"
-                        >
-                            <Zap className="w-4 h-4 fill-current animate-pulse group-hover/upgrade:scale-110 transition-transform" />
-                            Actualizar a PRO
-                        </button>
-                    )}
                 </div>
 
                 <div className="space-y-1">
-                    <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Ayuda</p>
-                    <button
-                        onClick={() => window.open("https://www.linkedin.com/in/kevin-diaz-192873177", "_blank")}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer text-left"
+                    <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Ayuda y Comunidad</p>
+                    <a
+                        href="https://www.linkedin.com/in/kevin-diaz-192873177"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
                     >
-                        <Users className="w-4 h-4" />
-                        Comunidad
-                    </button>
+                        <Users className="w-4 h-4 text-slate-400" />
+                        Comunidad LinkedIn
+                    </a>
                     <button
                         onClick={() => {
                             const text = `Me acabo de ahorrar horas de trabajo manual conciliando mi banco con ConciliAI. 🔥 ¡Es increíble! \n\nPruébalo aquí: https://concilia.ai`;
                             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
                         }}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 cursor-pointer text-left"
                     >
                         <Zap className="w-4 h-4" />
-                        Compartir Ahorro
+                        Compartir Logro
                     </button>
-                    <button
-                        onClick={() => window.open("https://t.me/c/3814382001/3", "_blank")}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer text-left"
+                    <a
+                        href="https://t.me/c/3814382001/3"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
                     >
-                        <Send className="w-4 h-4" />
+                        <Send className="w-4 h-4 text-slate-400" />
                         Soporte Directo
-                    </button>
+                    </a>
                 </div>
             </div>
 
-            {/* User Profile Section */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50/50">
+            {/* Bottom Footer Section */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-4">
+                {/* Usage Card */}
                 <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-center mb-3">
                         <span className={cn(
@@ -174,8 +180,8 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         </span>
                         <span className="text-[10px] font-bold text-slate-400">{usageCount}/{limit}</span>
                     </div>
-                    <p className="text-[11px] font-semibold text-slate-900 truncate mb-1">{email || "usuario@correo.com"}</p>
-                    <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                    <p className="text-[11px] font-semibold text-slate-900 truncate mb-2">{email || "usuario@correo.com"}</p>
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                         <div
                             className="bg-indigo-600 h-full transition-all duration-500"
                             style={{ width: `${Math.min(100, (usageCount / Math.max(1, limit)) * 100)}%` }}
@@ -183,10 +189,11 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                     </div>
                 </div>
 
+                {/* Referral Card */}
                 <div className="p-4 bg-indigo-900 rounded-2xl border border-indigo-500/30 text-white space-y-3 relative overflow-hidden group">
                     <div className="absolute -top-4 -right-4 w-12 h-12 bg-indigo-500/20 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
                     <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Regala 2 créditos</p>
-                    <p className="text-[11px] font-medium leading-relaxed">Invita a un colega y gana 2 conciliaciones extra para ti.</p>
+                    <p className="text-[11px] font-medium leading-relaxed">Gana conciliaciones invitando a un colega.</p>
                     <button
                         onClick={() => {
                             const refLink = `https://concilia.ai/login?ref=${email.split('@')[0]}`;
@@ -200,25 +207,28 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                     </button>
                 </div>
 
-                <button
-                    onClick={onLogout}
-                    className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                    <LogOut className="w-3.5 h-3.5" />
-                    Cerrar Sesión
-                </button>
+                {/* Footer Controls */}
+                <div className="flex flex-col gap-1">
+                    <button
+                        onClick={onLogout}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                        <LogOut className="w-3.5 h-3.5" />
+                        Cerrar Sesión
+                    </button>
 
-                <button
-                    onClick={() => {
-                        if (confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer y perderás todos tus datos.")) {
-                            onDeleteAccount();
-                        }
-                    }}
-                    className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2 text-[10px] font-medium text-slate-300 hover:text-rose-500 transition-colors opacity-50 hover:opacity-100"
-                >
-                    <Trash2 className="w-3 h-3" />
-                    Eliminar Cuenta
-                </button>
+                    <button
+                        onClick={() => {
+                            if (confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) {
+                                onDeleteAccount();
+                            }
+                        }}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[10px] font-medium text-slate-300 hover:text-rose-500 transition-colors opacity-50 hover:opacity-100"
+                    >
+                        <Trash2 className="w-3 h-3" />
+                        Eliminar Cuenta
+                    </button>
+                </div>
             </div>
         </div>
     );
