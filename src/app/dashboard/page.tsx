@@ -31,6 +31,7 @@ import { PrivacyModal } from "@/components/PrivacyModal";
 import { SocialProofToast } from "@/components/SocialProofToast";
 import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
 import { ReportViewModal } from "@/components/ReportViewModal";
+import { PricingModal } from "@/components/PricingModal";
 
 
 export default function ConciliAI() {
@@ -58,6 +59,7 @@ export default function ConciliAI() {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
+  const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -331,7 +333,13 @@ export default function ConciliAI() {
 
 
 
-  const handleUpgrade = async (tier: string = "PRO") => {
+  const handleUpgrade = async (tier?: string) => {
+    if (!tier || tier === "modal") {
+      setIsPricingModalOpen(true);
+      return;
+    }
+
+    setModalLoading(true);
     try {
       const response = await fetch("/api/stripe/checkout", {
         method: "POST",
@@ -346,8 +354,9 @@ export default function ConciliAI() {
       }
     } catch (err: any) {
       setNotification({ type: "error", message: "Error de conexión: " + err.message });
+    } finally {
+      setModalLoading(false);
     }
-
   };
 
   const renderView = () => {
@@ -1110,6 +1119,13 @@ export default function ConciliAI() {
           onClose={() => setIsReportModalOpen(false)}
           data={selectedReport}
           tier={tier as any}
+        />
+
+        <PricingModal
+          isOpen={isPricingModalOpen}
+          onClose={() => setIsPricingModalOpen(false)}
+          onUpgrade={(selectedTier) => handleUpgrade(selectedTier)}
+          loading={modalLoading}
         />
 
 

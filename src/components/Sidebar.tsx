@@ -121,50 +121,44 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                             )}
                         </>
                     )}
+
+                    {isFree && (
+                        <button
+                            onClick={() => onUpgrade("modal")}
+                            className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3.5 bg-indigo-600 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95 group/upgrade"
+                        >
+                            <Zap className="w-4 h-4 fill-current animate-pulse group-hover/upgrade:scale-110 transition-transform" />
+                            Actualizar a PRO
+                        </button>
+                    )}
                 </div>
 
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Ayuda</p>
-                    <a
-                        href="https://www.linkedin.com/in/kevin-diaz-192873177"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                            // Fallback if the link doesn't trigger for some reason
-                            if (typeof window !== 'undefined') {
-                                window.open("https://www.linkedin.com/in/kevin-diaz-192873177", "_blank");
-                            }
-                        }}
-                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
+                    <button
+                        onClick={() => window.open("https://www.linkedin.com/in/kevin-diaz-192873177", "_blank")}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer text-left"
                     >
                         <Users className="w-4 h-4" />
                         Comunidad
-                    </a>
+                    </button>
                     <button
                         onClick={() => {
                             const text = `Me acabo de ahorrar horas de trabajo manual conciliando mi banco con ConciliAI. 🔥 ¡Es increíble! \n\nPruébalo aquí: https://concilia.ai`;
                             window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank");
                         }}
-                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-indigo-600 hover:bg-indigo-50 transition-all text-[13px] font-bold border border-indigo-100 mt-2 cursor-pointer text-left"
                     >
                         <Zap className="w-4 h-4" />
                         Compartir Ahorro
                     </button>
-                    <a
-                        href="https://t.me/c/3814382001/3"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => {
-                            // Fallback
-                            if (typeof window !== 'undefined') {
-                                window.open("https://t.me/c/3814382001/3", "_blank");
-                            }
-                        }}
-                        className="relative z-10 w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer"
+                    <button
+                        onClick={() => window.open("https://t.me/c/3814382001/3", "_blank")}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold cursor-pointer text-left"
                     >
                         <Send className="w-4 h-4" />
                         Soporte Directo
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -188,16 +182,6 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         ></div>
                     </div>
                 </div>
-
-                {isFree && (
-                    <button
-                        onClick={() => onUpgrade("PRO")}
-                        className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-xl font-black text-[11px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
-                    >
-                        <Zap className="w-3.5 h-3.5 fill-current" />
-                        Actualizar a PRO
-                    </button>
-                )}
 
                 <div className="p-4 bg-indigo-900 rounded-2xl border border-indigo-500/30 text-white space-y-3 relative overflow-hidden group">
                     <div className="absolute -top-4 -right-4 w-12 h-12 bg-indigo-500/20 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
