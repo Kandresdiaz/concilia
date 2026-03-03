@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ShieldCheck, ArrowRight, FileText, Download, Upload, Loader2, CheckCircle2, FileJson, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { extractTextFromPdf } from "@/lib/pdf";
 import { generateCSV } from "@/lib/export";
 
 export default function BankStatementConverter() {
@@ -23,31 +24,32 @@ export default function BankStatementConverter() {
         setError(null);
 
         try {
-            // Reutilizamos la lógica del dashboard para leer el archivo
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const text = event.target?.result as string;
+            let text = "";
+            if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+                const buffer = await file.arrayBuffer();
+                text = await extractTextFromPdf(buffer);
+            } else {
+                text = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target?.result as string);
+                    reader.onerror = (e) => reject(new Error("Error al leer el archivo"));
+                    reader.readAsText(file);
+                });
+            }
 
-                try {
-                    const response = await fetch("/api/reconcile", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ text, country: "Colombia" }),
-                    });
+            const response = await fetch("/api/reconcile", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text, country: "Colombia" }),
+            });
 
-                    const data = await response.json();
-                    if (data.error) throw new Error(data.error);
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
 
-                    setResult(data);
-                } catch (err: any) {
-                    setError(err.message);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            reader.readAsText(file);
+            setResult(data);
         } catch (err: any) {
-            setError("Error al leer el archivo");
+            setError(err.message || "Error al procesar el archivo");
+        } finally {
             setLoading(false);
         }
     };

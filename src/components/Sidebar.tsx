@@ -11,7 +11,9 @@ import {
     Trash2,
     Lock,
     Zap,
-    Shield
+    Shield,
+    FileSpreadsheet,
+    Calculator
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
