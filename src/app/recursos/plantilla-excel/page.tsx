@@ -15,6 +15,22 @@ import {
 import { cn } from "@/lib/utils";
 
 export default function ExcelTemplatePage() {
+    const handleDownload = () => {
+        const headers = "Fecha (DD/MM/AAAA),Descripción,Referencia,Monto (Ingresos positivo - Egresos negativo)\n";
+        const rows = "01/03/2026,Ejemplo de Pago Proveedor,REF001,-500000\n02/03/2026,Ejemplo de Venta Producto,REF002,1200000";
+        const csvContent = headers + rows;
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Plantilla_Conciliacion_ConciliAI.csv");
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100">
             {/* Header */}
@@ -46,7 +62,10 @@ export default function ExcelTemplatePage() {
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                        <button className="w-full sm:w-auto px-8 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all flex items-center justify-center gap-3 group">
+                        <button
+                            onClick={handleDownload}
+                            className="w-full sm:w-auto px-8 py-5 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all flex items-center justify-center gap-3 group"
+                        >
                             <Download className="w-4 h-4 group-hover:bounce" /> Descargar Plantilla .XLSX
                         </button>
                         <Link href="/dashboard" className="w-full sm:w-auto px-8 py-5 bg-white text-indigo-600 border-2 border-indigo-100 rounded-2xl font-black uppercase tracking-widest text-[11px] hover:bg-indigo-50 transition-all flex items-center justify-center gap-3">
