@@ -8,7 +8,7 @@ export async function extractTextFromPdf(data: ArrayBuffer, password?: string): 
 
         // Use a fixed stable worker from JSDelivr or Ungkg
         const version = pdfjs.version || '5.4.624';
-        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
+        pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${version}/build/pdf.worker.min.mjs`;
 
         const loadingTask = pdfjs.getDocument({
             data,
