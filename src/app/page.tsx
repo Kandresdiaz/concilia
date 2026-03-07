@@ -17,9 +17,24 @@ import {
   Sparkles,
   Landmark
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { extractTextFromPdf } from "@/lib/pdf";
+
+// --- Analytics Utility ---
+const logEvent = async (eventName: string, metadata: any = {}) => {
+  const supabase = createClient();
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase.from("analytics").insert([{
+      event_name: eventName,
+      metadata: { ...metadata, user_id: user?.id },
+      user_agent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
+    }]);
+  } catch (e) {
+    console.error("Analytics Error:", e);
+  }
+};
 
 // --- Subcomponent: FOMO Banner ---
 function LimitedOfferBanner() {
@@ -48,23 +63,54 @@ function LimitedOfferBanner() {
   );
 }
 
-// --- Subcomponent: Interactive Demo ---
-function DemoSection() {
-  const [step, setStep] = useState(0);
+// --- Subcomponent: Functional Hero Uploader ---
+function HeroUploader({ user }: { user: any }) {
+  const [step, setStep] = useState(0); // 0: Idle, 1: Loading, 2: Success
   const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const router = useRouter();
 
-  const steps = [
-    { title: "Sube tu extracto", icon: <FileText className="w-6 h-6" /> },
-    { title: "IA Analiza Tablas", icon: <Bot className="w-6 h-6" /> },
-    { title: "Resultado Auditado", icon: <CheckCircle2 className="w-6 h-6" /> }
-  ];
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = e.target.files?.[0];
+    if (uploadedFile) {
+      setFile(uploadedFile);
+      logEvent("landing_file_selected", { fileName: uploadedFile.name });
+    }
+  };
 
-  const handleSimulate = () => {
+  const handleUpload = async () => {
+    if (!file) return;
     setLoading(true);
-    setTimeout(() => {
-      setStep((prev) => (prev + 1) % 3);
+    setStep(1);
+    logEvent("landing_upload_start");
+
+    try {
+      let text = "";
+      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+        const buffer = await file.arrayBuffer();
+        text = await extractTextFromPdf(buffer);
+      } else {
+        text = await file.text();
+      }
+
+      const response = await fetch("/api/reconcile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, country: "Colombia" }),
+      });
+
+      const data = await response.json();
+      setResult(data);
+      setStep(2);
+      logEvent("landing_upload_success", { transactionCount: data.transactions?.length });
+    } catch (err) {
+      console.error(err);
+      setStep(0);
+      logEvent("landing_upload_error");
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -75,89 +121,103 @@ function DemoSection() {
 
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="space-y-8 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest rounded-full">
-            <Sparkles className="w-3 h-3" /> Demo Interactiva
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full">
+            <Sparkles className="w-3 h-3" /> Prueba la IA ahora
           </div>
           <h3 className="text-4xl font-black tracking-tighter text-slate-900 leading-none">
-            Mira la IA en <span className="text-indigo-600 italic">acción</span>
+            Sube tu extracto y <span className="text-indigo-600 italic">verás la magia</span>
           </h3>
 
-          <div className="space-y-4">
-            {steps.map((s, i) => (
-              <div key={i} className={cn(
-                "flex items-center gap-4 p-4 rounded-2xl transition-all duration-500 border border-transparent",
-                step === i ? "bg-white shadow-xl border-slate-100 scale-105" : "opacity-40"
-              )}>
-                <div className={cn(
-                  "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                  step === i ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400"
-                )}>
-                  {s.icon}
+          <div className="space-y-6">
+            {step < 2 ? (
+              <div className="space-y-4">
+                <div className="border-4 border-dashed border-slate-100 rounded-[30px] p-10 flex flex-col items-center justify-center gap-4 hover:bg-slate-50 transition-all cursor-pointer relative">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="absolute inset-0 opacity-0 cursor-pointer"
+                    accept=".pdf,.csv,.txt"
+                  />
+                  <div className="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl">
+                    <Upload className="w-8 h-8" />
+                  </div>
+                  <p className="font-bold text-slate-900 uppercase italic text-sm">
+                    {file ? file.name : "Suelte su PDF aquí"}
+                  </p>
                 </div>
-                <div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paso 0{i + 1}</p>
-                  <p className="font-bold text-slate-900">{s.title}</p>
-                </div>
+                <button
+                  onClick={handleUpload}
+                  disabled={!file || loading}
+                  className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black text-lg shadow-purple hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase italic disabled:opacity-50"
+                >
+                  {loading ? <Bot className="w-6 h-6 animate-spin" /> : "Analizar Extracto"}
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
-            ))}
+            ) : (
+              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-emerald-50 text-emerald-700 p-6 rounded-3xl border border-emerald-100">
+                  <p className="text-xs font-black uppercase tracking-widest mb-1">✓ Éxito</p>
+                  <p className="text-lg font-bold">Hemos detectado {result?.transactions?.length || 0} movimientos.</p>
+                </div>
+                <Link
+                  href={user ? "/dashboard" : "/login"}
+                  className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 uppercase italic shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                  onClick={() => logEvent("landing_cta_click", { location: "uploader_success" })}
+                >
+                  {user ? "Ver Auditoría Completa" : "Regístrate para ver el Reporte"} <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+            )}
           </div>
-
-          <button
-            onClick={handleSimulate}
-            disabled={loading}
-            className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black text-lg shadow-purple hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase italic"
-          >
-            {loading ? <Bot className="w-6 h-6 animate-spin" /> : "Simular Conciliación"}
-            <ChevronRight className="w-5 h-5" />
-          </button>
         </div>
 
-        <div className="bg-violet-950 rounded-[30px] aspect-square md:aspect-video p-6 shadow-inner relative overflow-hidden border-8 border-violet-900/50">
-          <div className="absolute top-0 left-0 w-full p-4 border-b border-white/5 flex gap-2">
-            <div className="w-2 h-2 rounded-full bg-rose-500/50"></div>
-            <div className="w-2 h-2 rounded-full bg-amber-500/50"></div>
-            <div className="w-2 h-2 rounded-full bg-emerald-500/50"></div>
-          </div>
-
-          <div className="mt-8 font-mono text-[10px] text-indigo-400 space-y-2">
-            {step === 0 && (
-              <div className="animate-pulse space-y-4 text-center pt-12">
-                <FileText className="w-16 h-16 mx-auto opacity-20" />
-                <p className="animate-bounce">Esperando archivo...</p>
+        <div className="bg-slate-900 rounded-[30px] aspect-square md:aspect-video p-6 shadow-2xl relative overflow-hidden border-8 border-slate-800">
+          {step === 0 && (
+            <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
+              <FileText className="w-16 h-16 opacity-10" />
+              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Terminal ConciliAI</p>
+            </div>
+          )}
+          {step === 1 && (
+            <div className="mt-8 font-mono text-[10px] text-indigo-400 space-y-2">
+              <p className="text-emerald-400">{"[LOG]: Cargando Vision-AI Llama 3.3..."}</p>
+              <p className="animate-pulse">{"[IA]: Escaneando tablas en PDF..."}</p>
+              <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-4">
+                <div className="h-full bg-indigo-500 animate-[progress_1.5s_infinite]"></div>
               </div>
-            )}
-            {step === 1 && (
-              <div className="space-y-2">
-                <p className="text-emerald-400">{"[LOG]: Cargando modelo Llama 3.2 Vision..."}</p>
-                <p>{"[OCR]: Escaneando PDF Bancario..."}</p>
-                <p>{"[AI]: Identificando 45 transacciones."}</p>
-                <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-500 animate-[progress_1.5s_infinite]"></div>
-                </div>
-              </div>
-            )}
-            {step === 2 && (
-              <div className="space-y-4">
-                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-xl">
-                  <p className="text-emerald-400 font-bold uppercase">✓ Conciliación Exitosa</p>
-                  <div className="flex justify-between mt-2">
-                    <span>Libros: $45,230.00</span>
-                    <span>Bancos: $45,230.00</span>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="relative h-full overflow-hidden">
+              <div className="space-y-3 blur-[6px] grayscale pointer-events-none">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
+                    <div className="w-1/2 h-3 bg-white/10 rounded"></div>
+                    <div className="w-1/4 h-3 bg-white/10 rounded"></div>
                   </div>
-                  <p className="text-white font-black text-xl mt-2">$ 0.00 Diferencia</p>
-                </div>
-                <div className="grid grid-cols-2 gap-2 opacity-50">
-                  <div className="h-10 bg-white/5 rounded-lg"></div>
-                  <div className="h-10 bg-white/5 rounded-lg"></div>
-                </div>
+                ))}
               </div>
-            )}
-          </div>
+              {!user && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/40 backdrop-blur-[2px]">
+                  <Lock className="w-10 h-10 text-indigo-400 mb-4" />
+                  <p className="text-sm font-bold text-white uppercase tracking-widest mb-2">Resultados Protegidos</p>
+                  <p className="text-[10px] text-slate-300 font-medium">Crea una cuenta para desbloquear el análisis de auditoría.</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
+const Upload = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
 
 // --- Main Page Component ---
 export default function LandingPage() {
@@ -167,7 +227,10 @@ export default function LandingPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      logEvent("landing_view", { authenticated: !!user });
+    });
   }, []);
 
   const handleCheckout = async (tier: string) => {
@@ -232,10 +295,10 @@ export default function LandingPage() {
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
               <h1 className="text-6xl md:text-[10rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-7xl mx-auto uppercase">
-                Cierres con <span className="text-gradient">precisión quirúrgica.</span>
+                Detecta cada <span className="text-gradient">centavo perdido.</span>
               </h1>
               <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
-                El copiloto inteligente que lee tablas, extrae cifras y certifica diferencias en segundos.
+                Concilia Shopify, Stripe y Bancos en <span className="text-indigo-600 font-black italic underline decoration-4 underline-offset-8">segundos</span>. No más "órdenes fantasma" ni discrepancias en pagos.
               </p>
             </div>
 
@@ -256,10 +319,67 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Demo Section */}
+        {/* Uploader Section */}
         <section id="demo" className="py-24 px-6 bg-white relative">
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 to-white"></div>
-          <DemoSection />
+          <HeroUploader user={user} />
+        </section>
+
+        {/* Niche Solutions Section */}
+        <section className="py-32 px-6 bg-slate-50">
+          <div className="max-w-7xl mx-auto space-y-20">
+            <div className="text-center space-y-4">
+              <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tightest leading-none">Soluciones para <br /><span className="text-indigo-600">tu Problema Real</span></h2>
+              <p className="text-slate-500 font-medium text-xl italic">No somos una API genérica. Somos el analgésico que necesitas hoy.</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* E-commerce Card */}
+              <div className="group p-10 bg-white rounded-[50px] border border-slate-100 shadow-xl hover:scale-[1.05] transition-all duration-500 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Sparkles className="w-32 h-32" />
+                </div>
+                <div className="w-16 h-16 bg-emerald-600 text-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
+                  <Zap className="w-8 h-8" />
+                </div>
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">E-commerce & Shopify</h3>
+                <p className="text-slate-500 font-medium mb-8">
+                  Cruza pedidos de Shopify/Stripe contra tu extracto bancario. **Detén los robos, errores de pasarela y pedidos no pagados.**
+                </p>
+                <Link href="/login" className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
+                  Saber más <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Accountant Card */}
+              <div className="group p-10 bg-slate-900 text-white rounded-[50px] shadow-2xl hover:scale-[1.05] transition-all duration-500 border-t-8 border-indigo-600">
+                <div className="w-16 h-16 bg-white text-slate-900 rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
+                  <FileText className="w-8 h-8" />
+                </div>
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">Auxiliares Contables</h3>
+                <p className="text-slate-400 font-medium mb-8">
+                  Convierte extractos PDF a Excel y concilia balances en minutos. **Tu mes contable termina el viernes, no el domingo.**
+                </p>
+                <Link href="/login" className="flex items-center gap-2 text-indigo-400 font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
+                  Saber más <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Freelancer Card */}
+              <div className="group p-10 bg-white rounded-[50px] border border-slate-100 shadow-xl hover:scale-[1.05] transition-all duration-500 overflow-hidden">
+                <div className="w-16 h-16 bg-violet-600 text-white rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
+                  <ShieldCheck className="w-8 h-8" />
+                </div>
+                <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">Freelancers & SMBs</h3>
+                <p className="text-slate-500 font-medium mb-8">
+                  Reportes listos para tu declaración de impuestos. **Simplifica tu vida fiscal con reportes auditados por IA.**
+                </p>
+                <Link href="/login" className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
+                  Saber más <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Benefits Section */}

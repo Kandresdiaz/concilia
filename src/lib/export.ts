@@ -185,29 +185,31 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
  * Generates a clean CSV grouped by comparison
  */
 export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO" | "ENTERPRISE" | "LIFETIME") {
-    let csv = `EMPRESA,${companyName || "S/N"},GENERADO,${new Date().toLocaleDateString()},PLAN,${tier}\n`;
+    const csvHeader = "sep=;\n";
+    const bom = "\uFEFF";
+    let csv = `${csvHeader}${bom}EMPRESA;${companyName || "S/N"};GENERADO;${new Date().toLocaleDateString()};PLAN;${tier}\n`;
     const bankTotal = bankData?.verified_totals?.net || 0;
     const bookTotal = bookData?.verified_totals?.net || 0;
     const netDifference = bankTotal - bookTotal;
-    csv += `TOTAL BANCO,${bankTotal},TOTAL LIBROS,${bookTotal},DIFERENCIA,${netDifference}\n`;
+    csv += `TOTAL BANCO;${bankTotal};TOTAL LIBROS;${bookTotal};DIFERENCIA;${netDifference}\n`;
 
-    csv += "ESTADO,TIPO,FECHA,DESCRIPCION,VALOR,REFERENCIA\n";
+    csv += "ESTADO;TIPO;FECHA;DESCRIPCION;VALOR;REFERENCIA\n";
 
 
     // 1. Matches (Conciliados)
     matchedData.matches.forEach((m: any) => {
-        csv += `CONCILIADO,BANCO,${m.bank.date},"${m.bank.description}",${m.bank.amount},${m.bank.reference || ""}\n`;
-        csv += `CONCILIADO,LIBRO,${m.book.date},"${m.book.description}",${m.book.amount},${m.book.reference || ""}\n`;
+        csv += `CONCILIADO;BANCO;${m.bank.date};"${m.bank.description}";${m.bank.amount};${m.bank.reference || ""}\n`;
+        csv += `CONCILIADO;LIBRO;${m.book.date};"${m.book.description}";${m.book.amount};${m.book.reference || ""}\n`;
     });
 
     // 2. Pending Bank
     matchedData.pendingBank.forEach((t: any) => {
-        csv += `PENDIENTE,BANCO,${t.date},"${t.description}",${t.amount},${t.reference || ""}\n`;
+        csv += `PENDIENTE;BANCO;${t.date};"${t.description}";${t.amount};${t.reference || ""}\n`;
     });
 
     // 3. Pending Book
     matchedData.pendingBook.forEach((t: any) => {
-        csv += `PENDIENTE,LIBRO,${t.date},"${t.description}",${t.amount},${t.reference || ""}\n`;
+        csv += `PENDIENTE;LIBRO;${t.date};"${t.description}";${t.amount};${t.reference || ""}\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
