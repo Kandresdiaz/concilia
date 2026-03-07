@@ -12,10 +12,10 @@ import {
   BarChart3,
   Bot,
   Star,
-  Clock,
-  ChevronRight,
   Sparkles,
-  Landmark
+  Landmark,
+  ShoppingBag,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -151,18 +151,18 @@ function HeroUploader({ user }: { user: any }) {
                   {/* Uploader 1: Shopify/Stripe */}
                   <div className={cn(
                     "border-4 border-dashed rounded-[35px] p-8 flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden group",
-                    fileSales ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+                    fileSales ? "border-emerald-200 bg-emerald-50/80" : "border-slate-100 hover:border-emerald-200 hover:bg-emerald-50/30"
                   )}>
                     <input type="file" onChange={(e) => handleFileChange(e, 'sales')} className="absolute inset-0 opacity-0 cursor-pointer" />
                     <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
-                      fileSales ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
+                      "w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all group-hover:rotate-6 group-hover:scale-110",
+                      fileSales ? "bg-white text-emerald-600" : "bg-emerald-500 text-white"
                     )}>
-                      {fileSales ? <CheckCircle2 className="w-6 h-6" /> : <Zap className="w-6 h-6" />}
+                      {fileSales ? <CheckCircle2 className="w-8 h-8" /> : <ShoppingBag className="w-8 h-8" />}
                     </div>
                     <div className="text-center">
-                      <p className="font-black text-slate-900 uppercase text-[10px] tracking-widest mb-1">Paso 1: Libros</p>
-                      <p className="text-xs font-bold text-slate-400 truncate max-w-[150px]">
+                      <p className={cn("font-black uppercase text-[10px] tracking-widest mb-1", fileSales ? "text-emerald-900" : "text-slate-400")}>Paso 1: Ventas</p>
+                      <p className={cn("text-xs font-bold truncate max-w-[150px]", fileSales ? "text-emerald-700" : "text-slate-400")}>
                         {fileSales ? fileSales.name : "Shopify / Stripe (.csv)"}
                       </p>
                     </div>
@@ -171,19 +171,19 @@ function HeroUploader({ user }: { user: any }) {
                   {/* Uploader 2: Banco */}
                   <div className={cn(
                     "border-4 border-dashed rounded-[35px] p-8 flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden group",
-                    fileBank ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+                    fileBank ? "border-blue-200 bg-blue-50/80" : "border-slate-100 hover:border-blue-200 hover:bg-blue-50/30"
                   )}>
                     <input type="file" onChange={(e) => handleFileChange(e, 'bank')} className="absolute inset-0 opacity-0 cursor-pointer" />
                     <div className={cn(
-                      "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
-                      fileBank ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
+                      "w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all group-hover:-rotate-6 group-hover:scale-110",
+                      fileBank ? "bg-white text-blue-600" : "bg-blue-600 text-white"
                     )}>
-                      {fileBank ? <CheckCircle2 className="w-6 h-6" /> : <Landmark className="w-6 h-6" />}
+                      {fileBank ? <CheckCircle2 className="w-8 h-8" /> : <Landmark className="w-8 h-8" />}
                     </div>
                     <div className="text-center">
-                      <p className="font-black text-slate-900 uppercase text-[10px] tracking-widest mb-1">Paso 2: Bancos</p>
-                      <p className="text-xs font-bold text-slate-400 truncate max-w-[150px]">
-                        {fileBank ? fileBank.name : "Extracto PDF / CSV"}
+                      <p className={cn("font-black uppercase text-[10px] tracking-widest mb-1", fileBank ? "text-blue-900" : "text-slate-400")}>Paso 2: Banco</p>
+                      <p className={cn("text-xs font-bold truncate max-w-[150px]", fileBank ? "text-blue-700" : "text-slate-400")}>
+                        {fileBank ? fileBank.name : "Extracto PDF / Bancolombia"}
                       </p>
                     </div>
                   </div>
