@@ -15,7 +15,7 @@ export function UsageLimitCard({ usageCount, tier, limit }: UsageLimitCardProps)
         <div className="card w-full bg-base-100 shadow-xl border border-base-200">
             <div className="card-body">
                 <h2 className="card-title flex justify-between">
-                    <span>Uso Mensual</span>
+                    <span>Estado del Plan</span>
                     {tier === 'FREE' && <span className="badge badge-warning">Plan Gratis</span>}
                     {tier === 'PRO' && <span className="badge badge-primary gap-2"><CheckCircle className="w-4 h-4" /> PROFESIONAL</span>}
                     {tier === 'ENTERPRISE' && <span className="badge badge-secondary gap-2"><CheckCircle className="w-4 h-4" /> DESPACHO</span>}
@@ -37,7 +37,7 @@ export function UsageLimitCard({ usageCount, tier, limit }: UsageLimitCardProps)
                         {usageCount >= limit ? (
                             <div role="alert" className="alert alert-error">
                                 <AlertCircle className="stroke-current shrink-0 h-6 w-6" />
-                                <span>Has alcanzado el límite mensual.</span>
+                                <span>Has alcanzado el límite de prueba.</span>
                             </div>
                         ) : null}
 

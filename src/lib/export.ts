@@ -185,9 +185,9 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
  * Generates a clean CSV grouped by comparison
  */
 export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO" | "ENTERPRISE" | "LIFETIME") {
-    const csvHeader = "sep=;\n";
     const bom = "\uFEFF";
-    let csv = `${csvHeader}${bom}EMPRESA;${companyName || "S/N"};GENERADO;${new Date().toLocaleDateString()};PLAN;${tier}\n`;
+    const csvHeader = "sep=;\n";
+    let csv = `${bom}${csvHeader}EMPRESA;${companyName || "S/N"};GENERADO;${new Date().toLocaleDateString()};PLAN;${tier}\n`;
     const bankTotal = bankData?.verified_totals?.net || 0;
     const bookTotal = bookData?.verified_totals?.net || 0;
     const netDifference = bankTotal - bookTotal;
