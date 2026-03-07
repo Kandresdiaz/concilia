@@ -12,6 +12,7 @@ import {
   BarChart3,
   Bot,
   Star,
+  Clock,
   Sparkles,
   Landmark,
   ShoppingBag,
