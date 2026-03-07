@@ -13,6 +13,7 @@ import {
   Bot,
   Star,
   Clock,
+  ChevronRight,
   Sparkles,
   Landmark,
   ShoppingBag,
