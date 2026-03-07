@@ -229,9 +229,9 @@ function HeroUploader({ user }: { user: any }) {
                 <Link
                   href={user ? "/dashboard" : "/login"}
                   className="w-full h-20 bg-indigo-600 text-white rounded-[30px] font-black text-xl flex items-center justify-center gap-4 uppercase italic shadow-indigolux hover:scale-105 active:scale-95 transition-all"
-                  onClick={() => logEvent("landing_cta_click", { location: "uploader_success" })}
+                  onClick={() => logEvent("landing_cta_click", { location: "uploader_success", authenticated: !!user })}
                 >
-                  {user ? "Ver Informe Detallado" : "Regístrate para Desbloquear el Reporte"} <ArrowRight className="w-6 h-6" />
+                  {user ? "Ver Informe Detallado" : "Regístrate para Desbloquear"} <ArrowRight className="w-6 h-6" />
                 </Link>
               </div>
             )}
