@@ -560,7 +560,7 @@ export default function LandingPage() {
                     <p className="text-5xl font-black">$ 0</p>
                   </div>
                   <ul className="space-y-4">
-                    {["2 Conciliaciones / mes", "IA Llama 3.3 70B", "Motor OCR Básico", "PDF con Marca de Agua"].map((f, i) => (
+                    {["2 Conciliaciones de Prueba", "IA Llama 3.3 70B", "Motor OCR Básico", "PDF con Marca de Agua"].map((f, i) => (
                       <li key={i} className="flex items-center gap-3 text-slate-300 font-medium text-sm">
                         <CheckCircle2 className="w-5 h-5 text-indigo-500" /> {f}
                       </li>
@@ -579,10 +579,10 @@ export default function LandingPage() {
                   <div className="space-y-2">
                     <span className="text-indigo-600 text-[10px] font-black uppercase tracking-widest">Contador Elite</span>
                     <h3 className="text-3xl font-black uppercase italic">Profesional</h3>
-                    <p className="text-5xl font-black">$ 24.99 <span className="text-lg opacity-40">/mes</span></p>
+                    <p className="text-5xl font-black">$ 24.99</p>
                   </div>
                   <ul className="space-y-4">
-                    {["50 Conciliaciones / mes", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital"].map((f, i) => (
+                    {["50 Conciliaciones", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital"].map((f, i) => (
                       <li key={i} className="flex items-center gap-3 text-slate-600 font-medium text-sm">
                         <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {f}
                       </li>
@@ -607,10 +607,10 @@ export default function LandingPage() {
                   <div className="space-y-2 text-white">
                     <span className="text-white text-[10px] font-black uppercase tracking-widest animate-pulse">LIFETIME ACCESS</span>
                     <h3 className="text-3xl font-black uppercase italic">Despacho</h3>
-                    <p className="text-5xl font-black">$ 79.00 <span className="text-lg opacity-40 uppercase">/ mes</span></p>
+                    <p className="text-5xl font-black">$ 79.00</p>
                   </div>
                   <ul className="space-y-4 text-indigo-100">
-                    {["300 Conciliaciones / mes", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"].map((f, i) => (
+                    {["300 Conciliaciones", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"].map((f, i) => (
                       <li key={i} className="flex items-center gap-3 font-medium text-sm">
                         <CheckCircle2 className="w-5 h-5 text-white" /> {f}
                       </li>
