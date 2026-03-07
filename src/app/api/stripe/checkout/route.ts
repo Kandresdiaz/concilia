@@ -43,6 +43,7 @@ export async function POST(req: Request) {
             success_url: `${req.headers.get('origin')}/dashboard?payment=success`,
             cancel_url: `${req.headers.get('origin')}/dashboard?payment=cancel`,
             customer_email: user.email,
+            allow_promotion_codes: true,
             metadata: {
                 userId: user.id,
                 tier: tier
