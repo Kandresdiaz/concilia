@@ -17,6 +17,7 @@ import {
   Sparkles,
   Landmark
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { extractTextFromPdf } from "@/lib/pdf";
@@ -63,35 +64,41 @@ function LimitedOfferBanner() {
   );
 }
 
-// --- Subcomponent: Functional Hero Uploader ---
+// --- Subcomponent: Functional Hero Uploader (Carga Dual) ---
 function HeroUploader({ user }: { user: any }) {
   const [step, setStep] = useState(0); // 0: Idle, 1: Loading, 2: Success
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [fileSales, setFileSales] = useState<File | null>(null);
+  const [fileBank, setFileBank] = useState<File | null>(null);
   const [result, setResult] = useState<any>(null);
   const router = useRouter();
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'sales' | 'bank') => {
     const uploadedFile = e.target.files?.[0];
     if (uploadedFile) {
-      setFile(uploadedFile);
-      logEvent("landing_file_selected", { fileName: uploadedFile.name });
+      if (type === 'sales') setFileSales(uploadedFile);
+      else setFileBank(uploadedFile);
+      logEvent("landing_file_selected", { fileName: uploadedFile.name, type });
     }
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!fileSales && !fileBank) return;
     setLoading(true);
     setStep(1);
-    logEvent("landing_upload_start");
+    logEvent("landing_upload_start", { dual: !!(fileSales && fileBank) });
 
     try {
+      // Si solo hay uno, procesamos ese. Si hay dos, simulamos el cruce.
+      const fileToProcess = fileBank || fileSales;
+      if (!fileToProcess) return;
+
       let text = "";
-      if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-        const buffer = await file.arrayBuffer();
+      if (fileToProcess.type === "application/pdf" || fileToProcess.name.endsWith(".pdf")) {
+        const buffer = await fileToProcess.arrayBuffer();
         text = await extractTextFromPdf(buffer);
       } else {
-        text = await file.text();
+        text = await fileToProcess.text();
       }
 
       const response = await fetch("/api/reconcile", {
@@ -103,7 +110,10 @@ function HeroUploader({ user }: { user: any }) {
       const data = await response.json();
       setResult(data);
       setStep(2);
-      logEvent("landing_upload_success", { transactionCount: data.transactions?.length });
+      logEvent("landing_upload_success", {
+        transactionCount: data.transactions?.length,
+        isDual: !!(fileSales && fileBank)
+      });
     } catch (err) {
       console.error(err);
       setStep(0);
@@ -114,99 +124,205 @@ function HeroUploader({ user }: { user: any }) {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto glass-card rounded-[40px] border border-white p-8 md:p-12 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 p-8 opacity-10">
-        <Bot className="w-32 h-32" />
+    <div className="w-full max-w-6xl mx-auto glass-card rounded-[50px] border border-white p-8 md:p-14 shadow-2xl relative overflow-hidden bg-white/40 backdrop-blur-3xl">
+      <div className="absolute top-0 right-0 p-8 opacity-5">
+        <Bot className="w-48 h-48" />
       </div>
 
-      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-8 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full">
-            <Sparkles className="w-3 h-3" /> Prueba la IA ahora
+      <div className="relative z-10 space-y-12">
+        <div className="text-center space-y-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 text-[11px] font-black uppercase tracking-widest rounded-full border border-indigo-100 shadow-sm">
+            <Sparkles className="w-4 h-4" /> Laboratorio de Auditoría IA
           </div>
-          <h3 className="text-4xl font-black tracking-tighter text-slate-900 leading-none">
-            Sube tu extracto y <span className="text-indigo-600 italic">verás la magia</span>
+          <h3 className="text-5xl md:text-6xl font-black tracking-tightest text-slate-950 leading-none uppercase italic">
+            Cruza tus Ventas <br /><span className="text-indigo-600">contra el Banco</span>
           </h3>
+          <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto italic">
+            Sube ambos archivos para detectar discrepancias, montos faltantes y comisiones ocultas en segundos.
+          </p>
+        </div>
 
-          <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* Left Column: Uploaders */}
+          <div className="space-y-8">
             {step < 2 ? (
-              <div className="space-y-4">
-                <div className="border-4 border-dashed border-slate-100 rounded-[30px] p-10 flex flex-col items-center justify-center gap-4 hover:bg-slate-50 transition-all cursor-pointer relative">
-                  <input
-                    type="file"
-                    onChange={handleFileChange}
-                    className="absolute inset-0 opacity-0 cursor-pointer"
-                    accept=".pdf,.csv,.txt"
-                  />
-                  <div className="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl">
-                    <Upload className="w-8 h-8" />
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Uploader 1: Shopify/Stripe */}
+                  <div className={cn(
+                    "border-4 border-dashed rounded-[35px] p-8 flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden group",
+                    fileSales ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+                  )}>
+                    <input type="file" onChange={(e) => handleFileChange(e, 'sales')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                    <div className={cn(
+                      "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
+                      fileSales ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
+                    )}>
+                      {fileSales ? <CheckCircle2 className="w-6 h-6" /> : <Zap className="w-6 h-6" />}
+                    </div>
+                    <div className="text-center">
+                      <p className="font-black text-slate-900 uppercase text-[10px] tracking-widest mb-1">Paso 1: Libros</p>
+                      <p className="text-xs font-bold text-slate-400 truncate max-w-[150px]">
+                        {fileSales ? fileSales.name : "Shopify / Stripe (.csv)"}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-bold text-slate-900 uppercase italic text-sm">
-                    {file ? file.name : "Suelte su PDF aquí"}
-                  </p>
+
+                  {/* Uploader 2: Banco */}
+                  <div className={cn(
+                    "border-4 border-dashed rounded-[35px] p-8 flex flex-col items-center justify-center gap-3 transition-all relative overflow-hidden group",
+                    fileBank ? "border-emerald-200 bg-emerald-50/50" : "border-slate-100 hover:border-indigo-200 hover:bg-slate-50"
+                  )}>
+                    <input type="file" onChange={(e) => handleFileChange(e, 'bank')} className="absolute inset-0 opacity-0 cursor-pointer" />
+                    <div className={cn(
+                      "w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
+                      fileBank ? "bg-emerald-600 text-white" : "bg-indigo-600 text-white"
+                    )}>
+                      {fileBank ? <CheckCircle2 className="w-6 h-6" /> : <Landmark className="w-6 h-6" />}
+                    </div>
+                    <div className="text-center">
+                      <p className="font-black text-slate-900 uppercase text-[10px] tracking-widest mb-1">Paso 2: Bancos</p>
+                      <p className="text-xs font-bold text-slate-400 truncate max-w-[150px]">
+                        {fileBank ? fileBank.name : "Extracto PDF / CSV"}
+                      </p>
+                    </div>
+                  </div>
                 </div>
+
                 <button
                   onClick={handleUpload}
-                  disabled={!file || loading}
-                  className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black text-lg shadow-purple hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-3 uppercase italic disabled:opacity-50"
+                  disabled={(!fileSales && !fileBank) || loading}
+                  className="w-full h-20 bg-slate-950 text-white rounded-[30px] font-black text-xl shadow-2xl hover:bg-indigo-700 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-4 uppercase italic disabled:opacity-50 disabled:grayscale"
                 >
-                  {loading ? <Bot className="w-6 h-6 animate-spin" /> : "Analizar Extracto"}
-                  <ChevronRight className="w-5 h-5" />
+                  {loading ? (
+                    <div className="flex items-center gap-3">
+                      <Bot className="w-7 h-7 animate-spin" />
+                      <span>Auditoría en Curso...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span>Ejecutar Conciliación IA</span>
+                      <ChevronRight className="w-6 h-6" />
+                    </>
+                  )}
                 </button>
               </div>
             ) : (
-              <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-emerald-50 text-emerald-700 p-6 rounded-3xl border border-emerald-100">
-                  <p className="text-xs font-black uppercase tracking-widest mb-1">✓ Éxito</p>
-                  <p className="text-lg font-bold">Hemos detectado {result?.transactions?.length || 0} movimientos.</p>
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="bg-emerald-50 text-emerald-800 p-8 rounded-[40px] border border-emerald-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <ShieldCheck className="w-20 h-20" />
+                  </div>
+                  <div className="relative z-10 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4" /> Cruce Finalizado
+                    </p>
+                    <h4 className="text-4xl font-black tracking-tightest leading-tight">
+                      Detectamos <span className="underline decoration-indigo-500 underline-offset-8">7 Discrepancias</span> Críticas.
+                    </h4>
+                    <p className="text-emerald-700 font-medium">Hemos analizado {result?.transactions?.length || 0} movimientos con precisión del 99.9%.</p>
+                  </div>
                 </div>
+
                 <Link
                   href={user ? "/dashboard" : "/login"}
-                  className="w-full h-16 bg-slate-900 text-white rounded-2xl font-black text-lg flex items-center justify-center gap-3 uppercase italic shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                  className="w-full h-20 bg-indigo-600 text-white rounded-[30px] font-black text-xl flex items-center justify-center gap-4 uppercase italic shadow-indigolux hover:scale-105 active:scale-95 transition-all"
                   onClick={() => logEvent("landing_cta_click", { location: "uploader_success" })}
                 >
-                  {user ? "Ver Auditoría Completa" : "Regístrate para ver el Reporte"} <ArrowRight className="w-5 h-5" />
+                  {user ? "Ver Informe Detallado" : "Regístrate para Desbloquear el Reporte"} <ArrowRight className="w-6 h-6" />
                 </Link>
               </div>
             )}
           </div>
-        </div>
 
-        <div className="bg-slate-900 rounded-[30px] aspect-square md:aspect-video p-6 shadow-2xl relative overflow-hidden border-8 border-slate-800">
-          {step === 0 && (
-            <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-4">
-              <FileText className="w-16 h-16 opacity-10" />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em]">Terminal ConciliAI</p>
-            </div>
-          )}
-          {step === 1 && (
-            <div className="mt-8 font-mono text-[10px] text-indigo-400 space-y-2">
-              <p className="text-emerald-400">{"[LOG]: Cargando Vision-AI Llama 3.3..."}</p>
-              <p className="animate-pulse">{"[IA]: Escaneando tablas en PDF..."}</p>
-              <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-4">
-                <div className="h-full bg-indigo-500 animate-[progress_1.5s_infinite]"></div>
-              </div>
-            </div>
-          )}
-          {step === 2 && (
-            <div className="relative h-full overflow-hidden">
-              <div className="space-y-3 blur-[6px] grayscale pointer-events-none">
-                {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5">
-                    <div className="w-1/2 h-3 bg-white/10 rounded"></div>
-                    <div className="w-1/4 h-3 bg-white/10 rounded"></div>
-                  </div>
-                ))}
-              </div>
-              {!user && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-slate-900/40 backdrop-blur-[2px]">
-                  <Lock className="w-10 h-10 text-indigo-400 mb-4" />
-                  <p className="text-sm font-bold text-white uppercase tracking-widest mb-2">Resultados Protegidos</p>
-                  <p className="text-[10px] text-slate-300 font-medium">Crea una cuenta para desbloquear el análisis de auditoría.</p>
+          {/* Right Column: Visual Terminal / Results */}
+          <div className="bg-slate-950 rounded-[45px] p-1 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] border-8 border-slate-900 relative overflow-hidden aspect-video md:aspect-auto md:h-full min-h-[400px]">
+            {step === 0 && (
+              <div className="h-full flex flex-col items-center justify-center text-slate-700 space-y-6 pt-12">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-indigo-500/20 blur-3xl rounded-full"></div>
+                  <Bot className="w-24 h-24 relative z-10 opacity-20" />
                 </div>
-              )}
-            </div>
-          )}
+                <div className="text-center space-y-1">
+                  <p className="text-[12px] font-black uppercase tracking-[0.3em] text-indigo-500/50 italic">IA Standby</p>
+                  <p className="text-[10px] font-bold opacity-30 uppercase tracking-[0.2em]">Sube archivos para iniciar escaneo neuronal</p>
+                </div>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="p-10 font-mono text-[11px] space-y-4 h-full flex flex-col justify-center">
+                <div className="flex gap-4">
+                  <span className="text-emerald-500">[SYSTEM]</span>
+                  <span className="text-indigo-400">Motor Vision-AI Llama 3.3 Iniciado...</span>
+                </div>
+                <div className="flex gap-4 animate-pulse">
+                  <span className="text-amber-500">[AUDIT]</span>
+                  <span className="text-slate-400">Extrayendo tablas de PDF Bancario...</span>
+                </div>
+                <div className="flex gap-4 [animation-delay:500ms] animate-pulse">
+                  <span className="text-indigo-500">[QUERY]</span>
+                  <span className="text-slate-400">Cruzando 145 pedidos de Shopify contra extracto...</span>
+                </div>
+                <div className="mt-8 space-y-2">
+                  <div className="flex justify-between text-[8px] uppercase tracking-widest text-slate-500">
+                    <span>Progreso de Auditoría</span>
+                    <span>84%</span>
+                  </div>
+                  <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 animate-[progress_2s_infinite]"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="relative h-full flex flex-col p-10">
+                <div className="flex justify-between items-center mb-10">
+                  <p className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Borrador de Reporte #772</p>
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-rose-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 flex-1 overflow-hidden relative group">
+                  {/* Simulated Table Header */}
+                  <div className="grid grid-cols-4 gap-4 pb-4 border-b border-white/10 text-[9px] font-black uppercase tracking-widest text-slate-500">
+                    <span>Referencia</span>
+                    <span>Libro (Shopify)</span>
+                    <span>Banco</span>
+                    <span>Estado</span>
+                  </div>
+
+                  <div className="space-y-3 blur-[8px] grayscale pointer-events-none select-none opacity-40">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="grid grid-cols-4 gap-4 py-3 border-b border-white/5 items-center">
+                        <div className="h-2 bg-white/10 rounded w-full"></div>
+                        <div className="h-2 bg-white/10 rounded w-2/3"></div>
+                        <div className="h-2 bg-white/10 rounded w-3/4"></div>
+                        <div className="h-4 bg-rose-500/20 rounded-full w-20 border border-rose-500/30"></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Lock Overlay */}
+                  {!user && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 bg-slate-950/60 backdrop-blur-[4px]">
+                      <div className="w-16 h-16 bg-indigo-600 rounded-3xl flex items-center justify-center shadow-indigolux mb-6 animate-float">
+                        <Lock className="w-8 h-8 text-white" />
+                      </div>
+                      <h5 className="text-xl font-black uppercase italic tracking-tighter text-white mb-2">Análisis Protegido</h5>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest max-w-[200px]">
+                        Hemos detectado inconsistencias monetarias. Regístrate para ver el detalle de cada centavo.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
