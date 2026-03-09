@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 
 interface PricingModalProps {
     isOpen: boolean;
-    onClose: () => void;
-    onUpgrade: (tier: string) => void;
+    onCloseAction: () => void;
+    onUpgradeAction: (tier: string) => void;
     loading: boolean;
 }
 
-export function PricingModal({ isOpen, onClose, onUpgrade, loading }: PricingModalProps) {
+export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }: PricingModalProps) {
     if (!isOpen) return null;
 
     const plans = [
@@ -37,7 +37,7 @@ export function PricingModal({ isOpen, onClose, onUpgrade, loading }: PricingMod
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
             <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-3xl overflow-hidden relative animate-in fade-in zoom-in duration-300">
                 <button
-                    onClick={onClose}
+                    onClick={onCloseAction}
                     className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full transition-colors z-10"
                 >
                     <X className="w-6 h-6 text-slate-400" />
@@ -84,7 +84,7 @@ export function PricingModal({ isOpen, onClose, onUpgrade, loading }: PricingMod
                                         <h3 className="text-2xl font-black uppercase italic">{plan.name}</h3>
                                         <div className="flex items-baseline gap-1">
                                             <span className="text-4xl font-black">$ {plan.price}</span>
-                                            <span className="text-xs opacity-50">/ mes</span>
+                                            <span className="text-xs opacity-50">{plan.id === "PRO" ? "/ mes" : "único"}</span>
                                         </div>
                                     </div>
 
@@ -103,7 +103,7 @@ export function PricingModal({ isOpen, onClose, onUpgrade, loading }: PricingMod
                                     </ul>
 
                                     <button
-                                        onClick={() => onUpgrade(plan.id)}
+                                        onClick={() => onUpgradeAction(plan.id)}
                                         disabled={loading}
                                         className={cn(
                                             "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all active:scale-95 disabled:opacity-50",

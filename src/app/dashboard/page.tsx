@@ -334,7 +334,7 @@ export default function ConciliAI() {
 
 
   const handleUpgrade = async (tier?: string) => {
-    if (!tier || tier === "modal") {
+    if (!tier || tier === "modal" || tier === "") {
       setIsPricingModalOpen(true);
       return;
     }
@@ -512,9 +512,8 @@ export default function ConciliAI() {
               </div>
             </div>
 
-            {/* Usage & Limits */}
             <div className="max-w-md">
-              <UsageLimitCard usageCount={usageCount} tier={tier} limit={limit} />
+              <UsageLimitCard usageCount={usageCount} tier={tier} limit={limit} onUpgradeAction={() => handleUpgrade("")} />
             </div>
 
             {/* Insights Row */}
@@ -1123,8 +1122,8 @@ export default function ConciliAI() {
 
         <PricingModal
           isOpen={isPricingModalOpen}
-          onClose={() => setIsPricingModalOpen(false)}
-          onUpgrade={(selectedTier) => handleUpgrade(selectedTier)}
+          onCloseAction={() => setIsPricingModalOpen(false)}
+          onUpgradeAction={(selectedTier) => handleUpgrade(selectedTier)}
           loading={modalLoading}
         />
 

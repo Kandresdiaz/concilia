@@ -31,10 +31,16 @@ export async function POST(req: Request) {
             const userId = customData.user_id
             const tier = customData.tier || 'PRO'
 
+            // Extract IDs from LS payload
+            const lsCustomerId = payload.data.attributes.customer_id?.toString()
+            const lsOrderId = payload.data.id?.toString()
+
             const { error } = await supabaseAdmin
                 .from('profiles')
                 .update({
                     tier,
+                    ls_customer_id: lsCustomerId,
+                    ls_order_id: lsOrderId,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', userId)

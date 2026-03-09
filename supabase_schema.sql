@@ -17,6 +17,8 @@ CREATE TABLE public.profiles (
     usage_count INTEGER DEFAULT 0,
     reconciliations_count INTEGER DEFAULT 0,
     stripe_customer_id TEXT,
+    ls_customer_id TEXT,
+    ls_order_id TEXT,
     last_reconciliation_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()

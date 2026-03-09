@@ -5,9 +5,10 @@ interface UsageLimitCardProps {
     usageCount: number;
     tier: string;
     limit: number;
+    onUpgradeAction?: () => void;
 }
 
-export function UsageLimitCard({ usageCount, tier, limit }: UsageLimitCardProps) {
+export function UsageLimitCard({ usageCount, tier, limit, onUpgradeAction }: UsageLimitCardProps) {
     const isFree = tier === 'FREE';
     const percentage = Math.min((usageCount / (limit || 1)) * 100, 100);
 
@@ -41,7 +42,10 @@ export function UsageLimitCard({ usageCount, tier, limit }: UsageLimitCardProps)
                             </div>
                         ) : null}
 
-                        <button className="btn btn-primary btn-block shadow-lg shadow-primary/30 animate-pulse hover:animate-none">
+                        <button
+                            onClick={onUpgradeAction}
+                            className="btn btn-primary btn-block shadow-lg shadow-primary/30 animate-pulse hover:animate-none"
+                        >
                             Guardar historial para siempre (PRO)
                         </button>
                     </div>
