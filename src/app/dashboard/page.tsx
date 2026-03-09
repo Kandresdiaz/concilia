@@ -341,7 +341,7 @@ export default function ConciliAI() {
 
     setModalLoading(true);
     try {
-      const response = await fetch("/api/stripe/checkout", {
+      const response = await fetch("/api/lemonsqueezy/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier })

@@ -359,7 +359,7 @@ export default function LandingPage() {
 
     setIsRedirecting(true);
     try {
-      const response = await fetch("/api/stripe/checkout", {
+      const response = await fetch("/api/lemonsqueezy/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ tier }),
@@ -456,8 +456,13 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">E-commerce & Shopify</h3>
                 <p className="text-slate-500 font-medium mb-8">
-                  Cruza pedidos de Shopify/Stripe contra tu extracto bancario. **Detén los robos, errores de pasarela y pedidos no pagados.**
+                  Cruza pedidos de Shopify y pasarelas como **Lemon Squeezy** o Stripe contra tu extracto bancario. **Detén los robos, errores de pasarela y pedidos no pagados.**
                 </p>
+                <div className="flex items-center gap-4 mb-6 opacity-40 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700">
+                  <span className="text-[10px] font-black uppercase tracking-tighter border px-2 py-0.5 rounded">Shopify</span>
+                  <span className="text-[10px] font-black uppercase tracking-tighter border px-2 py-0.5 rounded">Lemon Squeezy</span>
+                  <span className="text-[10px] font-black uppercase tracking-tighter border px-2 py-0.5 rounded">Stripe</span>
+                </div>
                 <Link href="/login" className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
                   Saber más <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -625,6 +630,15 @@ export default function LandingPage() {
                   {isRedirecting ? "Cargando..." : "Asegurar de por vida"}
                 </button>
               </div>
+            </div>
+
+            {/* Trust Badge */}
+            <div className="flex flex-col items-center gap-4 opacity-50 animate-in fade-in duration-1000 mt-12">
+              <div className="flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full border border-white/10">
+                <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pagos verificados por <span className="text-white">Lemon Squeezy</span></span>
+              </div>
+              <p className="text-[9px] text-slate-500 font-medium uppercase tracking-[0.2em]">Encriptación AES-256 bits de grado militar</p>
             </div>
           </div>
         </section>

@@ -125,7 +125,7 @@ export function PricingModal({ isOpen, onClose, onUpgrade, loading }: PricingMod
                         </div>
                         <div className="space-y-0.5">
                             <p className="text-xs font-black text-slate-900 uppercase">Seguridad Garantizada</p>
-                            <p className="text-[11px] text-slate-500 font-medium">Pagos procesados de forma segura por Stripe con encriptación de nivel bancario.</p>
+                            <p className="text-[11px] text-slate-500 font-medium">Pagos procesados de forma segura por Lemon Squeezy con encriptación de nivel bancario.</p>
                         </div>
                     </div>
                 </div>

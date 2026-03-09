@@ -25,11 +25,11 @@ git push -u origin main
    > [!IMPORTANT]
    > No olvides la `SUPABASE_SERVICE_ROLE_KEY` para que los webhooks de Stripe puedan actualizar los perfiles.
 
-## 4. Configurar Webhooks de Stripe
-1. Ve al Dashboard de Stripe -> Developers -> Webhooks.
-2. Añade un endpoint: `https://tu-app.vercel.app/api/stripe/webhook`.
-3. Selecciona el evento: `checkout.session.completed`.
-4. Copia el **Signing Secret** y ponlo en la variable `STRIPE_WEBHOOK_SECRET` en Vercel.
+## 4. Configurar Webhooks de Lemon Squeezy
+1. Ve al Dashboard de Lemon Squeezy -> Settings -> Webhooks.
+2. Añade un endpoint: `https://tu-app.vercel.app/api/lemonsqueezy/webhook`.
+3. Selecciona los eventos: `order_created` y `subscription_created`.
+4. Copia el **Signing Secret** y ponlo en la variable `LEMON_SQUEEZY_WEBHOOK_SECRET` en Vercel.
 
 ## 5. ¡Listo para Producción!
 Una vez desplegado, tu landing page estará en el dominio principal y el dashboard estará protegido por contraseña/Google Auth.
