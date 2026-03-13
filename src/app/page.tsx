@@ -17,7 +17,8 @@ import {
   Sparkles,
   Landmark,
   ShoppingBag,
-  CreditCard
+  CreditCard,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
@@ -339,8 +340,7 @@ const Upload = ({ className }: { className?: string }) => (
 
 // --- Main Page Component ---
 export default function LandingPage() {
-  const [user, setUser] = useState<any>(null);
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showSecurityToast, setShowSecurityToast] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -349,6 +349,10 @@ export default function LandingPage() {
       setUser(user);
       logEvent("landing_view", { authenticated: !!user });
     });
+
+    // Show security toast after 2 seconds
+    const timer = setTimeout(() => setShowSecurityToast(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleCheckout = async (tier: string) => {
@@ -412,7 +416,7 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-3 px-6 py-3 bg-white border border-violet-100 rounded-full text-violet-600 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl animate-float">
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
-              <h1 className="text-6xl md:text-[10rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-7xl mx-auto uppercase">
+              <h1 className="text-6xl md:text-[8rem] lg:text-[9rem] font-black tracking-tighter leading-[0.9] text-slate-900 max-w-7xl mx-auto uppercase py-4">
                 Recupera tu <span className="text-gradient">tiempo y dinero.</span>
               </h1>
               <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
@@ -807,6 +811,32 @@ export default function LandingPage() {
           <p className="text-center text-slate-300 text-xs font-medium italic">Transformando el futuro de la contabilidad, una línea a la vez.</p>
         </div>
       </footer>
+
+      {/* Floating Security Toast */}
+      {showSecurityToast && (
+        <div className="fixed bottom-8 left-8 z-[100] animate-in slide-in-from-left-full duration-500">
+          <div className="bg-slate-950 text-white p-6 rounded-[30px] shadow-2xl border border-white/10 flex items-center gap-5 max-w-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <ShieldCheck className="w-12 h-12" />
+            </div>
+            <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-purple">
+              <Lock className="w-6 h-6 text-white" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-[11px] font-black uppercase tracking-widest text-indigo-400">Privacidad Garantizada</p>
+              <p className="text-xs font-medium text-slate-300 leading-relaxed">
+                Tus datos <span className="text-white font-bold">no se usan para entrenar</span> modelos públicos. Todo se procesa encriptado y se borra tras la sesión.
+              </p>
+            </div>
+            <button 
+              onClick={() => setShowSecurityToast(false)}
+              className="absolute top-3 right-3 text-slate-500 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* JSON-LD for SEO */}
       <script
