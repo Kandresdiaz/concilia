@@ -480,7 +480,6 @@ export default function LandingPage() {
                     element?.scrollIntoView({ behavior: "smooth" });
                   }}
                   className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group"
-                >
                   Empezar Auditoría con IA <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
                 </button>
               </div>
@@ -488,45 +487,31 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Video Demo Section - Optimized for Speed */}
+        {/* Video Demo Section - Live Loom Embed */}
         <section className="py-24 px-6 bg-white relative">
           <div className="max-w-5xl mx-auto space-y-12">
             <div className="text-center space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-2">
-                <Clock className="w-3 h-3" /> Verlo es creerlo
+                <Clock className="w-3 h-3" /> Demo en Vivo
               </div>
               <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
                 Mira la IA en <span className="text-indigo-600">acción</span>
               </h2>
               <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-                No confíes en nuestra palabra. Mira cómo ConciliAI encuentra discrepancias en un extracto real en menos de 30 segundos.
+                No confíes en nuestra palabra. Mira cómo ConciliAI encuentra discrepancias en un extracto real en segundos.
               </p>
             </div>
-
-            {/* Lite Embed Container */}
-            <div
-              onClick={() => {
-                trackClick("video_play_intent", "landing");
-                // Here logic to load iframe if needed
-              }}
-              className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group cursor-pointer"
-            >
-              {/* Background Placeholder with high-quality skeleton */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center">
-                 <div className="text-center space-y-6 transition-transform duration-500 group-hover:scale-110">
-                    <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto border border-white/20 shadow-2xl relative">
-                      <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full"></div>
-                      <Zap className="w-10 h-10 text-white fill-white relative z-10" />
-                    </div>
-                    <div className="space-y-2">
-                      <p className="text-white font-black uppercase tracking-[0.3em] text-[10px]">Cargar Video Demostración</p>
-                      <p className="text-white/40 font-medium text-[9px] uppercase tracking-widest italic">350 KB • Sin audio por respeto a tus hijos</p>
-                    </div>
-                 </div>
-              </div>
-
-              {/* Overlay Gradient */}
-              <div className="absolute inset-0 bg-indigo-600/10 group-hover:bg-transparent transition-colors duration-500"></div>
+            
+            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group">
+              <iframe 
+                src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true" 
+                frameBorder="0" 
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              ></iframe>
+            </div>
+            <div className="flex justify-center italic text-slate-400 text-[10px] font-medium uppercase tracking-widest">
+              Video grabado en vivo por el equipo de ConciliAI
             </div>
           </div>
         </section>
