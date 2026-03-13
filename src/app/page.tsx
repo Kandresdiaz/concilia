@@ -340,18 +340,35 @@ const Upload = ({ className }: { className?: string }) => (
 
 // --- Main Page Component ---
 export default function LandingPage() {
+  const [user, setUser] = useState<any>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const [showSecurityToast, setShowSecurityToast] = useState(false);
+  const [notification, setNotification] = useState<{ type: string; message: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       logEvent("landing_view", { authenticated: !!user });
-    });
 
-    // Show security toast after 2 seconds
-    const timer = setTimeout(() => setShowSecurityToast(true), 2000);
+      // Post-login Security Toast
+      if (user) {
+        setNotification({
+          type: "info",
+          message: "Sesión Encriptada Escudo: Tus datos están protegidos y no se usan para entrenamiento."
+        });
+        logEvent("dashboard_security_view", { user: user.id });
+      }
+    };
+    init();
+
+    // Show security toast instantly (500ms for smooth entrance)
+    const timer = setTimeout(() => {
+      setShowSecurityToast(true);
+      logEvent("security_toast_view", { context: "landing_instant" });
+    }, 500);
     return () => clearTimeout(timer);
   }, []);
 
@@ -381,6 +398,17 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
       <LimitedOfferBanner />
+
+      {/* Security Toast */}
+      {showSecurityToast && notification && (
+        <div className="fixed bottom-4 right-4 z-[100] bg-slate-900 text-white p-4 rounded-xl shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <ShieldCheck className="w-5 h-5 text-emerald-400" />
+          <p className="text-sm font-medium">{notification.message}</p>
+          <button onClick={() => setNotification(null)} className="text-slate-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-violet-100 uppercase tracking-widest font-black">
@@ -413,24 +441,31 @@ export default function LandingPage() {
 
           <div className="max-w-7xl mx-auto space-y-12">
             <div className="animate-slide-up flex flex-col items-center gap-6">
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-white border border-violet-100 rounded-full text-violet-600 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl animate-float">
+              <div
+                onClick={() => trackClick("hero_badge", "landing")}
+                className="inline-flex items-center gap-3 px-6 py-3 bg-white border border-violet-100 rounded-full text-violet-600 text-[10px] font-black uppercase tracking-[0.3em] shadow-xl animate-float cursor-default"
+              >
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
               <h1 className="text-6xl md:text-[8rem] lg:text-[9rem] font-black tracking-tighter leading-[0.9] text-slate-900 max-w-7xl mx-auto uppercase py-4">
                 Recupera tu <span className="text-gradient">tiempo y dinero.</span>
               </h1>
               <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
-                Concilia Shopify, Stripe y Bancos en <span className="text-indigo-600 font-black italic underline decoration-4 underline-offset-8">segundos</span>. Si la IA no encuentra una discrepancia en tu primer mes, <span className="font-black text-slate-900">te devolvemos el dinero.</span>
+                Concilia Shopify, Stripe y Bancos en <span className="text-slate-900 font-bold border-b-4 border-indigo-500/30">segundos</span>. Si la IA no encuentra una discrepancia en tu primer mes, <span className="italic">te devolvemos el dinero.</span>
               </p>
-            </div>
 
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 pt-6 animate-slide-up [animation-delay:200ms]">
-              <Link
-                href="/login"
-                className="group px-12 py-7 bg-violet-600 text-white text-2xl font-black rounded-[30px] hover:bg-violet-500 transition-all shadow-purple flex items-center gap-4 hover:scale-[1.02] active:scale-95 uppercase italic"
-              >
-                Empezar Auditoría con IA <Zap className="w-7 h-7 fill-white" />
-              </Link>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12">
+                <button
+                  onClick={() => {
+                    trackClick("cta_main_hero", "landing");
+                    const element = document.getElementById("demo");
+                    element?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group"
+                >
+                  Empezar Auditoría con IA <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -449,9 +484,15 @@ export default function LandingPage() {
                 No confíes en nuestra palabra. Mira cómo ConciliAI encuentra discrepancias en un extracto real en menos de 30 segundos.
               </p>
             </div>
-            
+
             {/* Lite Embed Container */}
-            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group cursor-pointer">
+            <div
+              onClick={() => {
+                trackClick("video_play_intent", "landing");
+                // Here logic to load iframe if needed
+              }}
+              className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group cursor-pointer"
+            >
               {/* Background Placeholder with high-quality skeleton */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center">
                  <div className="text-center space-y-6 transition-transform duration-500 group-hover:scale-110">
@@ -465,7 +506,7 @@ export default function LandingPage() {
                     </div>
                  </div>
               </div>
-              
+
               {/* Overlay Gradient */}
               <div className="absolute inset-0 bg-indigo-600/10 group-hover:bg-transparent transition-colors duration-500"></div>
             </div>
@@ -544,7 +585,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-3xl font-black uppercase italic tracking-tighter mb-4">Freelancers & SMBs</h3>
                 <p className="text-slate-500 font-medium mb-8">
-                  Reportes listos para tu declaración de impuestos. **Simplifica tu vida fiscal con reportes auditados por IA.**
+                  Reportes listos para tu declaración de impuestos. **Simplifica tu vida fiscal con auditorías precisas y automáticas.**
                 </p>
                 <Link href="/login" className="flex items-center gap-2 text-indigo-600 font-black uppercase text-xs tracking-widest group-hover:gap-4 transition-all">
                   Saber más <ArrowRight className="w-4 h-4" />
