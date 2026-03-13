@@ -431,28 +431,39 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Video Demo Section */}
+        {/* Video Demo Section - Optimized for Speed */}
         <section className="py-24 px-6 bg-white relative">
           <div className="max-w-5xl mx-auto space-y-12">
             <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-2">
+                <Clock className="w-3 h-3" /> Verlo es creerlo
+              </div>
               <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
                 Mira la IA en <span className="text-indigo-600">acción</span>
               </h2>
-              <p className="text-slate-500 font-medium text-lg">
-                Mira cómo ConciliAI encuentra discrepancias en un extracto de Bancolombia en menos de 30 segundos.
+              <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
+                No confíes en nuestra palabra. Mira cómo ConciliAI encuentra discrepancias en un extracto real en menos de 30 segundos.
               </p>
             </div>
             
-            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 group">
-              <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
-                 {/* Aquí pegas el embed de YouTube/Loom al final */}
-                 <div className="text-center space-y-4">
-                    <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto shadow-purple animate-pulse">
-                      <Zap className="w-10 h-10 text-white fill-white" />
+            {/* Lite Embed Container */}
+            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group cursor-pointer">
+              {/* Background Placeholder with high-quality skeleton */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 flex items-center justify-center">
+                 <div className="text-center space-y-6 transition-transform duration-500 group-hover:scale-110">
+                    <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center mx-auto border border-white/20 shadow-2xl relative">
+                      <div className="absolute inset-0 bg-indigo-500/20 blur-xl rounded-full"></div>
+                      <Zap className="w-10 h-10 text-white fill-white relative z-10" />
                     </div>
-                    <p className="text-white font-black uppercase tracking-widest text-xs">Pega tu video de Demo aquí</p>
+                    <div className="space-y-2">
+                      <p className="text-white font-black uppercase tracking-[0.3em] text-[10px]">Cargar Video Demostración</p>
+                      <p className="text-white/40 font-medium text-[9px] uppercase tracking-widest italic">350 KB • Sin audio por respeto a tus hijos</p>
+                    </div>
                  </div>
               </div>
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-indigo-600/10 group-hover:bg-transparent transition-colors duration-500"></div>
             </div>
           </div>
         </section>
