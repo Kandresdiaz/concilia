@@ -24,21 +24,8 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { extractTextFromPdf } from "@/lib/pdf";
+import { logEvent, trackClick } from "@/lib/tracking";
 
-// --- Analytics Utility ---
-const logEvent = async (eventName: string, metadata: any = {}) => {
-  const supabase = createClient();
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    await supabase.from("analytics").insert([{
-      event_name: eventName,
-      metadata: { ...metadata, user_id: user?.id },
-      user_agent: typeof window !== 'undefined' ? window.navigator.userAgent : 'server'
-    }]);
-  } catch (e) {
-    console.error("Analytics Error:", e);
-  }
-};
 
 // --- Subcomponent: FOMO Banner ---
 function LimitedOfferBanner() {
