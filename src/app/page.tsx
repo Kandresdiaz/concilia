@@ -447,12 +447,43 @@ export default function LandingPage() {
               >
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
-              <h1 className="text-6xl md:text-[8rem] lg:text-[9rem] font-black tracking-tighter leading-[0.9] text-slate-900 max-w-7xl mx-auto uppercase py-4">
+              <h1 className="text-5xl md:text-[6rem] lg:text-[7.5rem] font-black tracking-tightest leading-[1.1] text-slate-900 max-w-7xl mx-auto uppercase py-8">
                 Recupera tu <span className="text-gradient">tiempo y dinero.</span>
               </h1>
-              <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed px-6">
                 Concilia Shopify, Stripe y Bancos en <span className="text-slate-900 font-bold border-b-4 border-indigo-500/30">segundos</span>. Si la IA no encuentra una discrepancia en tu primer mes, <span className="italic">te devolvemos el dinero.</span>
               </p>
+
+              {/* User Segmentation & Attribution */}
+              <div className="flex flex-col items-center gap-6 pt-12 animate-in fade-in duration-1000">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">¿Quién eres tú? (Para personalizar tu reporte)</p>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {[
+                    { id: 'contador', label: 'Soy Contador', icon: '💼' },
+                    { id: 'dueno', label: 'Dueño de Negocio', icon: '🚀' },
+                    { id: 'freelance', label: 'Independiente', icon: '⚡' }
+                  ].map((role) => (
+                    <button
+                      key={role.id}
+                      onClick={() => {
+                        trackClick(`role_select_${role.id}`, "landing");
+                        // Store in local storage for login later
+                        localStorage.setItem("concilia_user_role", role.id);
+                        // Also track the source
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const source = urlParams.get('ref') || urlParams.get('utm_source') || 'organico';
+                        logEvent("user_segmentation", { role: role.id, source: source });
+                        
+                        const element = document.getElementById("demo");
+                        element?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className="px-8 py-4 bg-white border-2 border-slate-100 rounded-2xl font-bold text-sm text-slate-600 hover:border-indigo-600 hover:text-indigo-600 hover:scale-105 transition-all shadow-sm"
+                    >
+                      <span className="mr-2 text-lg">{role.icon}</span> {role.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12">
                 <button
