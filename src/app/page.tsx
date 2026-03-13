@@ -329,7 +329,7 @@ const Upload = ({ className }: { className?: string }) => (
 export default function LandingPage() {
   const [user, setUser] = useState<any>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [showSecurityToast, setShowSecurityToast] = useState(false);
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [notification, setNotification] = useState<{ type: string; message: string } | null>(null);
   const router = useRouter();
   const supabase = createClient();
@@ -339,24 +339,18 @@ export default function LandingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       logEvent("landing_view", { authenticated: !!user });
-
-      // Post-login Security Toast
-      if (user) {
-        setNotification({
-          type: "info",
-          message: "Sesión Encriptada Escudo: Tus datos están protegidos y no se usan para entrenamiento."
-        });
-        logEvent("dashboard_security_view", { user: user.id });
-      }
     };
     init();
 
-    // Show security toast instantly (500ms for smooth entrance)
-    const timer = setTimeout(() => {
-      setShowSecurityToast(true);
-      logEvent("security_toast_view", { context: "landing_instant" });
-    }, 500);
-    return () => clearTimeout(timer);
+    // Show privacy modal instead of toast
+    const hasSeenPrivacy = localStorage.getItem("concilia_privacy_accepted");
+    if (!hasSeenPrivacy) {
+      const timer = setTimeout(() => {
+        setShowPrivacyModal(true);
+        logEvent("privacy_modal_view", { context: "entry" });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const handleCheckout = async (tier: string) => {
@@ -386,14 +380,39 @@ export default function LandingPage() {
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden">
       <LimitedOfferBanner />
 
-      {/* Security Toast */}
-      {showSecurityToast && notification && (
-        <div className="fixed bottom-4 right-4 z-[100] bg-slate-900 text-white p-4 rounded-xl shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-500">
-          <ShieldCheck className="w-5 h-5 text-emerald-400" />
-          <p className="text-sm font-medium">{notification.message}</p>
-          <button onClick={() => setNotification(null)} className="text-slate-400 hover:text-white">
-            <X className="w-4 h-4" />
-          </button>
+      {/* Privacy & Security Modal */}
+      {showPrivacyModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowPrivacyModal(false)}></div>
+          <div className="relative w-full max-w-lg bg-white rounded-[40px] p-10 shadow-2xl animate-in zoom-in duration-300 border border-slate-100">
+            <div className="w-20 h-20 bg-emerald-50 rounded-[25px] flex items-center justify-center text-emerald-600 mb-8 mx-auto">
+              <ShieldCheck className="w-10 h-10" />
+            </div>
+            <h3 className="text-3xl font-black uppercase italic tracking-tighter text-center mb-4">Privacidad Blindada</h3>
+            <p className="text-slate-500 font-medium text-center leading-relaxed mb-8">
+              En ConciliAI, tus datos son sagrados. Utilizamos **encriptación de grado militar** y garantizamos que tu información **NUNCA** se usará para entrenar modelos de IA.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">Borrado Automático tras Sesión</p>
+              </div>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <p className="text-xs font-bold text-slate-700 uppercase tracking-widest">Procesamiento 100% Privado</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => {
+                localStorage.setItem("concilia_privacy_accepted", "true");
+                setShowPrivacyModal(false);
+                trackClick("privacy_accept", "modal");
+              }}
+              className="w-full mt-10 py-6 bg-indigo-600 text-white rounded-[25px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100"
+            >
+              Entendido, proteger mis datos
+            </button>
+          </div>
         </div>
       )}
 
@@ -504,7 +523,7 @@ export default function LandingPage() {
             
             <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group">
               <iframe 
-                src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true" 
+                src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true&autoplay=1&loop=1" 
                 frameBorder="0" 
                 allowFullScreen
                 className="absolute inset-0 w-full h-full"
