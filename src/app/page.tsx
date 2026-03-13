@@ -56,7 +56,7 @@ function LimitedOfferBanner() {
 
   return (
     <div className="bg-indigo-600 text-white py-2 px-4 text-center text-[11px] font-black uppercase tracking-[0.2em] relative z-[60] flex items-center justify-center gap-4">
-      <span className="animate-pulse">🔥 OFERTA DE LANZAMIENTO: 50% DCTO DE POR VIDA</span>
+      <span className="animate-pulse">🚀 LANZAMIENTO HOY: 50% DCTO DE POR VIDA (ÚLTIMA OPORTUNIDAD)</span>
       <div className="bg-white/10 px-3 py-1 rounded-lg flex items-center gap-2">
         <Clock className="w-3 h-3" />
         {formatTime(timeLeft)}
@@ -413,10 +413,10 @@ export default function LandingPage() {
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
               <h1 className="text-6xl md:text-[10rem] font-black tracking-tightest leading-[0.8] text-slate-900 max-w-7xl mx-auto uppercase">
-                Detecta cada <span className="text-gradient">centavo perdido.</span>
+                Recupera tu <span className="text-gradient">tiempo y dinero.</span>
               </h1>
               <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed">
-                Concilia Shopify, Stripe y Bancos en <span className="text-indigo-600 font-black italic underline decoration-4 underline-offset-8">segundos</span>. No más "órdenes fantasma" ni discrepancias en pagos.
+                Concilia Shopify, Stripe y Bancos en <span className="text-indigo-600 font-black italic underline decoration-4 underline-offset-8">segundos</span>. Si la IA no encuentra una discrepancia en tu primer mes, <span className="font-black text-slate-900">te devolvemos el dinero.</span>
               </p>
             </div>
 
@@ -427,6 +427,46 @@ export default function LandingPage() {
               >
                 Empezar Auditoría con IA <Zap className="w-7 h-7 fill-white" />
               </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Video Demo Section */}
+        <section className="py-24 px-6 bg-white relative">
+          <div className="max-w-5xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
+                Mira la IA en <span className="text-indigo-600">acción</span>
+              </h2>
+              <p className="text-slate-500 font-medium text-lg">
+                Mira cómo ConciliAI encuentra discrepancias en un extracto de Bancolombia en menos de 30 segundos.
+              </p>
+            </div>
+            
+            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 group">
+              <div className="absolute inset-0 bg-slate-900 flex items-center justify-center">
+                 {/* Aquí pegas el embed de YouTube/Loom al final */}
+                 <div className="text-center space-y-4">
+                    <div className="w-20 h-20 bg-indigo-600 rounded-full flex items-center justify-center mx-auto shadow-purple animate-pulse">
+                      <Zap className="w-10 h-10 text-white fill-white" />
+                    </div>
+                    <p className="text-white font-black uppercase tracking-widest text-xs">Pega tu video de Demo aquí</p>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Bank & Platform Support (Trust Logos) */}
+        <section className="py-12 border-y border-slate-100 bg-slate-50/50">
+          <div className="max-w-7xl mx-auto px-6">
+            <p className="text-center text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-8">Compatible con tus plataformas favoritas</p>
+            <div className="flex flex-wrap justify-center items-center gap-12 md:gap-20 opacity-40 grayscale hover:grayscale-0 transition-all duration-700">
+               <span className="text-2xl font-black italic">Bancolombia</span>
+               <span className="text-2xl font-black italic">Stripe</span>
+               <span className="text-2xl font-black italic">Shopify</span>
+               <span className="text-2xl font-black italic">BBVA</span>
+               <span className="text-2xl font-black italic">Davivienda</span>
             </div>
           </div>
         </section>
@@ -545,6 +585,21 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Hormozi Guarantee Section */}
+        <section className="py-24 px-6 bg-indigo-600 text-white">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
+              <ShieldCheck className="w-4 h-4" /> Nuestra Promesa de Hierro
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
+              "Si no te ahorramos al menos <span className="underline decoration-indigo-300">10 horas al mes</span>, no pagas."
+            </h2>
+            <p className="text-xl font-medium opacity-90 italic">
+              Estamos tan seguros de que ConciliAI transformará tu operación que si no estás satisfecho en los primeros 30 días, te devolvemos el 100% de tu inversión y te regalamos 3 meses de plan Pro para que veas las mejoras.
+            </p>
+          </div>
+        </section>
+
         {/* Pricing Section */}
         <section id="pricing" className="py-24 px-6">
           <div className="max-w-7xl mx-auto bg-slate-900 rounded-[80px] p-12 md:p-24 space-y-24 text-white relative overflow-hidden">
@@ -587,7 +642,7 @@ export default function LandingPage() {
                     <p className="text-5xl font-black">$ 24.99</p>
                   </div>
                   <ul className="space-y-4">
-                    {["50 Conciliaciones", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital"].map((f, i) => (
+                    {["50 Conciliaciones", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital", "🎁 BONUS: Guía de Optimización Fiscal", "🎁 BONUS: Soporte Priority Telegram"].map((f, i) => (
                       <li key={i} className="flex items-center gap-3 text-slate-600 font-medium text-sm">
                         <CheckCircle2 className="w-5 h-5 text-indigo-600" /> {f}
                       </li>
@@ -633,12 +688,29 @@ export default function LandingPage() {
             </div>
 
             {/* Trust Badge */}
-            <div className="flex flex-col items-center gap-4 opacity-50 animate-in fade-in duration-1000 mt-12">
+            <div className="flex flex-col items-center gap-4 opacity-70 animate-in fade-in duration-1000 mt-12">
               <div className="flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full border border-white/10">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pagos verificados por <span className="text-white">Lemon Squeezy</span></span>
               </div>
-              <p className="text-[9px] text-slate-500 font-medium uppercase tracking-[0.2em]">Encriptación AES-256 bits de grado militar</p>
+            </div>
+
+            {/* Testimonials / Social Proof */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 text-left">
+              <div className="bg-white/5 p-8 rounded-[30px] border border-white/10 italic">
+                <p className="text-slate-300 mb-4 text-sm">"Antes pasaba todo mi domingo cruzando Stripe contra Bancolombia. Ahora ConciliAI lo hace mientras me tomo un café. He recuperado 15 horas al mes."</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-indigo-500 rounded-full"></div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white">Andrés D. - E-commerce Founder</span>
+                </div>
+              </div>
+              <div className="bg-white/5 p-8 rounded-[30px] border border-white/10 italic">
+                <p className="text-slate-300 mb-4 text-sm">"Como auxiliar contable, esta herramienta me ha salvado de errores humanos críticos. La IA detecta diferencias de centavos que el ojo no ve."</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-emerald-500 rounded-full"></div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white">Valentina R. - Contadora Elite</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>

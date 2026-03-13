@@ -1,0 +1,19 @@
+BANCOLOMBIA S.A. - ESTRATO CUENTA DE AHORROS
+CLIENTE: KEVIN DIAZ
+PERIODO: MARZO 2025
+PAGINA: 1
+
+FECHA      DESCRIPCION                 MOVIMIENTO    SALDO
+-----------------------------------------------------------
+01 MAR     SALDO ANTERIOR                            1.240.500
+
+08 MAR     COMPRA PSE SHOPIF*           -450.000      790.500
+10 MAR     ACH TRANSF STRIPE PAY        1.250.000    2.040.500
+11 MAR     GMF 4X1000                      -5.000    2.035.500
+11 MAR     ACH TRANSF STRIPE PAY          825.000    2.860.500
+12 MAR     ABONO NOMINA                 3.500.000    6.360.500
+13 MAR     CUOTA MANEJO                   -12.000    6.348.500
+
+*** FIN DE EXTRACTO ***
+TOTAL DEPOSITOS: 5.575.000
+TOTAL DEBITOS:   -472.000

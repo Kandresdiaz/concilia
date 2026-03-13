@@ -186,30 +186,44 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
  */
 export function generateCSV(bankData: any, bookData: any, matchedData: any, companyName: string, tier: "FREE" | "PRO" | "ENTERPRISE" | "LIFETIME") {
     const bom = "\uFEFF";
-    const csvHeader = "sep=;\n";
-    let csv = `${bom}${csvHeader}EMPRESA;${companyName || "S/N"};GENERADO;${new Date().toLocaleDateString()};PLAN;${tier}\n`;
+    const d = ","; // Universal delimiter
+    
+    // Universal headers and metadata
+    let csv = `${bom}`;
+    csv += `"PROYECTO"${d}"CONCILIAI (AUDIT)"\n`;
+    csv += `"EMPRESA"${d}"${(companyName || "S/N").replace(/"/g, '""')}"\n`;
+    csv += `"FECHA EXPORT"${d}"${new Date().toISOString()}"\n`;
+    csv += `"PLAN"${d}"${tier}"\n\n`;
+    
     const bankTotal = bankData?.verified_totals?.net || 0;
     const bookTotal = bookData?.verified_totals?.net || 0;
     const netDifference = bankTotal - bookTotal;
-    csv += `TOTAL BANCO;${bankTotal};TOTAL LIBROS;${bookTotal};DIFERENCIA;${netDifference}\n`;
+    
+    csv += `"RESUMEN FINANCIERO"\n`;
+    csv += `"TOTAL BANCA"${d}${bankTotal}${d}"USD/LC"\n`;
+    csv += `"TOTAL LIBROS"${d}${bookTotal}${d}"USD/LC"\n`;
+    csv += `"DIFERENCIA"${d}${netDifference}${d}"${netDifference === 0 ? "CONCILIADO" : "PENDIENTE"}"\n\n`;
 
-    csv += "ESTADO;TIPO;FECHA;DESCRIPCION;VALOR;REFERENCIA\n";
-
+    csv += `"ESTADO"${d}"ORIGEN"${d}"FECHA"${d}"DESCRIPCION"${d}"MONTO"${d}"REFERENCIA"\n`;
 
     // 1. Matches (Conciliados)
     matchedData.matches.forEach((m: any) => {
-        csv += `CONCILIADO;BANCO;${m.bank.date};"${m.bank.description}";${m.bank.amount};${m.bank.reference || ""}\n`;
-        csv += `CONCILIADO;LIBRO;${m.book.date};"${m.book.description}";${m.book.amount};${m.book.reference || ""}\n`;
+        const descBank = (m.bank.description || "").replace(/"/g, '""');
+        const descBook = (m.book.description || "").replace(/"/g, '""');
+        csv += `"CONCILIADO"${d}"BANCO"${d}"${m.bank.date}"${d}"${descBank}"${d}${m.bank.amount}${d}"${m.bank.reference || ""}"\n`;
+        csv += `"CONCILIADO"${d}"LIBRO"${d}"${m.book.date}"${d}"${descBook}"${d}${m.book.amount}${d}"${m.book.reference || ""}"\n`;
     });
 
     // 2. Pending Bank
     matchedData.pendingBank.forEach((t: any) => {
-        csv += `PENDIENTE;BANCO;${t.date};"${t.description}";${t.amount};${t.reference || ""}\n`;
+        const desc = (t.description || "").replace(/"/g, '""');
+        csv += `"PENDIENTE"${d}"BANCO"${d}"${t.date}"${d}"${desc}"${d}${t.amount}${d}"${t.reference || ""}"\n`;
     });
 
     // 3. Pending Book
     matchedData.pendingBook.forEach((t: any) => {
-        csv += `PENDIENTE;LIBRO;${t.date};"${t.description}";${t.amount};${t.reference || ""}\n`;
+        const desc = (t.description || "").replace(/"/g, '""');
+        csv += `"PENDIENTE"${d}"LIBRO"${d}"${t.date}"${d}"${desc}"${d}${t.amount}${d}"${t.reference || ""}"\n`;
     });
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
