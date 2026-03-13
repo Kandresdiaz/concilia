@@ -429,6 +429,21 @@ export default function LandingPage() {
             <a href="#features" className="text-[10px] text-slate-400 hover:text-violet-600 transition-colors">Tecnología</a>
             <a href="#demo" className="text-[10px] text-violet-600">Demo Vivo</a>
             <a href="#pricing" className="text-[10px] text-slate-400 hover:text-violet-600 transition-colors">Precios</a>
+            
+            {/* Product Hunt Badge */}
+            <a 
+              href="https://www.producthunt.com/posts/concilia?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-concilia" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:scale-105 transition-transform"
+            >
+              <img 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=concilia&theme=light" 
+                alt="ConciliAI - AI Powered Financial Auditor | Product Hunt" 
+                style={{ width: '180px', height: '38px' }} 
+              />
+            </a>
+
             <Link
               href="/login"
               className="px-8 py-3 bg-violet-600 text-white text-[11px] font-black rounded-xl hover:bg-violet-500 transition-all hover:scale-105 active:scale-95 shadow-purple"
@@ -499,6 +514,7 @@ export default function LandingPage() {
                     element?.scrollIntoView({ behavior: "smooth" });
                   }}
                   className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group"
+                >
                   Empezar Auditoría con IA <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
                 </button>
               </div>
@@ -875,31 +891,6 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Floating Security Toast */}
-      {showSecurityToast && (
-        <div className="fixed bottom-8 left-8 z-[100] animate-in slide-in-from-left-full duration-500">
-          <div className="bg-slate-950 text-white p-6 rounded-[30px] shadow-2xl border border-white/10 flex items-center gap-5 max-w-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <ShieldCheck className="w-12 h-12" />
-            </div>
-            <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-purple">
-              <Lock className="w-6 h-6 text-white" />
-            </div>
-            <div className="space-y-1">
-              <p className="text-[11px] font-black uppercase tracking-widest text-indigo-400">Privacidad Garantizada</p>
-              <p className="text-xs font-medium text-slate-300 leading-relaxed">
-                Tus datos <span className="text-white font-bold">no se usan para entrenar</span> modelos públicos. Todo se procesa encriptado y se borra tras la sesión.
-              </p>
-            </div>
-            <button 
-              onClick={() => setShowSecurityToast(false)}
-              className="absolute top-3 right-3 text-slate-500 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* JSON-LD for SEO */}
       <script
