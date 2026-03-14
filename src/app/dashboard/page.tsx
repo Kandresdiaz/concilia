@@ -122,20 +122,56 @@ export default function ConciliAI() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/reconcile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text: isImage ? undefined : content,
-          image: isImage ? content : undefined,
-          country
-        }),
-      });
+      let data: any = null;
 
-      const data = await response.json();
+      // Optimización: Intentar ruta $0 si es texto y no imagen
+      if (!isImage && content) {
+          try {
+              const preCheckResponse = await fetch("/api/extract-csv", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ content, type })
+              });
+              
+              const preCheckData = await preCheckResponse.json();
+              
+              if (preCheckData.isDirectExtraction && !preCheckData.error) {
+                  // Direct Hit! Zero AI cost
+                  data = {
+                      transactions: preCheckData.transactions,
+                      banco: preCheckData.transactions[0]?.description?.includes("Lemon") ? "Lemon Squeezy" : preCheckData.transactions[0]?.description?.includes("Stripe") ? "Stripe" : "Plataforma de Pagos",
+                      empresa: companyName || "Tu Empresa",
+                      tipo_documento: "CSV Extraído Directamente",
+                      verified_totals: {
+                          total_in: preCheckData.transactions.filter(t => t.type === "INCOME").reduce((acc, t) => acc + t.amount, 0),
+                          total_out: preCheckData.transactions.filter(t => t.type === "EXPENSE").reduce((acc, t) => acc + Math.abs(t.amount), 0),
+                          net: preCheckData.transactions.reduce((acc, t) => acc + t.amount, 0),
+                      },
+                      precision_score: 100 // It's deterministic code
+                  };
+              }
+          } catch (e) {
+              console.warn("Fallo el extractor directo, cayendo silenciosamente a IA", e);
+          }
+      }
+
+      // Fallback a IA pesada si no se pudo hacer extracción directa (o era imagen)
+      if (!data) {
+          const response = await fetch("/api/reconcile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: isImage ? undefined : content,
+              image: isImage ? content : undefined,
+              country
+            }),
+          });
+          
+          data = await response.json();
+      }
 
       if (data.error) {
-        setNotification({ type: "error", message: "Error de la IA: " + data.error });
+        setNotification({ type: "error", message: "Error en el procesamiento: " + data.error });
         return;
       }
 

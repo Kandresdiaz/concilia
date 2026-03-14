@@ -4,6 +4,7 @@ import { X, Upload, FileText, Search, Mail, Loader2, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { extractTextFromPdf } from "@/lib/pdf";
+import Papa from "papaparse";
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -99,6 +100,13 @@ export function ImportModal({
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Limite de 2MB para usuarios Gratis
+        if (!isAdmin && file.size > 2 * 1024 * 1024) {
+             alert("Tu archivo supera los 2MB permitidos en el plan gratuito. Por favor, actualiza a PRO para conciliar archivos más grandes.");
+             e.target.value = ""; // Clear input
+             return;
+        }
+
         const isImage = file.type.startsWith("image/");
         const isPdf = file.type === "application/pdf";
         const reader = new FileReader();
@@ -115,7 +123,26 @@ export function ImportModal({
             // Text files (CSV, TXT, etc.)
             reader.onload = (event) => {
                 const content = event.target?.result as string;
-                onImport(tab, "file", content, false, country);
+                
+                // Limite de filas para usuarios Gratis
+                if (!isAdmin && file.name.match(/\.(csv|txt)$/i)) {
+                    let rowCount = 0;
+                    Papa.parse(content, {
+                        step: function() {
+                            rowCount++;
+                        },
+                        complete: function() {
+                            if (rowCount > 100) {
+                                alert(`Tu archivo tiene ${rowCount} líneas. El plan gratuito permite máximo 100 transacciones por archivo. Actualiza a PRO para conciliación ilimitada.`);
+                                return; // Halt parsing
+                            } else {
+                                onImport(tab, "file", content, false, country);
+                            }
+                        }
+                    });
+                } else {
+                    onImport(tab, "file", content, false, country);
+                }
             };
             reader.readAsText(file);
         }
