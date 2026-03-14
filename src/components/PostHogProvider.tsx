@@ -7,10 +7,10 @@ import { useEffect } from 'react'
 export function PostHogProviderWrapper({ children }: { children: React.ReactNode }) {
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY!, {
-          api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+        posthog.init('phc_MQaJ0hcOY56CzrxHUkIjKbZWYqb9zwyCIgca8BAUwCr', {
+          api_host: 'https://us.i.posthog.com',
           person_profiles: 'identified_only',
-          capture_pageview: false // Se captura manualmente en el router si es necesario
+          capture_pageview: true // Habilitado para que registre visitas del lanzamiento automáticamente
         })
       }
     }, [])
