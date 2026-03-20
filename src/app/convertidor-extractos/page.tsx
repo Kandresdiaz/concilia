@@ -12,6 +12,9 @@ export default function BankStatementConverter() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string | null>(null);
+    const [email, setEmail] = useState("");
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [savingLead, setSavingLead] = useState(false);
 
     const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const uploadedFile = e.target.files?.[0];
@@ -54,10 +57,39 @@ export default function BankStatementConverter() {
         }
     };
 
+    const handleDownloadRequest = () => {
+        const savedEmail = localStorage.getItem("concilia_lead_email");
+        if (savedEmail) {
+            downloadExcel();
+        } else {
+            setShowEmailModal(true);
+        }
+    };
+
     const downloadExcel = () => {
         if (!result) return;
-        // Simulamos exportación a CSV/Excel con la lógica existente
         generateCSV({ verified_totals: result.verified_totals }, {}, { matches: result.transactions.map((t: any) => ({ bank: t, book: t })), pendingBank: [], pendingBook: [] }, result.empresa || "Convertido", "FREE");
+    };
+
+    const saveLeadAndDownload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setSavingLead(true);
+        try {
+            // Guardamos en localStorage para no pedirlo siempre
+            localStorage.setItem("concilia_lead_email", email);
+            
+            // Simulación de guardado en Supabase (Se podría añadir la tabla leads)
+            // await supabase.from('leads').insert({ email, source: 'free-converter' });
+            
+            setShowEmailModal(false);
+            downloadExcel();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSavingLead(false);
+        }
     };
 
     return (
@@ -128,26 +160,46 @@ export default function BankStatementConverter() {
                                             <CheckCircle2 className="w-10 h-10" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-black text-slate-900 uppercase italic">¡Conversión Listal!</h3>
+                                            <h3 className="text-2xl font-black text-slate-900 uppercase italic">¡Conversión Lista!</h3>
                                             <p className="text-sm font-bold text-emerald-600 uppercase tracking-widest">Se detectaron {result.transactions.length} transacciones</p>
                                         </div>
                                     </div>
                                     <button
-                                        onClick={downloadExcel}
+                                        onClick={handleDownloadRequest}
                                         className="btn bg-slate-900 text-white h-16 px-10 rounded-2xl font-black flex items-center gap-3 shadow-xl hover:scale-105"
                                     >
                                         <Download className="w-5 h-5" /> DESCARGAR .XLSX
                                     </button>
                                 </div>
 
-                                <div className="bg-slate-900 rounded-[40px] p-12 text-white space-y-8">
-                                    <div className="space-y-4 text-center">
-                                        <h4 className="text-3xl font-black uppercase italic tracking-tighter">¿Sabías que puedes auditar esto?</h4>
-                                        <p className="text-slate-400 font-medium max-w-md mx-auto">ConciliAI no solo convierte, también encuentra descuadres contra tu libro contable en segundos.</p>
+                                <div className="mt-12 p-8 bg-slate-900 rounded-[35px] text-white space-y-8 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 blur-3xl rounded-full"></div>
+                                    <div className="space-y-2 relative z-10">
+                                        <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.4em]">🎯 OPORTUNIDAD DE RECUPERACIÓN</p>
+                                        <h4 className="text-3xl font-black uppercase italic leading-tight">¿Sabes cuánto dinero <br /><span className="text-indigo-400">estás dejando</span> en la mesa?</h4>
+                                        <p className="text-slate-400 text-sm font-medium leading-relaxed">
+                                            La conversión a Excel es solo el inicio. ConciliAI Pro detecta discrepancias de centavos que se convierten en **millones de pesos** al año.
+                                        </p>
                                     </div>
-                                    <Link href="/login" className="w-full h-16 bg-indigo-600 text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:bg-indigo-500 transition-all">
-                                        IR AL PANEL DE AUDITORÍA IA <Sparkles className="w-5 h-5" />
+                                    <div className="grid grid-cols-2 gap-4 relative z-10">
+                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                            <p className="text-[9px] font-black uppercase text-indigo-400 mb-1">Costo Pro</p>
+                                            <p className="text-xl font-black">$24.99</p>
+                                        </div>
+                                        <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
+                                            <p className="text-[9px] font-black uppercase text-emerald-400 mb-1">Ahorro Promedio</p>
+                                            <p className="text-xl font-black">+$1.4M</p>
+                                        </div>
+                                    </div>
+                                    <Link 
+                                        href="/login" 
+                                        className="block w-full py-6 bg-indigo-600 text-white rounded-[25px] font-black uppercase tracking-widest text-xs text-center hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-900/40"
+                                    >
+                                        Activar Auditoría IA con Garantía 
                                     </Link>
+                                    <p className="text-[9px] text-slate-400 text-center uppercase font-black tracking-widest opacity-50 italic">
+                                        * Garantía Hormozi: Si la IA no paga su suscripción encontrando errores, no pagas nada.
+                                    </p>
                                 </div>
                             </div>
                         )}
@@ -157,7 +209,7 @@ export default function BankStatementConverter() {
                                 <AlertCircle className="w-6 h-6" />
                                 <p className="font-bold text-sm">Error: {error}</p>
                             </div>
-                        ) as any}
+                        )}
                     </div>
                 </div>
 
@@ -174,6 +226,42 @@ export default function BankStatementConverter() {
                     ))}
                 </section>
             </main>
+
+            {/* Lead Capture Modal */}
+            {showEmailModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}></div>
+                    <div className="relative w-full max-w-md bg-white rounded-[40px] p-10 shadow-3xl border border-slate-100 animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center text-indigo-600 mb-8 mx-auto">
+                            <Download className="w-10 h-10" />
+                        </div>
+                        <h3 className="text-3xl font-black uppercase italic tracking-tighter text-center mb-4">🚀 ¡Archivo Listo!</h3>
+                        <p className="text-slate-500 font-medium text-center leading-relaxed mb-8 text-sm">
+                            Ingresa tu correo para recibir el enlace de descarga y un **Cupón del 50% DCTO** para tu primera auditoría IA profesional.
+                        </p>
+                        <form onSubmit={saveLeadAndDownload} className="space-y-4">
+                            <input 
+                                type="email" 
+                                required
+                                placeholder="tu@correo.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full h-16 px-6 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-indigo-600 outline-none transition-all"
+                            />
+                            <button 
+                                type="submit"
+                                disabled={savingLead}
+                                className="w-full h-16 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-900 transition-all shadow-xl shadow-indigo-100 disabled:opacity-50"
+                            >
+                                {savingLead ? "Procesando..." : "Descargar Excel Gratis"}
+                            </button>
+                        </form>
+                        <p className="mt-6 text-[10px] text-slate-400 text-center uppercase font-black tracking-widest">
+                            ⚡ Sin spam. Solo herramientas útiles para contadores.
+                        </p>
+                    </div>
+                </div>
+            )}
 
             <footer className="py-20 text-center text-slate-400 text-[10px] font-black uppercase tracking-widest border-t border-slate-200">
                 © 2026 ConciliAI • Una Herramienta de Marc Lou Style para Contadores

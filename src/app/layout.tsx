@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ConciliAI - Conciliación Bancaria con Inteligencia Artificial",
   description: "Automatiza tu auditoría financiera. ConciliAI cruza extractos bancarios y auxiliares contables en segundos con precisión del 99.9%. Diseñado por y para contadores.",
-  keywords: ["conciliación bancaria", "IA contable", "auditoria financiera", "automatización contable colombia", "software para contadores", "conciliacion bancaria automatica"],
+  keywords: ["conciliación bancaria", "IA contable", "auditoria financiera", "automatización contable colombia", "software para contadores", "conciliacion bancaria automatica", "stripe reconciliation", "shopify accounting automation", "extractos bancolombia a excel", "inteligencia artificial finanzas"],
   authors: [{ name: "ConciliAI Team" }],
   openGraph: {
     title: "ConciliAI | Auditoría Bancaria con IA",
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     siteName: "ConciliAI",
     images: [
       {
-        url: "/og-image.png",
+        url: "/concilia_og_image.png",
         width: 1200,
         height: 630,
         alt: "ConciliAI Dashboard Demo",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ConciliAI | Concilia tus bancos como un rayo",
     description: "IA especializada en extraer y cruzar datos financieros con precisión quirúrgica.",
-    images: ["/og-image.png"],
+    images: ["/concilia_og_image.png"],
   },
   alternates: {
     canonical: "https://concilia.ai",

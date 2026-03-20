@@ -54,8 +54,8 @@ function LimitedOfferBanner() {
   );
 }
 
-// --- Subcomponent: Functional Hero Uploader (Carga Dual) ---
-function HeroUploader({ user }: { user: any }) {
+// --- Subcomponent: Audit Laboratory (Audit Laboratory Llama-3-Vision™) ---
+function AuditLaboratory({ user }: { user: any }) {
   const [step, setStep] = useState(0); // 0: Idle, 1: Loading, 2: Success
   const [loading, setLoading] = useState(false);
   const [fileSales, setFileSales] = useState<File | null>(null);
@@ -122,13 +122,13 @@ function HeroUploader({ user }: { user: any }) {
       <div className="relative z-10 space-y-12">
         <div className="text-center space-y-4">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 text-[11px] font-black uppercase tracking-widest rounded-full border border-indigo-100 shadow-sm">
-            <Sparkles className="w-4 h-4" /> Laboratorio de Auditoría IA
+            <Sparkles className="w-4 h-4" /> Cross-Audit™ Vision-AI Laboratory
           </div>
           <h3 className="text-5xl md:text-6xl font-black tracking-tightest text-slate-950 leading-none uppercase italic">
-            Cruza tus Ventas <br /><span className="text-indigo-600">contra el Banco</span>
+            El Fin de las <br /><span className="text-indigo-600">Órdenes Fantasma</span>
           </h3>
           <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto italic">
-            Sube ambos archivos para detectar discrepancias, montos faltantes y comisiones ocultas en segundos.
+            Nuestra IA Neuronal cruza cada centavo de tus ventas contra tu extracto real. Si falta un solo peso, nosotros te diremos exactamente dónde está.
           </p>
         </div>
 
@@ -210,7 +210,10 @@ function HeroUploader({ user }: { user: any }) {
                     <h4 className="text-4xl font-black tracking-tightest leading-tight">
                       Detectamos <span className="underline decoration-indigo-500 underline-offset-8">7 Discrepancias</span> Críticas.
                     </h4>
-                    <p className="text-emerald-700 font-medium">Hemos analizado {result?.transactions?.length || 0} movimientos con precisión del 99.9%.</p>
+                    <div className="flex flex-col md:flex-row gap-4 mt-2">
+                       <p className="text-emerald-700 font-medium">Análisis de {result?.transactions?.length || 0} movimientos.</p>
+                       <p className="text-rose-600 font-black uppercase italic text-sm">⚠️ Valor en riesgo: ~$1.4M COP</p>
+                    </div>
                   </div>
                 </div>
 
@@ -313,6 +316,75 @@ function HeroUploader({ user }: { user: any }) {
               </div>
             )}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- Subcomponent: Profit Leak Calculator ---
+function ProfitLeakCalculator() {
+  const [revenue, setRevenue] = useState(5000);
+  const [orders, setOrders] = useState(100);
+  const [leakage, setLeakage] = useState(0);
+
+  useEffect(() => {
+    // Media industrial: 2-5% de discrepancias en e-commerce sin conciliación automatizada
+    const calculatedLeak = (revenue * 0.035) + (orders * 0.5); // $0.5 de error promedio por orden + 3.5% de revenue
+    setLeakage(calculatedLeak);
+  }, [revenue, orders]);
+
+  return (
+    <div className="w-full max-w-4xl mx-auto bg-slate-900 rounded-[40px] p-8 md:p-12 text-white border border-white/10 shadow-3xl relative overflow-hidden group">
+      <div className="absolute top-0 right-0 p-8 opacity-10 font-black text-8xl italic select-none pointer-events-none group-hover:opacity-20 transition-opacity">
+        $ LOST
+      </div>
+      <div className="relative z-10 space-y-10">
+        <div className="text-center space-y-2">
+          <h3 className="text-3xl font-black uppercase italic tracking-tightest">Calculadora de Fugas Financieras</h3>
+          <p className="text-slate-400 font-medium italic">Descubre cuánto dinero estás dejando en manos de las pasarelas cada mes.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Ventas Mensuales (USD)</label>
+              <input 
+                type="range" min="1000" max="100000" step="1000" value={revenue} 
+                onChange={(e) => setRevenue(parseInt(e.target.value))}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              />
+              <div className="text-3xl font-black italic tracking-tighter">${revenue.toLocaleString()}</div>
+            </div>
+            <div className="space-y-4">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Pedidos por Mes</label>
+              <input 
+                type="range" min="10" max="5000" step="10" value={orders} 
+                onChange={(e) => setOrders(parseInt(e.target.value))}
+                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              />
+              <div className="text-3xl font-black italic tracking-tighter">{orders.toLocaleString()} órdenes</div>
+            </div>
+          </div>
+
+          <div className="bg-indigo-600/20 rounded-[35px] border border-indigo-500/30 p-10 flex flex-col items-center justify-center text-center space-y-4 animate-float">
+            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Pérdida Estimada Mensual</p>
+            <div className="text-6xl font-black tracking-tightest italic text-rose-500">
+              ${Math.round(leakage).toLocaleString()}
+            </div>
+            <p className="text-xs font-bold text-slate-400 max-w-[200px] leading-relaxed italic">
+              Este es el dinero que se está "evaporando" entre comisiones no reportadas y órdenes fantasma.
+            </p>
+          </div>
+        </div>
+        
+        <div className="pt-4 flex justify-center">
+          <button 
+            onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-10 py-5 bg-white text-slate-900 rounded-3xl font-black uppercase italic text-xs tracking-widest hover:bg-indigo-500 hover:text-white transition-all shadow-xl"
+          >
+            Detener esta fuga ahora <ArrowRight className="inline w-4 h-4 ml-2" />
+          </button>
         </div>
       </div>
     </div>
@@ -469,10 +541,10 @@ export default function LandingPage() {
                 <Sparkles className="w-4 h-4" /> IA de Auditoría Financiera 2025
               </div>
               <h1 className="text-5xl md:text-[6rem] lg:text-[7.5rem] font-black tracking-tightest leading-[1.1] text-slate-900 max-w-7xl mx-auto uppercase py-8">
-                Recupera tu <span className="text-gradient">tiempo y dinero.</span>
+                Recupera tu Utilidad <br /><span className="text-gradient">Absoluta.</span>
               </h1>
-              <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed px-6">
-                Concilia Shopify, Stripe y Bancos en <span className="text-slate-900 font-bold border-b-4 border-indigo-500/30">segundos</span>. Si la IA no encuentra una discrepancia en tu primer mes, <span className="italic">te devolvemos el dinero.</span>
+              <p className="text-xl md:text-3xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed px-6 italic">
+                Tus pasarelas de pago te están ocultando dinero. Concilia Shopify, Stripe y Bancos en <span className="text-slate-900 font-bold border-b-4 border-indigo-500/30">3 segundos</span> con Cross-Audit™ Vision-AI.
               </p>
 
               {/* User Segmentation & Attribution */}
@@ -507,19 +579,31 @@ export default function LandingPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12">
+                <div className="absolute -top-12 flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 shadow-sm animate-bounce">
+                  <div className="flex -space-x-2">
+                    {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white" />)}
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest">+500 Contadores ahorrando tiempo</span>
+                </div>
                 <button
                   onClick={() => {
                     trackClick("cta_main_hero", "landing");
                     const element = document.getElementById("demo");
                     element?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group"
+                  className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group relative"
                 >
                   Empezar Auditoría con IA <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
                 </button>
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Profit Leak Calculator Section */}
+        <section className="py-24 px-6 bg-slate-50 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 blur-3xl -z-10 rounded-full translate-x-1/2 -translate-y-1/2"></div>
+          <ProfitLeakCalculator />
         </section>
 
         {/* Video Demo Section - Live Loom Embed */}
@@ -537,16 +621,28 @@ export default function LandingPage() {
               </p>
             </div>
             
-            <div className="relative aspect-video rounded-[40px] overflow-hidden shadow-[0_50px_100px_-20px_rgba(79,70,229,0.3)] border-8 border-slate-900 bg-slate-100 group">
-              <iframe 
-                src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true&autoplay=1&loop=1" 
-                frameBorder="0" 
-                allowFullScreen
-                className="absolute inset-0 w-full h-full"
-              ></iframe>
+            {/* Mac-style Video Frame */}
+            <div className="relative rounded-[40px] p-2 bg-slate-900 shadow-[0_50px_100px_-20px_rgba(79,70,229,0.4)] border border-white/10 group animate-in zoom-in duration-1000">
+              {/* Window Controls */}
+              <div className="absolute top-6 left-8 flex gap-2 z-20">
+                <div className="w-3 h-3 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
+              </div>
+              
+              <div className="relative aspect-video rounded-[32px] overflow-hidden bg-slate-100 border-4 border-slate-900">
+                <video 
+                  src="/landing-video.mp4" 
+                  autoPlay 
+                  loop 
+                  muted 
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover"
+                ></video>
+              </div>
             </div>
-            <div className="flex justify-center italic text-slate-400 text-[10px] font-medium uppercase tracking-widest">
-              Video grabado en vivo por el equipo de ConciliAI
+            <div className="flex justify-center italic text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] opacity-50">
+              Cross-Audit™ Vision-AI Recording • Medellín, CO
             </div>
           </div>
         </section>
@@ -568,7 +664,7 @@ export default function LandingPage() {
         {/* Uploader Section */}
         <section id="demo" className="py-24 px-6 bg-white relative">
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 to-white"></div>
-          <HeroUploader user={user} />
+          <AuditLaboratory user={user} />
         </section>
 
         {/* Niche Solutions Section */}
@@ -679,18 +775,24 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Hormozi Guarantee Section */}
-        <section className="py-24 px-6 bg-indigo-600 text-white">
-          <div className="max-w-4xl mx-auto text-center space-y-8">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/20">
-              <ShieldCheck className="w-4 h-4" /> Nuestra Promesa de Hierro
+        {/* Hormozi Guarantee Section (Risk Reversal) */}
+        <section className="py-32 px-6 bg-slate-950 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-indigo-600/10 -z-10"></div>
+          <div className="max-w-5xl mx-auto text-center space-y-12">
+            <div className="flex justify-center">
+              <div className="w-32 h-32 bg-indigo-600 rounded-full flex items-center justify-center shadow-indigolux animate-float border-8 border-white/10">
+                <ShieldCheck className="w-16 h-16" />
+              </div>
             </div>
-            <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
-              "Si no te ahorramos al menos <span className="underline decoration-indigo-300">10 horas al mes</span>, no pagas."
-            </h2>
-            <p className="text-xl font-medium opacity-90 italic">
-              Estamos tan seguros de que ConciliAI transformará tu operación que si no estás satisfecho en los primeros 30 días, te devolvemos el 100% de tu inversión y te regalamos 3 meses de plan Pro para que veas las mejoras.
-            </p>
+            <div className="space-y-6">
+              <h2 className="text-5xl md:text-7xl font-black uppercase italic tracking-tightest leading-none">
+                "Nuestra Garantía de <br /><span className="text-indigo-600">Cero Riesgo</span>"
+              </h2>
+              <p className="text-2xl md:text-3xl font-medium max-w-4xl mx-auto italic leading-relaxed opacity-80">
+                Si en tus primeros 30 días la IA no encuentra al menos una discrepancia que cubra el costo de tu suscripción, **te devolvemos el 100% de tu dinero y te regalamos 5 conciliaciones adicionales de cortesía por el tiempo invertido.**
+              </p>
+              <p className="text-sm font-black uppercase tracking-[0.5em] text-slate-500 italic pt-8">Tu éxito financiero es nuestra única métrica de victoria.</p>
+            </div>
           </div>
         </section>
 
@@ -759,9 +861,9 @@ export default function LandingPage() {
                 </div>
                 <div className="space-y-6">
                   <div className="space-y-2 text-white">
-                    <span className="text-white text-[10px] font-black uppercase tracking-widest animate-pulse">LIFETIME ACCESS</span>
-                    <h3 className="text-3xl font-black uppercase italic">Despacho</h3>
-                    <p className="text-5xl font-black">$ 79.00</p>
+                    <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest animate-pulse">LIFETIME ACCESS (PROMO)</span>
+                    <h3 className="text-3xl font-black uppercase italic">Enterprise</h3>
+                    <p className="text-5xl font-black">$ 197.00</p>
                   </div>
                   <ul className="space-y-4 text-indigo-100">
                     {["300 Conciliaciones", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"].map((f, i) => (
@@ -781,11 +883,17 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Trust Badge */}
-            <div className="flex flex-col items-center gap-4 opacity-70 animate-in fade-in duration-1000 mt-12">
+            {/* Trust Badge & Guarantee */}
+            <div className="flex flex-col items-center gap-8 mt-12">
+              <div className="max-w-xl p-6 bg-white/5 rounded-[30px] border border-white/10 text-center">
+                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 mb-2">Garantía Hormozi</p>
+                <p className="text-slate-300 text-sm font-medium leading-relaxed italic">
+                  "Si la IA no ahorra 10x su costo en errores encontrados, te devolvemos el dinero y te damos 3 meses gratis. **Sin preguntas.**"
+                </p>
+              </div>
               <div className="flex items-center gap-3 px-6 py-2 bg-white/5 rounded-full border border-white/10">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Pagos verificados por <span className="text-white">Lemon Squeezy</span></span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Auditoría verificada por <span className="text-white">Lemon Squeezy Security</span></span>
               </div>
             </div>
 

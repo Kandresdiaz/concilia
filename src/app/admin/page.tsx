@@ -149,6 +149,68 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* Tactic Awareness & Growth */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Funnel */}
+                    <div className="lg:col-span-2 bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                EMBUDO DE CONVERSIÓN (TÁCTICAS)
+                            </h3>
+                            <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-full">LIVE</span>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            {[
+                                { label: "Landing Views", value: stats?.growth?.views, color: "bg-slate-100", text: "text-slate-600" },
+                                { label: "Interacciones", value: stats?.growth?.clicks, color: "bg-amber-50", text: "text-amber-600" },
+                                { label: "Segm. Perfil", value: stats?.growth?.segmentation, color: "bg-indigo-50", text: "text-indigo-600" },
+                                { label: "Free Tools UX", value: stats?.growth?.conversions, color: "bg-emerald-50", text: "text-emerald-600" }
+                            ].map((item, i) => (
+                                <div key={i} className={cn("p-6 rounded-[30px] space-y-1", item.color)}>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
+                                    <p className={cn("text-2xl font-black", item.text)}>{item.value || 0}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="pt-4">
+                            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 px-1">
+                                <span>Eficiencia de la Táctica</span>
+                                <span>{stats?.growth?.views > 0 ? ((stats.growth.clicks / stats.growth.views) * 100).toFixed(1) : 0}%</span>
+                            </div>
+                            <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div 
+                                    className="h-full bg-indigo-600 transition-all duration-1000"
+                                    style={{ width: `${stats?.growth?.views > 0 ? (stats.growth.clicks / stats.growth.views) * 100 : 0}%` }}
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Roles Breakdown */}
+                    <div className="bg-slate-950 p-8 rounded-[40px] shadow-2xl text-white space-y-6 overflow-hidden relative">
+                         <div className="absolute top-0 right-0 p-8 opacity-5">
+                             <Activity className="w-24 h-24" />
+                         </div>
+                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 relative">SEGMENTACIÓN</h3>
+                         <div className="space-y-4 relative">
+                             {Object.entries(stats?.growth?.roleBreakdown || {}).map(([role, count]: [string, any]) => (
+                                 <div key={role} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-colors">
+                                     <div>
+                                         <span className="text-xs font-black uppercase tracking-widest">{role}</span>
+                                         <p className="text-[10px] text-slate-500 font-bold uppercase">Source: Organico</p>
+                                     </div>
+                                     <span className="text-lg font-black">{count}</span>
+                                 </div>
+                             ))}
+                             {Object.keys(stats?.growth?.roleBreakdown || {}).length === 0 && (
+                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center py-10">Esperando datos de segmentación...</p>
+                             )}
+                         </div>
+                    </div>
+                </div>
+
                 {/* Users Table */}
                 <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-6 border-b border-slate-100 flex items-center justify-between">

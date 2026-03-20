@@ -41,13 +41,36 @@ export async function getAdminStats() {
     const totalConciliations = profiles.reduce((sum, p) => sum + (p.reconciliations_count || 0), 0);
     const estimatedLTV = proUsers * 19; // Simple estimation
 
+    // Fetch Analytics Stats (Growth Awareness)
+    const { data: eventStats } = await supabaseAdmin
+        .from("analytics_events")
+        .select("event_name");
+    
+    const { data: segmentData } = await supabaseAdmin
+        .from("analytics_events")
+        .select("metadata")
+        .eq("event_name", "user_segmentation");
+
+    const conversionStats = {
+        views: eventStats?.filter(e => e.event_name === "landing_view").length || 0,
+        conversions: eventStats?.filter(e => e.event_name === "landing_upload_success").length || 0,
+        clicks: eventStats?.filter(e => e.event_name === "interaction_click").length || 0,
+        segmentation: segmentData?.length || 0,
+        roleBreakdown: segmentData?.reduce((acc: any, curr: any) => {
+            const role = curr.metadata?.role || "unknown";
+            acc[role] = (acc[role] || 0) + 1;
+            return acc;
+        }, {}) || {}
+    };
+
     return {
         users: profiles,
         stats: {
             totalUsers,
             proUsers,
             totalConciliations,
-            estimatedLTV
+            estimatedLTV,
+            growth: conversionStats
         }
     };
 }

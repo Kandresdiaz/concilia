@@ -19,15 +19,15 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
             name: "Profesional",
             price: "24.99",
             description: "Contador Elite",
-            features: ["50 Conciliaciones / mes", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Sin Marca de Agua", "Certificado Digital"],
+            features: ["50 Conciliaciones / mes", "IA Llama 3.3 70B Elite", "Vision IA 90B (PDF)", "Plantilla Auditoría DIAN (BONO)", "Soporte Telegram Prioritario"],
             color: "indigo"
         },
         {
             id: "ENTERPRISE",
-            name: "Despacho",
-            price: "79.00",
-            description: "Lifetime Access",
-            features: ["300 Conciliaciones / mes", "Todas las IAs Premium", "Logo Propio en PDF", "Soporte 24/7 VIP", "Actualizaciones de por vida"],
+            name: "LIFETIME (PROMO)",
+            price: "197.00",
+            description: "Acceso de por Vida",
+            features: ["ILIMITADAS Conciliaciones", "IA Elite 405B Ultra", "Marca Blanca (Logo Propio)", "Consultoría 1-on-1 (BONO)", "Garantía de Recuperación x10"],
             color: "slate",
             highlight: true
         }
@@ -119,13 +119,15 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
                         ))}
                     </div>
 
-                    <div className="mt-12 p-6 bg-slate-50 border border-slate-100 rounded-[24px] flex items-center gap-4">
-                        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-indigo-600">
-                            <ShieldCheck className="w-6 h-6" />
+                    <div className="mt-12 p-8 bg-indigo-600 rounded-[32px] text-white flex flex-col md:flex-row items-center gap-6 shadow-2xl shadow-indigo-200">
+                        <div className="w-20 h-20 bg-white/20 rounded-[25px] flex items-center justify-center backdrop-blur-md">
+                            <ShieldCheck className="w-10 h-10 text-white" />
                         </div>
-                        <div className="space-y-0.5">
-                            <p className="text-xs font-black text-slate-900 uppercase">Seguridad Garantizada</p>
-                            <p className="text-[11px] text-slate-500 font-medium">Pagos procesados de forma segura por Lemon Squeezy con encriptación de nivel bancario.</p>
+                        <div className="space-y-1 text-center md:text-left flex-1">
+                            <p className="text-lg font-black uppercase italic tracking-tighter">GARANTÍA DE "RIESGO CERO" HORMOZI</p>
+                            <p className="text-sm font-medium opacity-80 leading-relaxed">
+                                Si en los primeros 30 días la IA no encuentra errores que paguen el costo de tu plan, **te devolvemos el 100% de tu dinero** y te dejamos usar la versión Pro gratis por 3 meses más. El riesgo es todo nuestro.
+                            </p>
                         </div>
                     </div>
                 </div>

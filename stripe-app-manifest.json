@@ -1,0 +1,35 @@
+{
+  "id": "com.concilia.ai",
+  "version": "1.0.0",
+  "name": "ConciliAI - Auditoría IA",
+  "icon": "https://concilia.ai/icon.svg",
+  "permissions": [
+    {
+      "type": "balance",
+      "permission": "read"
+    },
+    {
+      "type": "charges",
+      "permission": "read"
+    },
+    {
+      "type": "payouts",
+      "permission": "read"
+    }
+  ],
+  "app_settings": {
+    "url": "https://concilia.ai/dashboard"
+  },
+  "ui_extension": {
+    "views": [
+      {
+        "type": "customer_detail_sidebar",
+        "component": "ReconciliationList"
+      },
+      {
+        "type": "payout_detail_sidebar",
+        "component": "PayoutAudit"
+      }
+    ]
+  }
+}

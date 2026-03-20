@@ -13,6 +13,9 @@ export default function FreeConverterPage() {
     const [result, setResult] = useState(false);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [email, setEmail] = useState("");
+    const [showEmailModal, setShowEmailModal] = useState(false);
+    const [savingLead, setSavingLead] = useState(false);
 
     const handleUpload = async () => {
         if (!file) return;
@@ -39,6 +42,15 @@ export default function FreeConverterPage() {
         }
     };
 
+    const handleDownloadRequest = () => {
+        const savedEmail = localStorage.getItem("concilia_lead_email");
+        if (savedEmail) {
+            handleDownload();
+        } else {
+            setShowEmailModal(true);
+        }
+    };
+
     const handleDownload = () => {
         if (transactions.length === 0) return;
 
@@ -55,6 +67,22 @@ export default function FreeConverterPage() {
         };
 
         generateCSV(bankData, {}, matchedData, "CONVERSIÓN GRATUITA", "FREE");
+    };
+
+    const saveLeadAndDownload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setSavingLead(true);
+        try {
+            localStorage.setItem("concilia_lead_email", email);
+            setShowEmailModal(false);
+            handleDownload();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSavingLead(false);
+        }
     };
 
     return (
@@ -154,29 +182,71 @@ export default function FreeConverterPage() {
                             </div>
 
                             <button
-                                onClick={handleDownload}
+                                onClick={handleDownloadRequest}
                                 className="w-full py-6 bg-emerald-600 text-white text-xl font-black rounded-[30px] shadow-2xl shadow-emerald-200 flex items-center justify-center gap-4 hover:bg-emerald-500 transition-all uppercase italic"
                             >
                                 Descargar Resultado <ArrowRight className="w-6 h-6" />
                             </button>
 
-                            <div className="pt-10 mt-10 border-t border-slate-100 space-y-8">
-                                <div className="space-y-2">
-                                    <p className="text-[10px] font-black text-violet-600 uppercase tracking-[0.4em]">Siguiente Nivel</p>
-                                    <h4 className="text-2xl font-black text-slate-900 uppercase italic">¿Por qué limitarse a convertir?</h4>
-                                    <p className="text-slate-500 text-sm max-w-sm mx-auto font-medium leading-relaxed italic">Automatiza la conciliación completa. Cruza estos datos con tu libro contable en segundos con ConciliAI Pro.</p>
+                            <div className="pt-10 mt-10 border-t border-slate-100 space-y-8 bg-violet-50/50 p-8 rounded-[30px] border-2 border-violet-100 relative overflow-hidden">
+                                <div className="absolute top-4 right-4 animate-pulse">
+                                    <Zap className="w-8 h-8 text-violet-600 fill-violet-600" />
+                                </div>
+                                <div className="space-y-3 relative z-10 text-left">
+                                    <p className="text-[10px] font-black text-violet-600 uppercase tracking-[0.4em]">⚠️ ALERTA DE AUDITORÍA</p>
+                                    <h4 className="text-2xl font-black text-slate-900 uppercase italic leading-tight">Has convertido los datos, pero <span className="text-violet-600 underline">no los has auditado.</span></h4>
+                                    <p className="text-slate-600 text-sm font-bold leading-relaxed">
+                                        Nuestros usuarios en el sector financiero han detectado un promedio de **$1,450,000 COP** en discrepancias ocultas este mes. 
+                                        Convertir es gratis. **Perder dinero por no auditar es carísimo.**
+                                    </p>
                                 </div>
                                 <Link
                                     href="/login"
-                                    className="group w-full py-6 bg-violet-600 text-white text-xl font-black rounded-[30px] transition-all shadow-purple flex items-center justify-center gap-4 hover:scale-[1.02] uppercase italic"
+                                    className="group w-full py-6 bg-slate-900 text-white text-xl font-black rounded-[25px] transition-all shadow-2xl flex items-center justify-center gap-4 hover:scale-[1.02] uppercase italic"
                                 >
-                                    PROBAR CONCILIAI PRO <Zap className="w-6 h-6 fill-white" />
+                                    AUDITAR ESTE ARCHIVO CON IA <ArrowRight className="w-6 h-6" />
                                 </Link>
+                                <p className="text-[9px] text-slate-400 text-center uppercase font-black tracking-widest">
+                                    Garantía Hormozi: Si la IA no encuentra errores, no pagas.
+                                </p>
                             </div>
                         </div>
                     )}
                 </div>
             </main>
+
+            {/* Lead Capture Modal */}
+            {showEmailModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 text-left">
+                    <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowEmailModal(false)}></div>
+                    <div className="relative w-full max-w-md bg-white rounded-[40px] p-10 shadow-3xl border border-slate-100 animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-violet-600 text-white rounded-3xl flex items-center justify-center shadow-purple mb-8 mx-auto">
+                            <Download className="w-10 h-10" />
+                        </div>
+                        <h3 className="text-3xl font-black uppercase italic tracking-tighter text-center mb-4">🚀 ¡Todo Listo!</h3>
+                        <p className="text-slate-500 font-medium text-center leading-relaxed mb-8 text-sm italic">
+                            Tu archivo Excel gratuito está listo. Ingresa tu correo para descargarlo y recibir el reporte de salud financiera.
+                        </p>
+                        <form onSubmit={saveLeadAndDownload} className="space-y-4">
+                            <input 
+                                type="email" 
+                                required
+                                placeholder="tu@correo.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full h-16 px-6 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold focus:border-violet-600 outline-none transition-all"
+                            />
+                            <button 
+                                type="submit"
+                                disabled={savingLead}
+                                className="w-full h-16 bg-violet-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-slate-900 transition-all shadow-xl shadow-violet-100 disabled:opacity-50"
+                            >
+                                {savingLead ? "Procesando..." : "Descargar Excel Gratis"}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             <footer className="py-20 text-center space-y-6 border-t border-slate-100 uppercase tracking-[0.5em] font-black">
                 <div className="flex justify-center gap-12 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
