@@ -294,8 +294,8 @@ export default function ConciliAI() {
 
     return {
       matches,
-      pendingBank: bankTransactions.filter(t => pendingBankIds.has(t.id)),
-      pendingBook: bookTransactions.filter(t => pendingBookIds.has(t.id))
+      pendingBank: bankTransactions.filter((t: any) => pendingBankIds.has(t.id)),
+      pendingBook: bookTransactions.filter((t: any) => pendingBookIds.has(t.id))
     };
   })();
 
