@@ -143,9 +143,9 @@ export default function ConciliAI() {
                       empresa: companyName || "Tu Empresa",
                       tipo_documento: "CSV Extraído Directamente",
                       verified_totals: {
-                          total_in: preCheckData.transactions.filter(t => t.type === "INCOME").reduce((acc, t) => acc + t.amount, 0),
-                          total_out: preCheckData.transactions.filter(t => t.type === "EXPENSE").reduce((acc, t) => acc + Math.abs(t.amount), 0),
-                          net: preCheckData.transactions.reduce((acc, t) => acc + t.amount, 0),
+                          total_in: preCheckData.transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + t.amount, 0),
+                          total_out: preCheckData.transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(t.amount), 0),
+                          net: preCheckData.transactions.reduce((acc: number, t: any) => acc + t.amount, 0),
                       },
                       precision_score: 100 // It's deterministic code
                   };
