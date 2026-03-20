@@ -631,14 +631,12 @@ export default function LandingPage() {
               </div>
               
               <div className="relative aspect-video rounded-[32px] overflow-hidden bg-slate-100 border-4 border-slate-900">
-                <video 
-                  src="/landing-video.mp4" 
-                  autoPlay 
-                  loop 
-                  muted 
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                ></video>
+                <iframe 
+                  src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true&autoplay=1&loop=1" 
+                  frameBorder="0" 
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                ></iframe>
               </div>
             </div>
             <div className="flex justify-center italic text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] opacity-50">
