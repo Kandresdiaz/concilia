@@ -188,6 +188,47 @@ export default function AdminDashboard() {
                         </div>
                     </div>
 
+                    {/* Marketing Playbook & Tactics */}
+                    <div className="bg-white p-8 rounded-[40px] shadow-sm border border-slate-100 space-y-6">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                MARKETING PLAYBOOK (TÁCTICAS ACTIVAS)
+                            </h3>
+                            <button className="btn btn-ghost btn-xs text-indigo-600 font-bold">Añadir Táctica</button>
+                        </div>
+                        <div className="space-y-4">
+                            {[
+                                { name: "SEO Programático Bancos", status: "WORKING", detail: "450 clicks/mes desde Google", trend: "+12%" },
+                                { name: "Directorio IA: Product Hunt", status: "FAILED", detail: "Poco tráfico calificado, mucho bot", trend: "-5%" },
+                                { name: "Landing Específica: Siigo", status: "TESTING", detail: "Lanzada hoy, monitoreando bounce rate", trend: "0%" },
+                                { name: "LinkedIn Organic: Kevin Diaz", status: "WORKING", detail: "Viral en contadores, CPA $0", trend: "+45%" },
+                            ].map((tact) => (
+                                <div key={tact.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "w-2 h-2 rounded-full",
+                                            tact.status === "WORKING" ? "bg-emerald-500 animate-pulse" : 
+                                            tact.status === "FAILED" ? "bg-rose-500" : "bg-amber-500"
+                                        )}></div>
+                                        <div>
+                                            <p className="text-xs font-black text-slate-900">{tact.name}</p>
+                                            <p className="text-[10px] font-medium text-slate-400">{tact.detail}</p>
+                                        </div>
+                                    </div>
+                                    <span className={cn(
+                                        "text-xs font-black",
+                                        tact.trend.startsWith("+") ? "text-emerald-500" : 
+                                        tact.trend === "0%" ? "text-slate-400" : "text-rose-500"
+                                    )}>{tact.trend}</span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
+                            <p className="text-[10px] font-bold text-indigo-600 uppercase mb-1">Próximo Experimento:</p>
+                            <p className="text-xs font-medium text-slate-700">"Pagar Ads en buscadores para la keyword 'conciliador stripe vs excel'"</p>
+                        </div>
+                    </div>
+
                     {/* Roles Breakdown */}
                     <div className="bg-slate-950 p-8 rounded-[40px] shadow-2xl text-white space-y-6 overflow-hidden relative">
                          <div className="absolute top-0 right-0 p-8 opacity-5">

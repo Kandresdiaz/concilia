@@ -61,6 +61,44 @@ export default function ConciliacionQuickbooksPage() {
         </div>
       </section>
 
+      {/* Comparison Section (SEO Enriched) */}
+      <section className="py-24 max-w-5xl mx-auto px-6">
+        <h2 className="text-3xl font-black text-slate-900 text-center mb-16">ConciliAI vs Manual Entry</h2>
+        <div className="overflow-x-auto rounded-3xl border border-slate-200">
+          <table className="w-full text-left bg-white">
+            <thead>
+              <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-widest text-slate-400">
+                <th className="p-6">Feature</th>
+                <th className="p-6">Static Spreadsheets</th>
+                <th className="p-6 text-emerald-600">ConciliAI (AI)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 italic">
+              <tr>
+                <td className="p-6 font-bold text-slate-900">Processing Speed</td>
+                <td className="p-6 text-slate-500">Hours of matching</td>
+                <td className="p-6 text-emerald-600 font-bold">Instant (Seconds)</td>
+              </tr>
+              <tr>
+                <td className="p-6 font-bold text-slate-900">Bank PDF Support</td>
+                <td className="p-6 text-slate-500">Needs OCR converters</td>
+                <td className="p-6 text-emerald-600 font-bold">Native AI Understanding</td>
+              </tr>
+              <tr>
+                <td className="p-6 font-bold text-slate-900">Categorization</td>
+                <td className="p-6 text-slate-500">Manual categorization</td>
+                <td className="p-6 text-emerald-600 font-bold">Auto-suggest with AI</td>
+              </tr>
+              <tr>
+                <td className="p-6 font-bold text-slate-900">QBO Sync</td>
+                <td className="p-6 text-slate-500">Manual format mapping</td>
+                <td className="p-6 text-emerald-600 font-bold">1-Click Export</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* Guide Content (SEO) */}
       <section className="bg-white py-24">
         <div className="max-w-4xl mx-auto px-6 space-y-12">
