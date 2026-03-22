@@ -194,16 +194,21 @@ export default function AdminDashboard() {
                             <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                                 MARKETING PLAYBOOK (TÁCTICAS ACTIVAS)
                             </h3>
-                            <button className="btn btn-ghost btn-xs text-indigo-600 font-bold">Añadir Táctica</button>
+                            <button className="btn btn-ghost btn-xs text-indigo-600 font-bold">Historial de Cambios</button>
                         </div>
                         <div className="space-y-4">
                             {[
-                                { name: "SEO Programático Bancos", status: "WORKING", detail: "450 clicks/mes desde Google", trend: "+12%" },
-                                { name: "Directorio IA: Product Hunt", status: "FAILED", detail: "Poco tráfico calificado, mucho bot", trend: "-5%" },
-                                { name: "Landing Específica: Siigo", status: "TESTING", detail: "Lanzada hoy, monitoreando bounce rate", trend: "0%" },
-                                { name: "LinkedIn Organic: Kevin Diaz", status: "WORKING", detail: "Viral en contadores, CPA $0", trend: "+45%" },
+                                { name: "SEO Programático Bancos", status: "WORKING", detail: "450 clicks/mes desde Google", trend: "+12%", href: "/recursos/conciliacion-siigo" },
+                                { name: "Directorio IA: PH Launch", status: "FAILED", detail: "Poco tráfico calificado, mucho bot", trend: "-5%", href: "https://producthunt.com" },
+                                { name: "Landing Específica: Siigo", status: "TESTING", detail: "Lanzada hoy, monitoreando metrics", trend: "0%", href: "/recursos/conciliacion-siigo" },
+                                { name: "LinkedIn Organic: Kevin Diaz", status: "WORKING", detail: "Viral en contadores, CPA $0", trend: "+45%", href: "https://linkedin.com" },
                             ].map((tact) => (
-                                <div key={tact.name} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <Link 
+                                    key={tact.name} 
+                                    href={tact.href}
+                                    target={tact.href.startsWith("http") ? "_blank" : "_self"}
+                                    className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-white hover:shadow-md transition-all cursor-pointer group"
+                                >
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
                                             "w-2 h-2 rounded-full",
@@ -211,7 +216,7 @@ export default function AdminDashboard() {
                                             tact.status === "FAILED" ? "bg-rose-500" : "bg-amber-500"
                                         )}></div>
                                         <div>
-                                            <p className="text-xs font-black text-slate-900">{tact.name}</p>
+                                            <p className="text-xs font-black text-slate-900 group-hover:text-indigo-600 transition-colors">{tact.name}</p>
                                             <p className="text-[10px] font-medium text-slate-400">{tact.detail}</p>
                                         </div>
                                     </div>
@@ -220,9 +225,23 @@ export default function AdminDashboard() {
                                         tact.trend.startsWith("+") ? "text-emerald-500" : 
                                         tact.trend === "0%" ? "text-slate-400" : "text-rose-500"
                                     )}>{tact.trend}</span>
-                                </div>
+                                </Link>
                             ))}
                         </div>
+                        
+                        {/* Plan de Acción / Notas */}
+                        <div className="pt-6 border-t border-slate-100">
+                             <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">PLAN DE ACCIÓN Y APRENDIZAJES</h4>
+                             <textarea 
+                                className="w-full bg-slate-50 rounded-2xl border border-slate-200 p-4 text-xs font-medium text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all h-32"
+                                placeholder="Escribe aquí qué falló, qué funcionó y el siguiente paso..."
+                                defaultValue={`- El lanzamiento en PH no trajo usuarios de pago pero sí backlinks.\n- La landing de Siigo está convirtiendo mejor el tráfico de LinkedIn.\n- TODO: Crear herramienta para Lemon Squeezy.`}
+                             />
+                             <div className="flex justify-end mt-2">
+                                <button className="btn btn-primary btn-xs rounded-lg font-bold">Guardar Notas</button>
+                             </div>
+                        </div>
+
                         <div className="p-4 bg-indigo-50 rounded-2xl border border-indigo-100">
                             <p className="text-[10px] font-bold text-indigo-600 uppercase mb-1">Próximo Experimento:</p>
                             <p className="text-xs font-medium text-slate-700">"Pagar Ads en buscadores para la keyword 'conciliador stripe vs excel'"</p>
