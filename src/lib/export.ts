@@ -236,3 +236,86 @@ export function generateCSV(bankData: any, bookData: any, matchedData: any, comp
     link.click();
     document.body.removeChild(link);
 }
+
+/**
+ * Generates an export file specifically formatted for accounting software
+ */
+export function generateSoftwareExport(
+    software: string,
+    bankData: any,
+    bookData: any,
+    matchedData: any,
+    companyName: string
+) {
+    const bom = "\uFEFF";
+    let csv = `${bom}`;
+    let filename = `Export_${software}_${companyName.replace(/\s+/g, "_")}.csv`;
+    const d = ",";
+
+    // Common data mapping
+    const allTransactions = [
+        ...matchedData.matches.map((m: any) => ({ ...m.bank, status: 'CONCILIADO' })),
+        ...matchedData.pendingBank.map((t: any) => ({ ...t, status: 'PENDIENTE_BANCO' })),
+        ...matchedData.pendingBook.map((t: any) => ({ ...t, status: 'PENDIENTE_LIBRO' }))
+    ];
+
+    switch (software) {
+        case "SIIGO":
+            // Siigo standard format
+            csv += `"Fecha"${d}"Tipo"${d}"Número"${d}"Nit"${d}"Cuenta"${d}"Descripción"${d}"Débito"${d}"Crédito"\n`;
+            allTransactions.forEach(t => {
+                const amount = Number(t.amount) || 0;
+                const debito = amount > 0 ? amount : 0;
+                const credito = amount < 0 ? Math.abs(amount) : 0;
+                csv += `"${t.date}"${d}"CC"${d}"1"${d}"800000000-1"${d}"111005"${d}"${(t.description || "").replace(/"/g, '""')}"${d}${debito}${d}${credito}\n`;
+            });
+            break;
+
+        case "CONTPAQI":
+            // CONTPAQi format (Mexico)
+            csv += `"Fecha"${d}"Referencia"${d}"Concepto"${d}"Cargo"${d}"Abono"\n`;
+            allTransactions.forEach(t => {
+                const amount = Number(t.amount) || 0;
+                const cargo = amount > 0 ? amount : 0;
+                const abono = amount < 0 ? Math.abs(amount) : 0;
+                csv += `"${t.date}"${d}"${(t.reference || "S/R")}"${d}"${(t.description || "").replace(/"/g, '""')}"${d}${cargo}${d}${abono}\n`;
+            });
+            break;
+
+        case "QUICKBOOKS":
+            // QuickBooks Online standard CSV
+            csv += `"Date"${d}"Description"${d}"Amount"\n`;
+            allTransactions.forEach(t => {
+                csv += `"${t.date}"${d}"${(t.description || "").replace(/"/g, '""')}"${d}${t.amount}\n`;
+            });
+            break;
+
+        case "SOFTLAND":
+            // Softland (Chile) typical format
+            csv += `"Fecha"${d}"Glosa"${d}"Monto"${d}"Tipo"\n`;
+            allTransactions.forEach(t => {
+                csv += `"${t.date}"${d}"${(t.description || "").replace(/"/g, '""')}"${d}${t.amount}${d}"${t.status}"\n`;
+            });
+            break;
+
+        case "HELISA":
+            // Helisa (Colombia)
+            csv += `"FECHA"${d}"DOCUMENTO"${d}"DESCRIPCION"${d}"DEBITO"${d}"CREDITO"\n`;
+            allTransactions.forEach(t => {
+                const amount = Number(t.amount) || 0;
+                csv += `"${t.date}"${d}"1"${d}"${(t.description || "").replace(/"/g, '""')}"${d}${amount > 0 ? amount : 0}${d}${amount < 0 ? Math.abs(amount) : 0}\n`;
+            });
+            break;
+
+        default:
+            // Fallback to universal CSV
+            return generateCSV(bankData, bookData, matchedData, companyName, "PRO");
+    }
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", filename);
+    link.click();
+}

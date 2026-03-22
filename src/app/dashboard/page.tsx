@@ -32,6 +32,7 @@ import { SocialProofToast } from "@/components/SocialProofToast";
 import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
 import { ReportViewModal } from "@/components/ReportViewModal";
 import { PricingModal } from "@/components/PricingModal";
+import { ExportModal } from "@/components/ExportModal";
 
 
 export default function ConciliAI() {
@@ -60,6 +61,7 @@ export default function ConciliAI() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [modalLoading, setModalLoading] = useState(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const router = useRouter();
   const supabase = createClient();
@@ -733,11 +735,21 @@ export default function ConciliAI() {
               </button>
 
               <button
-                onClick={() => generateCSV(bankData, bookData, matchedData, companyName, tier as "FREE" | "PRO")}
-                className="btn btn-ghost px-8 md:px-12 h-14 rounded-2xl font-black border-slate-200 flex gap-3 shadow-sm"
+                onClick={() => setIsExportModalOpen(true)}
+                className="btn btn-ghost px-8 md:px-12 h-14 rounded-2xl font-black border-slate-200 flex gap-3 shadow-sm hover:bg-slate-50 transition-all group"
               >
-                <Database className="w-5 h-5" /> Exportar CSV
+                <Database className="w-5 h-5 text-slate-400 group-hover:text-indigo-600 transition-colors" /> Exportar Datos
               </button>
+
+              <ExportModal 
+                isOpen={isExportModalOpen}
+                onClose={() => setIsExportModalOpen(false)}
+                bankData={bankData}
+                bookData={bookData}
+                matchedData={matchedData}
+                companyName={companyName}
+                tier={tier}
+              />
             </div>
 
             {/* Official Report Card */}

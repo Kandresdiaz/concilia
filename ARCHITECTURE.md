@@ -138,7 +138,15 @@ Al hacer clic en "Guardar":
 - Se incrementa `usage_count` en el perfil
 - Protegido por RLS (solo el dueño puede acceder)
 
-### PASO 10: Historial (`/dashboard` → vista Historial)
+### PASO 10: Exportación e Integración (NUEVO)
+Al finalizar la conciliación, el usuario puede exportar los resultados:
+1. **Acta de Auditoría PDF**: Un reporte formal con firmas para archivo físico o digital.
+2. **Exportación a Software Contable (Intuitive Export)**:
+   - **Buscador Visual**: Selección por banderas (🇨🇴, 🇲🇽, 🇨🇱, 🇺🇸).
+   - **Formatos específicos**: CSV/Excel formateado para **Siigo, CONTPAQi, QuickBooks, Softland, Helisa**, etc.
+   - **Ahorro de tiempo**: Los archivos están listos para "Importar comprobante" en el software de destino.
+
+### PASO 11: Historial (`/dashboard` → vista Historial)
 El usuario ve todas sus conciliaciones pasadas organizadas por empresa y período (mes/año).
 
 ---
@@ -154,7 +162,7 @@ El usuario ve todas sus conciliaciones pasadas organizadas por empresa y períod
 | **Base de datos** | Supabase (PostgreSQL 17) | Almacenamiento con RLS |
 | **Pagos** | Stripe (Checkout + Webhooks) | Suscripciones PRO |
 | **PDF** | pdfjs-dist | Extracción de texto de PDFs |
-| **Exportación** | jsPDF + jsPDF-AutoTable | Generar actas PDF |
+| **Exportación** | jsPDF + jsPDF-AutoTable + Custom Exporters | Generar actas PDF y CSV por software |
 | **Validación** | Zod | Validación de schemas |
 | **Deploy** | Vercel | Hosting serverless |
 
