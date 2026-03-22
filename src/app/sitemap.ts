@@ -79,6 +79,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "monthly",
             priority: 0.7,
         },
+        {
+            url: `${baseUrl}/recursos/conciliacion-bancolombia`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.8,
+        },
+        {
+            url: `${baseUrl}/recursos/calculadora-comisiones`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.8,
+        },
         ...bankUrls,
     ];
 }

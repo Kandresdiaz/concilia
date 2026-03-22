@@ -199,10 +199,10 @@ export default function AdminDashboard() {
                         </div>
                         <div className="space-y-4">
                             {[
-                                { name: "SEO Programático Bancos", status: "WORKING", detail: "450 clicks/mes desde Google", trend: "+12%", href: "/recursos/conciliacion-siigo" },
-                                { name: "Directorio IA: PH Launch", status: "FAILED", detail: "Poco tráfico calificado, mucho bot", trend: "-5%", href: "https://producthunt.com" },
-                                { name: "Landing Específica: Siigo", status: "TESTING", detail: "Lanzada hoy, monitoreando metrics", trend: "0%", href: "/recursos/conciliacion-siigo" },
-                                { name: "LinkedIn Organic: Kevin Diaz", status: "WORKING", detail: "Viral en contadores, CPA $0", trend: "+45%", href: "https://linkedin.com" },
+                                { name: "Merchant of Record: LS", status: "WORKING", detail: "Evita problemas de Tax/Stripe", trend: "+20%", href: "https://lemonsqueezy.com" },
+                                { name: "Whop Marketplace", status: "TESTING", detail: "Explorando tráfico de IA", trend: "0%", href: "https://whop.com" },
+                                { name: "SEO: Bancolombia / Siigo", status: "WORKING", detail: "Dominando Google Colombia", trend: "+12%", href: "/recursos/conciliacion-bancolombia" },
+                                { name: "Herramienta: Calculadora Comisiones", status: "WORKING", detail: "Lead magnet para shopify", trend: "+8%", href: "/recursos/calculadora-comisiones" },
                             ].map((tact) => (
                                 <NextLink 
                                     key={tact.name} 
