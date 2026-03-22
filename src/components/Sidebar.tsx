@@ -15,7 +15,8 @@ import {
     FileSpreadsheet,
     Calculator,
     CreditCard,
-    Landmark
+    Landmark,
+    Briefcase
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -140,6 +141,13 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Recursos Gratis</p>
+                    <Link
+                        href="/recursos/liquidador-nomina"
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    >
+                        <Briefcase className="w-4 h-4 text-slate-900" />
+                        🇨🇴 Nómina (Colombia)
+                    </Link>
                     <Link
                         href="/recursos/calculadora-comisiones"
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"

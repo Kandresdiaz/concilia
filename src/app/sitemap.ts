@@ -91,6 +91,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
             changeFrequency: "monthly",
             priority: 0.8,
         },
+        {
+            url: `${baseUrl}/recursos/liquidador-nomina`,
+            lastModified: new Date(),
+            changeFrequency: "monthly",
+            priority: 0.8,
+        },
         ...bankUrls,
     ];
 }
