@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import NextLink from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 
 export default function AdminDashboard() {
@@ -203,7 +204,7 @@ export default function AdminDashboard() {
                                 { name: "Landing Específica: Siigo", status: "TESTING", detail: "Lanzada hoy, monitoreando metrics", trend: "0%", href: "/recursos/conciliacion-siigo" },
                                 { name: "LinkedIn Organic: Kevin Diaz", status: "WORKING", detail: "Viral en contadores, CPA $0", trend: "+45%", href: "https://linkedin.com" },
                             ].map((tact) => (
-                                <Link 
+                                <NextLink 
                                     key={tact.name} 
                                     href={tact.href}
                                     target={tact.href.startsWith("http") ? "_blank" : "_self"}
@@ -225,7 +226,7 @@ export default function AdminDashboard() {
                                         tact.trend.startsWith("+") ? "text-emerald-500" : 
                                         tact.trend === "0%" ? "text-slate-400" : "text-rose-500"
                                     )}>{tact.trend}</span>
-                                </Link>
+                                </NextLink>
                             ))}
                         </div>
                         
@@ -253,20 +254,38 @@ export default function AdminDashboard() {
                          <div className="absolute top-0 right-0 p-8 opacity-5">
                              <Activity className="w-24 h-24" />
                          </div>
-                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 relative">SEGMENTACIÓN</h3>
+                         <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 relative">SEO POR RECURSO</h3>
                          <div className="space-y-4 relative">
-                             {Object.entries(stats?.growth?.roleBreakdown || {}).map(([role, count]: [string, any]) => (
-                                 <div key={role} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-colors">
-                                     <div>
-                                         <span className="text-xs font-black uppercase tracking-widest">{role}</span>
-                                         <p className="text-[10px] text-slate-500 font-bold uppercase">Source: Organico</p>
+                             {Object.entries(stats?.growth?.pathBreakdown || {}).sort((a:any, b:any) => b[1] - a[1]).map(([path, count]: [string, any]) => (
+                                 <div key={path} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-colors">
+                                     <div className="max-w-[150px] truncate">
+                                         <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">PÁGINA</span>
+                                         <p className="text-xs font-bold text-white truncate">{path}</p>
                                      </div>
-                                     <span className="text-lg font-black">{count}</span>
+                                     <div className="text-right">
+                                         <span className="text-lg font-black">{count}</span>
+                                         <p className="text-[10px] text-slate-500 font-bold uppercase">Vistas</p>
+                                     </div>
                                  </div>
                              ))}
-                             {Object.keys(stats?.growth?.roleBreakdown || {}).length === 0 && (
-                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center py-10">Esperando datos de segmentación...</p>
+                             {Object.keys(stats?.growth?.pathBreakdown || {}).length === 0 && (
+                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest text-center py-10">Esperando datos de tráfico...</p>
                              )}
+                         </div>
+
+                         <div className="pt-6 border-t border-white/10">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 relative mb-4">SEGMENTACIÓN</h3>
+                            <div className="space-y-4 relative">
+                                {Object.entries(stats?.growth?.roleBreakdown || {}).map(([role, count]: [string, any]) => (
+                                    <div key={role} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 group hover:bg-white/10 transition-colors">
+                                        <div>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">ROLES</span>
+                                            <p className="text-xs font-bold text-white">{role}</p>
+                                        </div>
+                                        <span className="text-lg font-black">{count}</span>
+                                    </div>
+                                ))}
+                            </div>
                          </div>
                     </div>
                 </div>

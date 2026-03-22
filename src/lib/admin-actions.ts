@@ -42,9 +42,9 @@ export async function getAdminStats() {
     const estimatedLTV = proUsers * 19; // Simple estimation
 
     // Fetch Analytics Stats (Growth Awareness)
-    const { data: eventStats } = await supabaseAdmin
+    const { data: allEvents } = await supabaseAdmin
         .from("analytics_events")
-        .select("event_name");
+        .select("event_name, metadata");
     
     const { data: segmentData } = await supabaseAdmin
         .from("analytics_events")
@@ -52,10 +52,15 @@ export async function getAdminStats() {
         .eq("event_name", "user_segmentation");
 
     const conversionStats = {
-        views: eventStats?.filter(e => e.event_name === "landing_view").length || 0,
-        conversions: eventStats?.filter(e => e.event_name === "landing_upload_success").length || 0,
-        clicks: eventStats?.filter(e => e.event_name === "interaction_click").length || 0,
+        views: allEvents?.filter(e => e.event_name === "landing_view").length || 0,
+        conversions: allEvents?.filter(e => e.event_name === "landing_upload_success").length || 0,
+        clicks: allEvents?.filter(e => e.event_name === "interaction_click").length || 0,
         segmentation: segmentData?.length || 0,
+        pathBreakdown: allEvents?.filter(e => e.event_name === "landing_view").reduce((acc: any, curr: any) => {
+            const path = curr.metadata?.path || "/";
+            acc[path] = (acc[path] || 0) + 1;
+            return acc;
+        }, {}) || {},
         roleBreakdown: segmentData?.reduce((acc: any, curr: any) => {
             const role = curr.metadata?.role || "unknown";
             acc[role] = (acc[role] || 0) + 1;
