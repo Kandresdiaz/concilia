@@ -24,8 +24,10 @@ import { saveConciliation, getConciliationHistory, getProfile, deleteAccount, de
 
 import { generatePDF, generateCSV } from "@/lib/export";
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User } from "@supabase/supabase-js";
+import { useShopify } from "@/providers/ShopifyProvider";
+import { TitleBar } from "@shopify/app-bridge-react";
 import { SecurityBanner } from "@/components/SecurityBanner";
 import { PrivacyModal } from "@/components/PrivacyModal";
 import { SocialProofToast } from "@/components/SocialProofToast";
@@ -64,6 +66,8 @@ export default function ConciliAI() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { isShopify, shop } = useShopify();
   const supabase = createClient();
 
   useEffect(() => {
@@ -367,22 +371,21 @@ export default function ConciliAI() {
     }
   };
 
-
-
-
-
   const handleUpgrade = async (tier?: string) => {
-    if (!tier || tier === "modal" || tier === "") {
+    if (!tier || tier === "modal" || tier === "" || tier === "shopify") {
       setIsPricingModalOpen(true);
       return;
     }
 
     setModalLoading(true);
     try {
-      const response = await fetch("/api/lemonsqueezy/checkout", {
+      // Si estamos en Shopify, usamos el endpoint de Shopify Billing
+      const endpoint = isShopify ? "/api/auth/shopify/billing" : "/api/lemonsqueezy/checkout";
+      
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier })
+        body: JSON.stringify({ tier, shop })
       });
       const data = await response.json();
       if (data.url) {
@@ -406,6 +409,11 @@ export default function ConciliAI() {
       case "dashboard":
         return (
           <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {isShopify && (
+              <TitleBar title="ConciliAI Dashboard">
+                <button variant="primary" onClick={() => setIsImportOpen(true)}>Nuevos Datos</button>
+              </TitleBar>
+            )}
             {/* Security Banner */}
             <SecurityBanner />
 

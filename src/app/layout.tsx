@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { PostHogProviderWrapper } from "@/components/PostHogProvider";
+import { ShopifyProvider } from "@/providers/ShopifyProvider";
+import { Suspense } from "react";
 
 export const dynamic = 'force-dynamic'
 
@@ -62,9 +64,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PostHogProviderWrapper>
-          {children}
-        </PostHogProviderWrapper>
+        <Suspense fallback={null}>
+          <ShopifyProvider>
+            <PostHogProviderWrapper>
+              {children}
+            </PostHogProviderWrapper>
+          </ShopifyProvider>
+        </Suspense>
       </body>
     </html>
   );

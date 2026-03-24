@@ -1,0 +1,23 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "dashboard": {
+    "title": "Reconciliation Center",
+    "upload_extract": "Upload Bank Statement",
+    "upload_book": "Upload Accounting Ledger",
+    "process": "Start AI Reconciliation",
+    "history": "Reconciliation History",
+    "usage": "Plan Usage",
+    "upgrade": "Upgrade to PRO"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "google": "Login with Google"
+  }
+}

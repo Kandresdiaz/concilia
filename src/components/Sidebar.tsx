@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useShopify } from "@/providers/ShopifyProvider";
 
 interface SidebarProps {
     currentView: string;
@@ -41,6 +42,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
     const isAdmin = role === "admin" || role === "superadmin";
     const isFree = tier === "FREE";
     const pathname = usePathname();
+    const { isShopify } = useShopify();
 
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -70,12 +72,12 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
                 {isFree && (
                     <button
-                        onClick={() => onUpgrade("modal")}
+                        onClick={() => isShopify ? onUpgrade("shopify") : onUpgrade("modal")}
                         className="w-full flex items-center justify-center gap-2 px-4 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[12px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-95 group/upgrade relative overflow-hidden"
                     >
                         <div className="absolute inset-x-0 bottom-0 h-1 bg-white/20 animate-pulse"></div>
                         <Zap className="w-4 h-4 fill-current animate-pulse group-hover/upgrade:scale-110 transition-transform" />
-                        Actualizar a PRO
+                        {isShopify ? "Mejorar Plan Shopify" : "Actualizar a PRO"}
                     </button>
                 )}
             </div>
@@ -273,27 +275,29 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                 </div>
 
                 {/* Footer Controls */}
-                <div className="flex flex-col gap-1">
-                    <button
-                        onClick={onLogout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                        <LogOut className="w-3.5 h-3.5" />
-                        Cerrar Sesión
-                    </button>
+                {!isShopify && (
+                    <div className="flex flex-col gap-1">
+                        <button
+                            onClick={onLogout}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                        >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Cerrar Sesión
+                        </button>
 
-                    <button
-                        onClick={() => {
-                            if (confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) {
-                                onDeleteAccount();
-                            }
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[10px] font-medium text-slate-300 hover:text-rose-500 transition-colors opacity-50 hover:opacity-100"
-                    >
-                        <Trash2 className="w-3 h-3" />
-                        Eliminar Cuenta
-                    </button>
-                </div>
+                        <button
+                            onClick={() => {
+                                if (confirm("¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.")) {
+                                    onDeleteAccount();
+                                }
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-[10px] font-medium text-slate-300 hover:text-rose-500 transition-colors opacity-50 hover:opacity-100"
+                        >
+                            <Trash2 className="w-3 h-3" />
+                            Eliminar Cuenta
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -1,0 +1,23 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "dashboard": {
+    "title": "Centro de Conciliación",
+    "upload_extract": "Subir Extracto Bancario",
+    "upload_book": "Subir Auxiliar Contable",
+    "process": "Empezar Conciliación con IA",
+    "history": "Historial de Conciliaciones",
+    "usage": "Uso del Plan",
+    "upgrade": "Subir a PRO"
+  },
+  "auth": {
+    "login": "Iniciar Sesión",
+    "logout": "Cerrar Sesión",
+    "google": "Entrar con Google"
+  }
+}
