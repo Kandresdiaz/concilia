@@ -16,7 +16,11 @@ import {
     Calculator,
     CreditCard,
     Landmark,
-    Briefcase
+    Briefcase,
+    ShieldCheck,
+    CheckCircle,
+    Database,
+    Plus
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
