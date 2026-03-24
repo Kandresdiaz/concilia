@@ -1,3 +1,4 @@
+import '@shopify/shopify-api/adapters/node';
 import { shopifyApi, LATEST_API_VERSION, LogSeverity } from "@shopify/shopify-api";
 import { SupabaseSessionStorage } from "./shopify-session-storage";
 
