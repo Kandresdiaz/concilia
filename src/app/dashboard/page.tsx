@@ -109,25 +109,75 @@ export default function ConciliAI() {
     const pendingBankIds = new Set(bankTransactions.map(t => t.id));
     const pendingBookIds = new Set(bookTransactions.map(t => t.id));
 
-    // Simple Exact Match Logic (Amount + roughly same date if possible)
-    bankTransactions.forEach(bankT => {
-      const matchIndex = bookTransactions.findIndex(bookT =>
-        !matches.some(m => m.book.id === bookT.id) &&
-        Math.abs(bankT.amount) === Math.abs(bookT.amount)
+    // Helper para limpiar referencias
+    const cleanRef = (ref: any) => String(ref || "").replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
+
+    // FASE 1: Match Exacto (Monto + Referencia Limpia)
+    bankTransactions.forEach(b => {
+      const bAmount = Math.abs(Number(b.amount));
+      const bRef = cleanRef(b.reference);
+
+      if (bRef && pendingBankIds.has(b.id) && bRef.length > 2) {
+        const matchIndex = bookTransactions.findIndex(bk =>
+          pendingBookIds.has(bk.id) &&
+          Math.abs(Number(bk.amount)) === bAmount &&
+          cleanRef(bk.reference) === bRef
+        );
+
+        if (matchIndex !== -1) {
+          const bk = bookTransactions[matchIndex];
+          matches.push({ bank: b, book: bk, type: 'perfecto' });
+          pendingBankIds.delete(b.id);
+          pendingBookIds.delete(bk.id);
+        }
+      }
+    });
+
+    // FASE 2: Match por Monto + Proximidad de Fecha (+/- 7 días)
+    bankTransactions.forEach(b => {
+      if (!pendingBankIds.has(b.id)) return;
+      const bAmount = Math.abs(Number(b.amount));
+      const bDate = new Date(b.date);
+
+      const matchIndex = bookTransactions.findIndex(bk => {
+        if (!pendingBookIds.has(bk.id)) return false;
+        if (Math.abs(Number(bk.amount)) !== bAmount) return false;
+
+        const bkDate = new Date(bk.date);
+        const diffDays = Math.abs(bDate.getTime() - bkDate.getTime()) / (1000 * 60 * 60 * 24);
+        return diffDays <= 7;
+      });
+
+      if (matchIndex !== -1) {
+        const bk = bookTransactions[matchIndex];
+        matches.push({ bank: b, book: bk, type: 'fecha' });
+        pendingBankIds.delete(b.id);
+        pendingBookIds.delete(bk.id);
+      }
+    });
+
+    // FASE 3: Match solo por Monto (Fallback)
+    bankTransactions.forEach(b => {
+      if (!pendingBankIds.has(b.id)) return;
+      const bAmount = Math.abs(Number(b.amount));
+
+      const matchIndex = bookTransactions.findIndex(bk =>
+        pendingBookIds.has(bk.id) &&
+        Math.abs(Number(bk.amount)) === bAmount
       );
 
-      if (matchIndex > -1) {
-        const bookT = bookTransactions[matchIndex];
-        matches.push({ bank: bankT, book: bookT });
-        pendingBankIds.delete(bankT.id);
-        pendingBookIds.delete(bookT.id);
+      if (matchIndex !== -1) {
+        const bk = bookTransactions[matchIndex];
+        matches.push({ bank: b, book: bk, type: 'monto' });
+        pendingBankIds.delete(b.id);
+        pendingBookIds.delete(bk.id);
       }
     });
 
     return {
       matches,
-      pendingBank: bankTransactions.filter(t => pendingBankIds.has(t.id)),
-      pendingBook: bookTransactions.filter(t => pendingBookIds.has(t.id))
+      pendingBank: bankTransactions.filter((t: any) => pendingBankIds.has(t.id)),
+      pendingBook: bookTransactions.filter((t: any) => pendingBookIds.has(t.id))
     };
   })();
 
@@ -270,89 +320,6 @@ export default function ConciliAI() {
     }
 
   };
-
-  // Logic to "Cross" (Match) transactions - Algoritmo Maestro
-  const matchedData = (() => {
-    if (!bankData?.transactions || !bookData?.transactions) return { matches: [], pendingBank: [], pendingBook: [] };
-
-    const bankTransactions = [...bankData.transactions];
-    const bookTransactions = [...bookData.transactions];
-
-    const matches: any[] = [];
-    const pendingBankIds = new Set(bankTransactions.map(t => t.id));
-    const pendingBookIds = new Set(bookTransactions.map(t => t.id));
-
-    // Helper para limpiar referencias
-    const cleanRef = (ref: any) => String(ref || "").replace(/[^0-9a-zA-Z]/g, "").toLowerCase();
-
-    // FASE 1: Match Exacto (Monto + Referencia Limpia)
-    bankTransactions.forEach(b => {
-      const bAmount = Math.abs(Number(b.amount));
-      const bRef = cleanRef(b.reference);
-
-      if (bRef && pendingBankIds.has(b.id) && bRef.length > 2) {
-        const matchIndex = bookTransactions.findIndex(bk =>
-          pendingBookIds.has(bk.id) &&
-          Math.abs(Number(bk.amount)) === bAmount &&
-          cleanRef(bk.reference) === bRef
-        );
-
-        if (matchIndex !== -1) {
-          const bk = bookTransactions[matchIndex];
-          matches.push({ bank: b, book: bk, type: 'perfecto' });
-          pendingBankIds.delete(b.id);
-          pendingBookIds.delete(bk.id);
-        }
-      }
-    });
-
-    // FASE 2: Match por Monto + Proximidad de Fecha (+/- 7 días)
-    bankTransactions.forEach(b => {
-      if (!pendingBankIds.has(b.id)) return;
-      const bAmount = Math.abs(Number(b.amount));
-      const bDate = new Date(b.date);
-
-      const matchIndex = bookTransactions.findIndex(bk => {
-        if (!pendingBookIds.has(bk.id)) return false;
-        if (Math.abs(Number(bk.amount)) !== bAmount) return false;
-
-        const bkDate = new Date(bk.date);
-        const diffDays = Math.abs(bDate.getTime() - bkDate.getTime()) / (1000 * 60 * 60 * 24);
-        return diffDays <= 7;
-      });
-
-      if (matchIndex !== -1) {
-        const bk = bookTransactions[matchIndex];
-        matches.push({ bank: b, book: bk, type: 'fecha' });
-        pendingBankIds.delete(b.id);
-        pendingBookIds.delete(bk.id);
-      }
-    });
-
-    // FASE 3: Match solo por Monto (Fallback)
-    bankTransactions.forEach(b => {
-      if (!pendingBankIds.has(b.id)) return;
-      const bAmount = Math.abs(Number(b.amount));
-
-      const matchIndex = bookTransactions.findIndex(bk =>
-        pendingBookIds.has(bk.id) &&
-        Math.abs(Number(bk.amount)) === bAmount
-      );
-
-      if (matchIndex !== -1) {
-        const bk = bookTransactions[matchIndex];
-        matches.push({ bank: b, book: bk, type: 'monto' });
-        pendingBankIds.delete(b.id);
-        pendingBookIds.delete(bk.id);
-      }
-    });
-
-    return {
-      matches,
-      pendingBank: bankTransactions.filter((t: any) => pendingBankIds.has(t.id)),
-      pendingBook: bookTransactions.filter((t: any) => pendingBookIds.has(t.id))
-    };
-  })();
 
   const handleSave = async () => {
     if (!bankData && !bookData) return;
