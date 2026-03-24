@@ -476,7 +476,24 @@ export default function ConciliAI() {
                     $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </p>
 
-                  <div className="space-y-3 bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100/50 shadow-sm group">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1">Total Asegurado</p>
+                    <div className="flex items-end gap-2 text-2xl font-black text-slate-900 group-hover:scale-[1.02] transition-transform">
+                      <span>${((matchedData?.matches?.reduce((acc: number, m: any) => acc + (m.bank?.monto || 0), 0) || 0) + (history?.reduce((acc: number, h: any) => acc + (h.total_amount || 0), 0) || 0)).toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase">COP</span>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-100/50 shadow-sm group">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1">Tiempo Ahorrado</p>
+                    <div className="flex items-end gap-2 text-2xl font-black text-slate-900 group-hover:scale-[1.02] transition-transform">
+                      <span>{(history?.length * 10 / 60).toFixed(1)}</span>
+                      <span className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase">Horas</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden p-8 rounded-3xl bg-slate-950 shadow-2xl group">
                     <div className="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider text-slate-400">
                       <span>Proceso de Cruce</span>
                       <span className="text-white">{Math.min(100, Math.round((matchedData?.matches.length / (Math.max(1, (bankData?.transactions?.length || 0) + (bookData?.transactions?.length || 0)))) * 200))}%</span>

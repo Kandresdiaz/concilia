@@ -103,8 +103,50 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
               </div>
             </div>
 
-            {/* Main Navigation */}
             <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide">
+              {/* --- Premium Bonuses Section --- */}
+              <div className="mb-6">
+                <p className="px-4 text-[10px] font-bold text-indigo-600 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+                  Bonos Premium Incluidos
+                </p>
+                <div className="space-y-1">
+                  <button
+                    onClick={() => onSectionChange("PAYROLL")}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 group relative",
+                      activeSection === "PAYROLL" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                    )}
+                  >
+                    <div className={cn(
+                        "p-1.5 rounded-md transition-colors",
+                        activeSection === "PAYROLL" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
+                    )}>
+                        <Database className="w-4 h-4" />
+                    </div>
+                    <span>Nómina IA</span>
+                    <span className="ml-auto text-[8px] font-black bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter">Bono 1</span>
+                  </button>
+                  <button
+                    onClick={() => onSectionChange("INVENTORY")}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 group relative",
+                      activeSection === "INVENTORY" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                    )}
+                  >
+                    <div className={cn(
+                        "p-1.5 rounded-md transition-colors",
+                        activeSection === "INVENTORY" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
+                    )}>
+                        <Plus className="w-4 h-4" />
+                    </div>
+                    <span>Inventario IA</span>
+                    <span className="ml-auto text-[8px] font-black bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter">Bono 2</span>
+                  </button>
+                </div>
+              </div>
+
+            {/* Main Navigation */}
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Gestión</p>
                     {navItems.map((item) => (
@@ -257,7 +299,19 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
             {/* Bottom Footer Section */}
             <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-4">
-                {/* Usage Card */}
+                {/* VIP Support Section */}
+            <div className="mx-4 mb-6 p-4 rounded-2xl bg-slate-900 shadow-lg relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-2 opacity-20">
+                <ShieldCheck className="w-8 h-8 text-indigo-400" />
+              </div>
+              <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Acceso Prioritario</p>
+              <h4 className="text-xs font-bold text-white mb-3">¿Necesitas ayuda con algo?</h4>
+              <button className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm">
+                Soporte VIP 24/7
+              </button>
+            </div>
+
+            {/* Usage Card */}
                 <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm">
                     <div className="flex justify-between items-center mb-3">
                         <span className={cn(
