@@ -20,10 +20,10 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "OAuth failed" }, { status: 500 });
     }
 
-    // Redirige a la App dentro del admin de Shopify
+    // Redirige a la App dentro del admin de Shopify (Dashboard)
     // Nota: El host es necesario para que Shopify App Bridge funcione
     const host = searchParams.get("host");
-    return NextResponse.redirect(`/?shop=${shop}&host=${host}`);
+    return NextResponse.redirect(new URL(`/dashboard?shop=${shop}&host=${host}`, request.url));
   } catch (error: any) {
     console.error("Shopify OAuth Callback Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
