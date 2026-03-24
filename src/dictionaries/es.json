@@ -7,11 +7,11 @@
     "cancel": "Cancelar"
   },
   "dashboard": {
-    "title": "Centro de Conciliación",
-    "upload_extract": "Subir Extracto Bancario",
-    "upload_book": "Subir Auxiliar Contable",
-    "process": "Empezar Conciliación con IA",
-    "history": "Historial de Conciliaciones",
+    "title": "Control de Cuentas",
+    "upload_extract": "Subir Datos del Banco",
+    "upload_book": "Subir Tus Cuentas",
+    "process": "Cruzar Datos con IA",
+    "history": "Historial de Cruces",
     "usage": "Uso del Plan",
     "upgrade": "Subir a PRO"
   },

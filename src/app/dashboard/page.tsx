@@ -98,6 +98,39 @@ export default function ConciliAI() {
     init();
   }, []);
 
+  // Logic to "Cross" (Match) transactions - Algoritmo Maestro
+  const matchedData = (() => {
+    if (!bankData?.transactions || !bookData?.transactions) return { matches: [], pendingBank: [], pendingBook: [] };
+
+    const bankTransactions = [...bankData.transactions];
+    const bookTransactions = [...bookData.transactions];
+
+    const matches: any[] = [];
+    const pendingBankIds = new Set(bankTransactions.map(t => t.id));
+    const pendingBookIds = new Set(bookTransactions.map(t => t.id));
+
+    // Simple Exact Match Logic (Amount + roughly same date if possible)
+    bankTransactions.forEach(bankT => {
+      const matchIndex = bookTransactions.findIndex(bookT =>
+        !matches.some(m => m.book.id === bookT.id) &&
+        Math.abs(bankT.amount) === Math.abs(bookT.amount)
+      );
+
+      if (matchIndex > -1) {
+        const bookT = bookTransactions[matchIndex];
+        matches.push({ bank: bankT, book: bookT });
+        pendingBankIds.delete(bankT.id);
+        pendingBookIds.delete(bookT.id);
+      }
+    });
+
+    return {
+      matches,
+      pendingBank: bankTransactions.filter(t => pendingBankIds.has(t.id)),
+      pendingBook: bookTransactions.filter(t => pendingBookIds.has(t.id))
+    };
+  })();
+
   useEffect(() => {
     if (bankData && bookData && matchedData.matches.length > 0) {
       const bankTotal = bankData?.verified_totals?.net || 0;
