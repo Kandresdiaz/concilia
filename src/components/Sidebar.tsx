@@ -82,8 +82,29 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                 )}
             </div>
 
+            {/* --- Alex Hormozi Style Offer --- */}
+            <div className="mx-4 mt-6 mb-4 p-4 rounded-xl bg-gradient-to-br from-indigo-50/50 to-white border border-indigo-100/50 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-110 transition-transform">
+                <CheckCircle className="w-8 h-8 text-indigo-600" />
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Oferta Irresistible</p>
+              <h3 className="text-xs font-bold text-slate-900 leading-tight mb-2">
+                3 Conciliaciones <span className="text-indigo-600 underline">Gratis</span>.
+                Ahorra 10h hoy.
+              </h3>
+              <p className="text-[10px] text-slate-500 font-medium">
+                Sin tarjetas. Sin rollos. Precisión total garantizada.
+              </p>
+              <div className="mt-3 flex items-center gap-2">
+                <div className="h-1 flex-1 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-indigo-500 rounded-full" style={{ width: "33%" }}></div>
+                </div>
+                <span className="text-[9px] font-bold text-slate-400">Trial Activo</span>
+              </div>
+            </div>
+
             {/* Main Navigation */}
-            <div className="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto px-4 py-4 scrollbar-hide">
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Gestión</p>
                     {navItems.map((item) => (

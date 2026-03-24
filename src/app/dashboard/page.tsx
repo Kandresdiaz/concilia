@@ -35,6 +35,7 @@ import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
 import { ReportViewModal } from "@/components/ReportViewModal";
 import { PricingModal } from "@/components/PricingModal";
 import { ExportModal } from "@/components/ExportModal";
+import confetti from "canvas-confetti";
 
 
 export default function ConciliAI() {
@@ -48,7 +49,7 @@ export default function ConciliAI() {
   const [bookData, setBookData] = useState<any>(null);
   const [tier, setTier] = useState<string>("FREE");
   const [usageCount, setUsageCount] = useState(0);
-  const [limit, setLimit] = useState(2); // Default to Free limit (2)
+  const [limit, setLimit] = useState(3); // Default to Free limit (3/Alex Hormozi Offer)
   const [history, setHistory] = useState<any[]>([]);
   const [companyName, setCompanyName] = useState("");
   const [precisionScore, setPrecisionScore] = useState<number | null>(null);
@@ -82,7 +83,7 @@ export default function ConciliAI() {
         setUsageCount(profile.usage_count);
 
         // --- 3-Tier Limit Logic (Sync with API) ---
-        let calculatedLimit = 2; // Default Gratis
+        let calculatedLimit = 3; // Default Gratis (3 Trial)
         if (profile.tier === "PRO") calculatedLimit = 50;
         if (profile.tier === "ENTERPRISE") calculatedLimit = 300;
         if (profile.tier === "LIFETIME") calculatedLimit = 9999;
@@ -96,6 +97,21 @@ export default function ConciliAI() {
     };
     init();
   }, []);
+
+  useEffect(() => {
+    if (bankData && bookData && matchedData.matches.length > 0) {
+      const bankTotal = bankData?.verified_totals?.net || 0;
+      const bookTotal = bookData?.verified_totals?.net || 0;
+      if (bankTotal - bookTotal === 0) {
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ["#4f46e5", "#10b981", "#ffffff"]
+        });
+      }
+    }
+  }, [bankData, bookData, matchedData.matches.length]);
 
   const handleLogout = async () => {
     router.push("/");
@@ -425,10 +441,10 @@ export default function ConciliAI() {
                     <CheckCircle className="w-3 h-3" /> Monitor de Auditoría
                   </div>
                   <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 break-words leading-tight">
-                    {bankData?.summary?.empresa || "EMPRESA S.A.S"}
+                    Concilia tu primer millón <span className="text-indigo-600">en segundos</span>
                   </h1>
                   <p className="text-slate-500 font-medium text-sm md:text-base max-w-lg">
-                    Análisis de discrepancias financieras con inteligencia artificial avanzada.
+                    La herramienta de auditoría que ahorra horas de trabajo manual. Precisión quirúrgica con Inteligencia Artificial.
                   </p>
                 </div>
 
@@ -474,7 +490,7 @@ export default function ConciliAI() {
                   </div>
                 </div>
 
-                <div className="relative z-10 mt-8 pt-6 border-t border-white/5">
+                <div className="relative z-10 mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
                   <p className={cn(
                     "text-[10px] font-black uppercase tracking-widest flex items-center gap-2",
                     netDifference === 0 ? "text-emerald-400" : "text-rose-400/80"
@@ -482,6 +498,9 @@ export default function ConciliAI() {
                     <span className={cn("w-2 h-2 rounded-full", netDifference === 0 ? "bg-emerald-400" : "bg-rose-400")}></span>
                     {netDifference === 0 ? "Balance verificado ✓" : "Diferencia pendiente ⚠"}
                   </p>
+                  <div className="px-2 py-0.5 bg-white/10 rounded-md border border-white/20">
+                    <span className="text-[8px] font-bold text-white uppercase tracking-tighter italic">Risk Free</span>
+                  </div>
                 </div>
               </div>
             </div>
