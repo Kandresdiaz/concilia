@@ -116,15 +116,15 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                 </p>
                 <div className="space-y-1">
                   <button
-                    onClick={() => onSectionChange("PAYROLL")}
+                    onClick={() => onViewChange("PAYROLL")}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 group relative",
-                      activeSection === "PAYROLL" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                      currentView === "PAYROLL" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
                     )}
                   >
                     <div className={cn(
                         "p-1.5 rounded-md transition-colors",
-                        activeSection === "PAYROLL" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
+                        currentView === "PAYROLL" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
                     )}>
                         <Database className="w-4 h-4" />
                     </div>
@@ -132,15 +132,15 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                     <span className="ml-auto text-[8px] font-black bg-indigo-100 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter">Bono 1</span>
                   </button>
                   <button
-                    onClick={() => onSectionChange("INVENTORY")}
+                    onClick={() => onViewChange("INVENTORY")}
                     className={cn(
                       "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 group relative",
-                      activeSection === "INVENTORY" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                      currentView === "INVENTORY" ? "bg-indigo-600 text-white shadow-md scale-[1.02]" : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
                     )}
                   >
                     <div className={cn(
                         "p-1.5 rounded-md transition-colors",
-                        activeSection === "INVENTORY" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
+                        currentView === "INVENTORY" ? "bg-white/20" : "bg-slate-100 group-hover:bg-indigo-100"
                     )}>
                         <Plus className="w-4 h-4" />
                     </div>
