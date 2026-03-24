@@ -474,7 +474,7 @@ export default function ConciliAI() {
                     <CheckCircle className="w-3 h-3" /> Monitor de Auditoría
                   </div>
                   <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 break-words leading-tight">
-                    Concilia tu primer millón <span className="text-indigo-600">en segundos</span>
+                    Cuadra tu primer millón <span className="text-indigo-600">en segundos</span>
                   </h1>
                   <p className="text-slate-500 font-medium text-sm md:text-base max-w-lg">
                     La herramienta de auditoría que ahorra horas de trabajo manual. Precisión quirúrgica con Inteligencia Artificial.

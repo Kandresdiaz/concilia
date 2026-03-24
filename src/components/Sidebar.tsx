@@ -93,7 +93,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
               </div>
               <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2">Oferta Irresistible</p>
               <h3 className="text-xs font-bold text-slate-900 leading-tight mb-2">
-                3 Conciliaciones <span className="text-indigo-600 underline">Gratis</span>.
+                3 Cuadres <span className="text-indigo-600 underline">Gratis</span>.
                 Ahorra 10h hoy.
               </h3>
               <p className="text-[10px] text-slate-500 font-medium">
