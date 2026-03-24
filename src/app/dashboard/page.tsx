@@ -417,17 +417,16 @@ export default function ConciliAI() {
 
     setModalLoading(true);
     try {
-      // Si estamos en Shopify, usamos el endpoint de Shopify Billing
-      const endpoint = isShopify ? "/api/auth/shopify/billing" : "/api/lemonsqueezy/checkout";
-      
-      const response = await fetch(endpoint, {
+      // Por ahora usamos el endpoint seguro de pago externo que ya está en producción
+      // (Abierto en nueva pestaña para que Shopify no lo bloquee por seguridad iframe)
+      const response = await fetch("/api/lemonsqueezy/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier, shop })
+        body: JSON.stringify({ tier })
       });
       const data = await response.json();
       if (data.url) {
-        window.location.href = data.url;
+        window.open(data.url, "_blank"); // ← Esto evita que Shopify lo bloquee
       } else {
         setNotification({ type: "error", message: "Error al iniciar el pago: " + (data.error || "Desconocido") });
       }
