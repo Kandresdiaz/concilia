@@ -229,8 +229,29 @@ export default function ConciliAI() {
     try {
       let data: any = null;
 
+      // Optimizacion especial para Conexion Directa con Shopify
+      if (source === "shopify") {
+          const res = await fetch(`/api/shopify/orders?shop=${content}`);
+          const result = await res.json();
+          
+          if (result.error) throw new Error(result.error);
+          
+          data = {
+              transactions: result.orders,
+              banco: "Shopify",
+              empresa: companyName || "Tu Empresa",
+              tipo_documento: "Sincronización Directa",
+              verified_totals: {
+                  total_in: result.orders.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + Number(t.amount), 0),
+                  total_out: result.orders.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(Number(t.amount)), 0),
+                  net: result.orders.reduce((acc: number, t: any) => acc + Number(t.amount), 0),
+              },
+              precision_score: 100
+          };
+      }
+
       // Optimización: Intentar ruta $0 si es texto y no imagen
-      if (!isImage && content) {
+      if (!data && !isImage && content && source !== "shopify") {
           try {
               const preCheckResponse = await fetch("/api/extract-csv", {
                   method: "POST",
@@ -248,9 +269,9 @@ export default function ConciliAI() {
                       empresa: companyName || "Tu Empresa",
                       tipo_documento: "CSV Extraído Directamente",
                       verified_totals: {
-                          total_in: preCheckData.transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + t.amount, 0),
-                          total_out: preCheckData.transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(t.amount), 0),
-                          net: preCheckData.transactions.reduce((acc: number, t: any) => acc + t.amount, 0),
+                          total_in: preCheckData.transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + Number(t.amount), 0),
+                          total_out: preCheckData.transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(Number(t.amount)), 0),
+                          net: preCheckData.transactions.reduce((acc: number, t: any) => acc + Number(t.amount), 0),
                       },
                       precision_score: 100 // It's deterministic code
                   };
@@ -259,6 +280,7 @@ export default function ConciliAI() {
               console.warn("Fallo el extractor directo, cayendo silenciosamente a IA", e);
           }
       }
+
 
       // Fallback a IA pesada si no se pudo hacer extracción directa (o era imagen)
       if (!data) {

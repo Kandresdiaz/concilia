@@ -1,10 +1,11 @@
 "use client";
 
-import { X, Upload, FileText, Search, Mail, Loader2, Lock } from "lucide-react";
+import { X, Upload, FileText, Search, Mail, Loader2, Lock, ShoppingBag } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { extractTextFromPdf } from "@/lib/pdf";
 import Papa from "papaparse";
+import { useShopify } from "@/providers/ShopifyProvider";
 
 interface ImportModalProps {
     isOpen: boolean;
@@ -41,6 +42,7 @@ export function ImportModal({
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
+    const { isShopify, shop } = useShopify();
 
     useEffect(() => {
         if (isOpen) {
@@ -238,6 +240,7 @@ export function ImportModal({
                     {[
                         { id: "file", label: "Subir Archivo", icon: Upload },
                         { id: "ai", label: "Pegar Texto", icon: Search },
+                        ...(isShopify && tab === "book" ? [{ id: "shopify", label: "Importar Shopify", icon: ShoppingBag }] : []),
                         { id: "gmail", label: "Gmail Sync", icon: Mail },
                     ].map((s) => (
                         <button
@@ -320,6 +323,33 @@ export function ImportModal({
                                 >
                                     {loading ? <Loader2 className="animate-spin" /> : "Procesar con IA"}
                                 </button>
+                            </div>
+                        )}
+
+                        {source === "shopify" && isShopify && tab === "book" && (
+                            <div className="text-center py-12 space-y-4">
+                                <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-2 relative">
+                                    <ShoppingBag className="w-8 h-8" />
+                                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white border-2 border-white">
+                                        <CheckCircle className="w-4 h-4" />
+                                    </div>
+                                </div>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Sincronización Directa de Shopify</h3>
+                                <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
+                                    Extraeremos automáticamente tus órdenes recientes para que no tengas que subir ningún documento.
+                                </p>
+                                <div className="pt-2">
+                                  <button
+                                      onClick={() => {
+                                          setIsProcessing(true);
+                                          onImport(tab, source, shop || "", false, country).finally(() => setIsProcessing(false));
+                                      }}
+                                      disabled={loading || isProcessing || isLimited}
+                                      className="btn bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold px-8"
+                                  >
+                                      {loading || isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : "Sincronizar Órdenes Ahora"}
+                                  </button>
+                                </div>
                             </div>
                         )}
 
