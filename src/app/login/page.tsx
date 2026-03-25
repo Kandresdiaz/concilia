@@ -2,71 +2,79 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect, Suspense } from "react";
-import { LogIn, Github, Mail, ShieldCheck } from "lucide-react";
+import { Mail, ShieldCheck } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
 function LoginContent() {
     const [loading, setLoading] = useState(false);
+    const [shopifyConnecting, setShopifyConnecting] = useState(false);
     const supabase = createClient();
     const searchParams = useSearchParams();
+    const shop = searchParams.get("shop");
+    const host = searchParams.get("host");
 
     useEffect(() => {
         const ref = searchParams.get("ref");
         if (ref) {
             document.cookie = `concilia_ref=${ref}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
         }
-    }, [searchParams]);
 
-    // Detectar si venimos desde Shopify
-    const shop = searchParams.get("shop");
-    const host = searchParams.get("host");
-    const isInShopify = !!shop;
+        // AUTO-LOGIN para Shopify: si viene con ?shop=, autenticar sin pedir nada al usuario
+        if (shop) {
+            setShopifyConnecting(true);
+            fetch("/api/auth/shopify/signin", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ shop, host: host || null })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.url) {
+                    window.location.href = data.url;
+                } else {
+                    setShopifyConnecting(false); // Mostrar login manual como fallback
+                }
+            })
+            .catch(() => setShopifyConnecting(false));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleGoogleLogin = async () => {
         setLoading(true);
-        
-        // Construir la URL de retorno incluyendo params de Shopify si existen
-        const callbackBase = `${window.location.origin}/auth/callback`;
-        const callbackParams = shop
-            ? `?shop=${shop}${host ? `&host=${host}` : ""}`
-            : "";
-        const redirectTo = `${callbackBase}${callbackParams}`;
-
-        // En iframe de Shopify, Google BLOQUEA la redirección. Usar popup.
-        if (isInShopify) {
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo,
-                    skipBrowserRedirect: true, // Supabase nos da la URL sin redirigir
-                },
-            });
-            if (error) {
-                alert("Error al iniciar sesión: " + error.message);
-                setLoading(false);
-                return;
-            }
-            if (data?.url) {
-                // Abrir en ventana nueva (sale del iframe de Shopify)
-                const popup = window.open(data.url, "_blank", "width=500,height=700,top=100,left=200");
-                if (!popup) {
-                    // Si el popup fue bloqueado, redirigir al top
-                    window.top ? (window.top.location.href = data.url) : (window.location.href = data.url);
-                }
-            }
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+        if (error) {
+            alert("Error al iniciar sesión con Google: " + error.message);
             setLoading(false);
-        } else {
-            // Flujo normal fuera de Shopify
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: { redirectTo },
-            });
-            if (error) {
-                alert("Error al iniciar sesión con Google: " + error.message);
-                setLoading(false);
-            }
         }
     };
+
+    // Si viene de Shopify y se está conectando, mostrar solo el spinner (cero fricción)
+    if (shopifyConnecting) {
+        return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+                <div className="text-center space-y-6">
+                    <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center mx-auto animate-pulse">
+                        <ShieldCheck className="w-10 h-10 text-indigo-400" />
+                    </div>
+                    <div className="space-y-2">
+                        <h2 className="text-white font-black text-2xl uppercase tracking-tight">Conectando tu tienda...</h2>
+                        <p className="text-slate-400 text-sm font-medium">Verificando sesión de Shopify</p>
+                    </div>
+                    <div className="flex justify-center gap-1">
+                        {[0, 1, 2].map(i => (
+                            <div key={i} className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-slate-50">
