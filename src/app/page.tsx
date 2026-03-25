@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   ArrowRight,
   CheckCircle2,
@@ -408,6 +409,16 @@ export default function LandingPage() {
 
   useEffect(() => {
     const init = async () => {
+      // Si venimos desde Shopify (hay parámetro ?shop= en la URL), redirigir al Dashboard
+      const searchParams = new URLSearchParams(window.location.search);
+      const shop = searchParams.get("shop");
+      const host = searchParams.get("host");
+      if (shop) {
+        const query = host ? `?shop=${shop}&host=${host}` : `?shop=${shop}`;
+        router.replace(`/dashboard${query}`);
+        return;
+      }
+
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
       logEvent("landing_view", { authenticated: !!user });
