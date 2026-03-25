@@ -24,9 +24,15 @@ export const SupabaseSessionStorage = {
       });
 
     if (error) {
-      console.error("Error storing Shopify session:", error);
+      console.error("CRITICAL: Error storing Shopify session in Supabase:", {
+        error,
+        sessionId: session.id,
+        shop: session.shop,
+        hasAccessToken: !!session.accessToken
+      });
       return false;
     }
+    console.log("SUCCESS: Stored Shopify session:", session.id);
     return true;
   },
 
@@ -36,9 +42,17 @@ export const SupabaseSessionStorage = {
       .from("shopify_sessions")
       .select("*")
       .eq("id", id)
-      .maybeSingle(); // Usamos maybeSingle para evitar errores si no existe
+      .maybeSingle();
 
-    if (error || !data) return undefined;
+    if (error) {
+      console.error("Error loading Shopify session:", error);
+      return undefined;
+    }
+    
+    if (!data) {
+      console.warn("No session found in DB for ID:", id);
+      return undefined;
+    }
 
     const session = new Session({
       id: data.id,
