@@ -13,23 +13,58 @@ function LoginContent() {
     useEffect(() => {
         const ref = searchParams.get("ref");
         if (ref) {
-            // Guardar referido en cookie por 7 días
             document.cookie = `concilia_ref=${ref}; path=/; max-age=${7 * 24 * 60 * 60}; SameSite=Lax`;
-            console.log("Referencia detectada y guardada:", ref);
         }
     }, [searchParams]);
 
+    // Detectar si venimos desde Shopify
+    const shop = searchParams.get("shop");
+    const host = searchParams.get("host");
+    const isInShopify = !!shop;
+
     const handleGoogleLogin = async () => {
         setLoading(true);
-        const { error } = await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        });
-        if (error) {
-            alert("Error al iniciar sesión con Google: " + error.message);
+        
+        // Construir la URL de retorno incluyendo params de Shopify si existen
+        const callbackBase = `${window.location.origin}/auth/callback`;
+        const callbackParams = shop
+            ? `?shop=${shop}${host ? `&host=${host}` : ""}`
+            : "";
+        const redirectTo = `${callbackBase}${callbackParams}`;
+
+        // En iframe de Shopify, Google BLOQUEA la redirección. Usar popup.
+        if (isInShopify) {
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    redirectTo,
+                    skipBrowserRedirect: true, // Supabase nos da la URL sin redirigir
+                },
+            });
+            if (error) {
+                alert("Error al iniciar sesión: " + error.message);
+                setLoading(false);
+                return;
+            }
+            if (data?.url) {
+                // Abrir en ventana nueva (sale del iframe de Shopify)
+                const popup = window.open(data.url, "_blank", "width=500,height=700,top=100,left=200");
+                if (!popup) {
+                    // Si el popup fue bloqueado, redirigir al top
+                    window.top ? (window.top.location.href = data.url) : (window.location.href = data.url);
+                }
+            }
             setLoading(false);
+        } else {
+            // Flujo normal fuera de Shopify
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: { redirectTo },
+            });
+            if (error) {
+                alert("Error al iniciar sesión con Google: " + error.message);
+                setLoading(false);
+            }
         }
     };
 
