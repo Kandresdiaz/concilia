@@ -210,62 +210,86 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
 
                 <div className="space-y-1">
                     <p className="px-4 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Recursos Gratis</p>
-                    <Link
-                        href="/recursos/liquidador-nomina"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    <button
+                        onClick={() => onViewChange("RESOURCE_NOMINA")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_NOMINA" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Briefcase className="w-4 h-4 text-slate-900" />
                         🇨🇴 Nómina (Colombia)
-                    </Link>
-                    <Link
-                        href="/recursos/calculadora-comisiones"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_COMISIONES")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_COMISIONES" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Calculator className="w-4 h-4 text-slate-900" />
                         🧮 Calculadora de Comisiones
-                    </Link>
-                    <Link
-                        href="/recursos/conciliacion-bancolombia"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_BANCOLOMBIA")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_BANCOLOMBIA" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Landmark className="w-4 h-4 text-slate-900" />
                         🏦 Conciliador Bancolombia
-                    </Link>
-                    <Link
-                        href="/recursos/conciliacion-siigo"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_SIIGO")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_SIIGO" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Shield className="w-4 h-4 text-indigo-500" />
                         🇨🇴 Conciliador Siigo
-                    </Link>
-                    <Link
-                        href="/recursos/conciliacion-quickbooks"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_QUICKBOOKS")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_QUICKBOOKS" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Shield className="w-4 h-4 text-emerald-500" />
                         🌎 Conciliador QuickBooks
-                    </Link>
-                    <Link
-                        href="/recursos/plantilla-excel"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_EXCEL")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_EXCEL" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <FileSpreadsheet className="w-4 h-4 text-emerald-500" />
                         Plantilla Excel
-                    </Link>
-                    <Link
-                        href="/recursos/conciliacion-stripe"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_PAYOUTS")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_PAYOUTS" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <CreditCard className="w-4 h-4 text-slate-900" />
                         💳 Payouts Stripe/Shopify
-                    </Link>
-                    <Link
-                        href="/recursos/asientos-contables"
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all text-[13px] font-semibold"
+                    </button>
+                    <button
+                        onClick={() => onViewChange("RESOURCE_ASIENTOS")}
+                        className={cn(
+                          "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all text-[13px] font-semibold",
+                          currentView === "RESOURCE_ASIENTOS" ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                        )}
                     >
                         <Calculator className="w-4 h-4 text-indigo-500" />
                         Generador de Asientos
-                    </Link>
+                    </button>
                 </div>
 
                 <div className="space-y-1">

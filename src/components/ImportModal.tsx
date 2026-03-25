@@ -46,10 +46,16 @@ export function ImportModal({
 
     useEffect(() => {
         if (isOpen) {
-            if (bankLoaded && !bookLoaded) setTab("book");
-            else if (bookLoaded && !bankLoaded) setTab("bank");
+            if (bankLoaded && !bookLoaded) {
+                setTab("book");
+                if (isShopify) setSource("shopify");
+            }
+            else if (bookLoaded && !bankLoaded) {
+                setTab("bank");
+                setSource("file");
+            }
         }
-    }, [isOpen, bankLoaded, bookLoaded]);
+    }, [isOpen, bankLoaded, bookLoaded, isShopify]);
 
     const processPdf = async (file: File, pwd?: string) => {
         setIsProcessing(true);
@@ -203,7 +209,10 @@ export function ImportModal({
                 <div className="px-8 pb-6">
                     <div className="flex bg-base-200 rounded-2xl p-1.5">
                         <button
-                            onClick={() => setTab("bank")}
+                            onClick={() => {
+                                setTab("bank");
+                                setSource("file");
+                            }}
                             disabled={bankLoaded}
                             className={cn(
                                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all relative overflow-hidden",
@@ -218,7 +227,10 @@ export function ImportModal({
                             )}
                         </button>
                         <button
-                            onClick={() => setTab("book")}
+                            onClick={() => {
+                                setTab("book");
+                                if (isShopify) setSource("shopify");
+                            }}
                             disabled={bookLoaded}
                             className={cn(
                                 "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold transition-all relative overflow-hidden",
@@ -353,6 +365,12 @@ export function ImportModal({
                                   >
                                       {loading || isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : "Sincronizar Órdenes Ahora"}
                                   </button>
+                                  {isShopify && (
+                                      <p className="mt-4 text-[10px] text-slate-400">
+                                          ¿Falla la conexión? <a href={`/api/auth/shopify?shop=${shop}`} target="_top" className="text-primary hover:underline font-bold">Re-conectar tienda aquí</a>
+                                      </p>
+                                  )}
+                                </div>
                                 </div>
                             </div>
                         )}

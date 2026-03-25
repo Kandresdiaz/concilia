@@ -16,11 +16,20 @@ export async function GET(request: Request) {
     // 1. Completar el OAuth de Shopify y guardar sesión
     const { session } = await shopify.auth.callback({
       rawRequest: request,
-      rawResponse: new Response(),
     });
 
     if (!session) {
-      return NextResponse.json({ error: "OAuth failed" }, { status: 500 });
+      console.error("OAuth failed: No session returned from Shopify");
+      return NextResponse.json({ error: "OAuth failed: No session" }, { status: 500 });
+    }
+    
+    // 1.5. Guardar la sesión explícitamente en Supabase (Storage persistente)
+    const { SupabaseSessionStorage } = await import("@/lib/shopify-session-storage");
+    const stored = await SupabaseSessionStorage.storeSession(session);
+    
+    if (!stored) {
+      console.error("Failed to store session in Supabase for shop:", shop);
+      // No bloqueamos el flujo, pero lo logueamos
     }
 
     // 2. Auto-login en Supabase con el email del merchant (no necesita Google)
@@ -31,12 +40,21 @@ export async function GET(request: Request) {
       ? `${associatedUser.first_name} ${associatedUser.last_name}`.trim()
       : shop.replace(".myshopify.com", "");
 
-    if (merchantEmail) {
-      try {
+        // 2. Auto-login en Supabase con el email del merchant
+        // Shopify ya autenticó al usuario — pedir otro login viola sus políticas
         const supabaseAdmin = createClient(
           process.env.NEXT_PUBLIC_SUPABASE_URL!,
           process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!
         );
+
+        // Actualizar el perfil con el shopify_shop domain
+        const { data: userData } = await supabaseAdmin.auth.admin.getUserByEmail(merchantEmail);
+        if (userData?.user) {
+          await supabaseAdmin
+            .from("profiles")
+            .update({ shopify_shop: shop })
+            .eq("id", userData.user.id);
+        }
 
         // Crear usuario si no existe, o simplemente generar un magic link de sesión
         const { data: magicData, error: magicError } = await supabaseAdmin.auth.admin.generateLink({

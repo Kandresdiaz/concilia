@@ -8,11 +8,27 @@ export async function POST(req: Request) {
         const supabase = await createClient()
         const { data: { user } } = await supabase.auth.getUser()
 
-        if (!user) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        const { tier, shop } = await req.json()
+        let activeUser = user
+
+        if (!activeUser && shop) {
+            // Auth Bypass for Shopify Iframe:
+            // Intentar recuperar el usuario basado en el dominio de la tienda
+            const supabaseAdmin = await createClient(true) // Usar modo admin/service_role si es necesario o manejarlo aquí
+            const { data: profile } = await supabaseAdmin
+                .from('profiles')
+                .select('id, email')
+                .eq('shopify_shop', shop)
+                .single()
+            
+            if (profile) {
+                activeUser = { id: profile.id, email: profile.email } as any
+            }
         }
 
-        const { tier } = await req.json()
+        if (!activeUser) {
+            return NextResponse.json({ error: 'Unauthorized: No se detectó una sesión válida' }, { status: 401 })
+        }
 
         // Lemon Squeezy Store and Variant IDs from env
         const storeId = process.env.LEMON_SQUEEZY_STORE_ID
@@ -30,9 +46,9 @@ export async function POST(req: Request) {
 
         const checkout = await createCheckout(storeId, variantId, {
             checkoutData: {
-                email: user.email,
+                email: activeUser.email,
                 custom: {
-                    user_id: user.id,
+                    user_id: activeUser.id,
                     tier: tier
                 }
             },

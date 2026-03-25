@@ -1,14 +1,9 @@
 import { Session } from "@shopify/shopify-api";
-import { createClient } from "@supabase/supabase-js";
-
-// Usamos el service role para bypass RLS ya que es un proceso interno de servidor
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { createClient } from "./supabase/server";
 
 export const SupabaseSessionStorage = {
   storeSession: async (session: Session): Promise<boolean> => {
+    const supabase = await createClient(true);
     const { error } = await supabase
       .from("shopify_sessions")
       .upsert({
@@ -36,11 +31,12 @@ export const SupabaseSessionStorage = {
   },
 
   loadSession: async (id: string): Promise<Session | undefined> => {
+    const supabase = await createClient(true);
     const { data, error } = await supabase
       .from("shopify_sessions")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle(); // Usamos maybeSingle para evitar errores si no existe
 
     if (error || !data) return undefined;
 
@@ -58,6 +54,7 @@ export const SupabaseSessionStorage = {
   },
 
   deleteSession: async (id: string): Promise<boolean> => {
+    const supabase = await createClient(true);
     const { error } = await supabase
       .from("shopify_sessions")
       .delete()
@@ -67,6 +64,7 @@ export const SupabaseSessionStorage = {
   },
 
   deleteSessions: async (ids: string[]): Promise<boolean> => {
+    const supabase = await createClient(true);
     const { error } = await supabase
       .from("shopify_sessions")
       .delete()
@@ -76,6 +74,7 @@ export const SupabaseSessionStorage = {
   },
 
   findSessionsByShop: async (shop: string): Promise<Session[]> => {
+    const supabase = await createClient(true);
     const { data, error } = await supabase
       .from("shopify_sessions")
       .select("*")

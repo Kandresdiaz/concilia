@@ -34,8 +34,8 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
     ];
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-4 overflow-y-auto">
-            <div className="bg-white w-full max-w-4xl rounded-[40px] shadow-3xl overflow-hidden relative animate-in fade-in zoom-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-md p-2 md:p-4 overflow-y-auto overflow-x-hidden">
+            <div className="bg-white w-full max-w-3xl rounded-[32px] md:rounded-[40px] shadow-3xl overflow-hidden relative animate-in fade-in zoom-in duration-300 my-auto">
                 <button
                     onClick={onCloseAction}
                     className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-full transition-colors z-10"
@@ -43,12 +43,12 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
                     <X className="w-6 h-6 text-slate-400" />
                 </button>
 
-                <div className="p-8 md:p-12">
-                    <div className="text-center space-y-4 mb-12">
+                <div className="p-6 md:p-10">
+                    <div className="text-center space-y-2 mb-8">
                         <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-black uppercase tracking-widest border border-indigo-100">
                             <Star className="w-3 h-3" /> Precios Especiales
                         </div>
-                        <h2 className="text-4xl font-black tracking-tight text-slate-900 uppercase italic">
+                        <h2 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 uppercase italic">
                             Elige tu <span className="text-indigo-600">Plan de Poder</span>
                         </h2>
                         <p className="text-slate-500 font-medium max-w-md mx-auto">
@@ -109,7 +109,7 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
                                             "w-full py-4 rounded-2xl font-black uppercase tracking-widest text-[11px] transition-all active:scale-95 disabled:opacity-50",
                                             plan.highlight
                                                 ? "bg-white text-slate-900 hover:bg-slate-100"
-                                                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-xl shadow-indigo-100"
+                                                : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
                                         )}
                                     >
                                         {loading ? "Procesando..." : `Elegir ${plan.name}`}
@@ -119,14 +119,14 @@ export function PricingModal({ isOpen, onCloseAction, onUpgradeAction, loading }
                         ))}
                     </div>
 
-                    <div className="mt-12 p-8 bg-indigo-600 rounded-[32px] text-white flex flex-col md:flex-row items-center gap-6 shadow-2xl shadow-indigo-200">
-                        <div className="w-20 h-20 bg-white/20 rounded-[25px] flex items-center justify-center backdrop-blur-md">
-                            <ShieldCheck className="w-10 h-10 text-white" />
+                    <div className="mt-8 p-6 bg-indigo-600 rounded-[24px] md:rounded-[32px] text-white flex flex-col md:flex-row items-center gap-4 shadow-xl shadow-indigo-200">
+                        <div className="w-16 h-16 bg-white/20 rounded-[20px] flex items-center justify-center backdrop-blur-md shrink-0">
+                            <ShieldCheck className="w-8 h-8 text-white" />
                         </div>
                         <div className="space-y-1 text-center md:text-left flex-1">
-                            <p className="text-lg font-black uppercase italic tracking-tighter">GARANTÍA DE "RIESGO CERO" HORMOZI</p>
-                            <p className="text-sm font-medium opacity-80 leading-relaxed">
-                                Si en los primeros 30 días la IA no encuentra errores que paguen el costo de tu plan, **te devolvemos el 100% de tu dinero** y te dejamos usar la versión Pro gratis por 3 meses más. El riesgo es todo nuestro.
+                            <p className="text-base font-black uppercase italic tracking-tighter leading-none">GARANTÍA DE "RIESGO CERO"</p>
+                            <p className="text-[11px] font-medium opacity-80 leading-snug">
+                                Si en los primeros 30 días la IA no encuentra errores que paguen el costo de tu plan, te devolvemos el 100% y te damos 3 meses Pro gratis.
                             </p>
                         </div>
                     </div>

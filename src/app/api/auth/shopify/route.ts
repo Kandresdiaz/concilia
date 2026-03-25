@@ -14,9 +14,8 @@ export async function GET(request: Request) {
   const redirectUrl = await shopify.auth.begin({
     shop,
     callbackPath: "/api/auth/shopify/callback",
-    isOnline: false, // Usamos offline sessions para que duren más
+    isOnline: false,
     rawRequest: request,
-    rawResponse: new Response(), // Adaptador necesario para Next.js
   });
 
   return NextResponse.redirect(redirectUrl);

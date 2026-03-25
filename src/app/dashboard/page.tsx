@@ -35,6 +35,7 @@ import { DeleteConfirmationModal } from "@/components/DeleteConfirmationModal";
 import { ReportViewModal } from "@/components/ReportViewModal";
 import { PricingModal } from "@/components/PricingModal";
 import { ExportModal } from "@/components/ExportModal";
+import { PayrollBonus, InventoryBonus, ResourceTool } from "@/components/BonusTools";
 import confetti from "canvas-confetti";
 
 
@@ -417,16 +418,14 @@ export default function ConciliAI() {
 
     setModalLoading(true);
     try {
-      // Por ahora usamos el endpoint seguro de pago externo que ya está en producción
-      // (Abierto en nueva pestaña para que Shopify no lo bloquee por seguridad iframe)
       const response = await fetch("/api/lemonsqueezy/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier })
+        body: JSON.stringify({ tier, shop }) // Pasar el shop para auth bypass en iframe
       });
       const data = await response.json();
       if (data.url) {
-        window.open(data.url, "_blank"); // ← Esto evita que Shopify lo bloquee
+        window.open(data.url, "_blank");
       } else {
         setNotification({ type: "error", message: "Error al iniciar el pago: " + (data.error || "Desconocido") });
       }
@@ -1084,6 +1083,28 @@ export default function ConciliAI() {
             </div>
           </div>
         );
+
+      case "PAYROLL":
+        return <PayrollBonus />;
+
+      case "INVENTORY":
+        return <InventoryBonus />;
+
+      case "RESOURCE_NOMINA":
+      case "PAYROLL":
+        return <PayrollBonus />;
+
+      case "INVENTORY":
+        return <InventoryBonus />;
+
+      case "RESOURCE_COMISIONES":
+      case "RESOURCE_BANCOLOMBIA":
+      case "RESOURCE_SIIGO":
+      case "RESOURCE_QUICKBOOKS":
+      case "RESOURCE_EXCEL":
+      case "RESOURCE_PAYOUTS":
+      case "RESOURCE_ASIENTOS":
+        return <ResourceTool type={currentView} />;
 
       default:
         return null;

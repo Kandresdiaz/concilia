@@ -12,12 +12,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Falta el parámetro shop' }, { status: 400 });
     }
 
-    // 1. Obtener la sesión offline usando el shop
+    // 1. Intentar obtener la sesión (Primero offline, luego buscar por shop)
     const sessionId = shopify.session.getOfflineId(shop);
-    const sessionData = await SupabaseSessionStorage.loadSession(sessionId);
+    let sessionData = await SupabaseSessionStorage.loadSession(sessionId);
 
     if (!sessionData) {
-      return NextResponse.json({ error: 'No se encontró una sesión válida para esta tienda' }, { status: 401 });
+      console.log(`Buscando cualquier sesión alternativa para ${shop}...`);
+      const sessions = await SupabaseSessionStorage.findSessionsByShop(shop);
+      // Usar la sesión más reciente que tenga access_token
+      sessionData = sessions.sort((a, b) => (b.expires?.getTime() || 0) - (a.expires?.getTime() || 0))[0];
+    }
+
+    if (!sessionData || !sessionData.accessToken) {
+      return NextResponse.json({ 
+        error: 'No se encontró una sesión válida. Por favor, intenta "Re-conectar" la tienda desde el menu de importación.',
+        code: 'SESSION_NOT_FOUND' 
+      }, { status: 401 });
     }
 
     // Convert data to Session object
