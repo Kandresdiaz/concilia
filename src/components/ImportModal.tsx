@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Upload, FileText, Search, Mail, Loader2, Lock, ShoppingBag } from "lucide-react";
+import { X, Upload, FileText, Search, Mail, Loader2, Lock, ShoppingBag, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { extractTextFromPdf } from "@/lib/pdf";
