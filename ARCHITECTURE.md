@@ -11,11 +11,18 @@ ConciliAI es un **SaaS de conciliación financiera** que automatiza el proceso c
 ### PASO 1: Landing Page (`/`)
 El usuario llega a la Landing Page y ve la propuesta de valor. Hace clic en "Empezar Ahora".
 
-### PASO 2: Login (`/login`)
-- Se autentica con **Google OAuth** vía Supabase Auth.
-- Supabase crea automáticamente un registro en `auth.users`.
-- Un **trigger de PostgreSQL** (`on_auth_user_created`) crea automáticamente un perfil en la tabla `profiles` con `tier: FREE` y `usage_count: 0`.
-- Ve el **badge de seguridad**: "La IA no se entrena con tu información".
+### PASO 2: Autenticación Adaptativa (`/login`)
+
+ConciliAI detecta el contexto del usuario para ofrecer la fricción mínima:
+
+*   **Usuario Web Estándar**:
+    - Se autentica con **Google OAuth** vía Supabase Auth.
+    - Supabase crea automáticamente un perfil en `profiles` (tier: FREE, usage: 0) vía trigger SQL.
+*   **Usuario Shopify (App Embebida)**:
+    - **Silent Auth**: Se detecta `?shop=` en la URL.
+    - El `middleware.ts` permite el bypass de Supabase Auth temporalmente.
+    - La app llama a `/api/auth/shopify/signin` que genera un **Magic Link administrador** silencioso.
+    - El usuario entra al dashboard **sin ver Google** ni formularios de login. ✅
 
 ### PASO 3: Modal de Privacidad (primera vez)
 - Aparece un modal explicando que Groq no entrena con sus datos, encriptación, y zero compartición.
@@ -32,9 +39,10 @@ El usuario selecciona:
 1. **Tipo**: Extracto Bancario o Auxiliar Contable
 2. **País**: Colombia, México, Chile, Perú, Argentina (afecta formato de números)
 3. **Fuente del documento**:
-   - **Archivo PDF**: Se extrae texto con `pdfjs-dist` en el navegador
-   - **Imagen** (JPG/PNG): Se convierte a Base64 para visión artificial
-   - **Texto copiado**: El usuario pega el contenido directamente
+   - **Shopify Direct Sync (CÓDIGO)**: Extracción directa vía API REST de Shopify (`/api/shopify/orders`). **Costo: 0 Tokens**.
+   - **Archivo PDF**: Se extrae texto con `pdfjs-dist` y se procesa con IA.
+   - **Imagen** (JPG/PNG): Visión artificial (IA).
+   - **Texto copiado**: Procesamiento de lenguaje natural (IA).
 
 ### PASO 6: 🤖 AQUÍ ENTRA LA IA (API `/api/reconcile`)
 
@@ -226,15 +234,16 @@ NEXT_PUBLIC_APP_URL=https://tu-dominio.vercel.app
 ```
 [Usuario] 
     → [Landing Page /]
-    → [Login /login] → [Supabase Auth] → [Google OAuth]
+    → [Login /login] 
+        ↳ Web: [Google OAuth]
+        ↳ Shopify: [Silent Auth /api/auth/shopify/signin]
     → [Dashboard /dashboard]
         → [Import Modal]
-            → [PDF] → pdfjs-dist → texto
-            → [Imagen] → Base64
-            → [Texto] → directo
+            → [Shopify Sync] → API Shopify (CÓDIGO: $0 tokens)
+            → [PDF/Imagen] → IA (COSTO: tokens)
         → [API /api/reconcile]
             → [Supabase Auth Check]
-            → [Paywall Check]
+            → [Paywall Check] (Límite: 3 Trial)
             → [Groq Cloud] → LLaMA 3.2/3.3
             → [Anti-Hallucination Filter]
             → [Math Verification]
