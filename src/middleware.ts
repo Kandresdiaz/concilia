@@ -33,6 +33,11 @@ export async function middleware(request: NextRequest) {
     if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
         const url = request.nextUrl.clone()
         url.pathname = '/login'
+        // Preservar params de Shopify para que el login haga auto-auth sin Google
+        const shop = request.nextUrl.searchParams.get('shop')
+        const host = request.nextUrl.searchParams.get('host')
+        if (shop) url.searchParams.set('shop', shop)
+        if (host) url.searchParams.set('host', host)
         return NextResponse.redirect(url)
     }
 
