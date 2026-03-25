@@ -36,7 +36,7 @@ export function ImportModal({
     const isLimited = !isAdmin && usageCount >= limit;
     const [tab, setTab] = useState<"bank" | "book">("bank");
     const [country, setCountry] = useState("Colombia 🇨🇴");
-    const [source, setSource] = useState<"file" | "ai" | "gmail">("file");
+    const [source, setSource] = useState<"file" | "ai" | "gmail" | "shopify">("file");
     const [text, setText] = useState("");
     const [password, setPassword] = useState("");
     const [showPasswordInput, setShowPasswordInput] = useState(false);
