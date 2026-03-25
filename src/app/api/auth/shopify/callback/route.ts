@@ -27,9 +27,14 @@ export async function GET(request: Request) {
     const { SupabaseSessionStorage } = await import("@/lib/shopify-session-storage");
     const stored = await SupabaseSessionStorage.storeSession(session);
     
+    // DEBUG: Si falla el guardado, informarlo directamente en el navegador
     if (!stored) {
       console.error("Failed to store session in Supabase for shop:", shop);
-      // No bloqueamos el flujo, pero lo logueamos
+      return NextResponse.json({ 
+        error: "Fallo crítico al guardar la sesión en la base de datos.",
+        session_id: session.id,
+        shop: session.shop
+      }, { status: 500 });
     }
 
     // 2. Auto-login en Supabase con el email del merchant (no necesita Google)
