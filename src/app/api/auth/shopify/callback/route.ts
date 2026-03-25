@@ -25,9 +25,10 @@ export async function GET(request: Request) {
 
     // 2. Auto-login en Supabase con el email del merchant (no necesita Google)
     // Shopify ya autenticó al usuario — pedir otro login viola sus políticas
-    const merchantEmail = session.onlineAccessInfo?.associated_user?.email || session.email;
-    const merchantName = session.onlineAccessInfo?.associated_user
-      ? `${session.onlineAccessInfo.associated_user.first_name} ${session.onlineAccessInfo.associated_user.last_name}`.trim()
+    const associatedUser = session.onlineAccessInfo?.associated_user;
+    const merchantEmail = associatedUser?.email;
+    const merchantName = associatedUser
+      ? `${associatedUser.first_name} ${associatedUser.last_name}`.trim()
       : shop.replace(".myshopify.com", "");
 
     if (merchantEmail) {
