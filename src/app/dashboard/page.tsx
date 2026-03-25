@@ -455,13 +455,13 @@ export default function ConciliAI() {
             <SecurityBanner />
 
             {/* Premium Hero Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 glass-card rounded-[32px] p-8 md:p-12 flex flex-col justify-between relative overflow-hidden group">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+              <div className="xl:col-span-2 glass-card rounded-[32px] p-6 md:p-8 flex flex-col justify-between relative overflow-hidden group">
                 <div className="relative z-10 space-y-3">
                   <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[10px] font-bold uppercase tracking-widest border border-indigo-100">
                     <CheckCircle className="w-3 h-3" /> Monitor de Auditoría
                   </div>
-                  <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 break-words leading-tight">
+                  <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 break-words leading-tight">
                     Cuadra tu primer millón <span className="text-indigo-600">en segundos</span>
                   </h1>
                   <p className="text-slate-500 font-medium text-sm md:text-base max-w-lg">
@@ -620,7 +620,7 @@ export default function ConciliAI() {
             </div>
 
             {/* Insights Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <div className="rounded-[40px] p-10 bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
                 <div className="relative z-10 space-y-8">
                   <p className="text-4xl font-black tracking-tighter leading-tight">
@@ -693,7 +693,7 @@ export default function ConciliAI() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
               <div className="glass-card rounded-[40px] overflow-hidden flex flex-col min-h-[500px]">
                 <div className="p-8 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                   <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900">Extracto Bancario</h3>
@@ -1174,10 +1174,10 @@ export default function ConciliAI() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="p-4 md:p-12 lg:p-24 space-y-12 max-w-7xl mx-auto w-full">
+          <div className="p-4 md:p-6 lg:p-10 space-y-12 max-w-7xl mx-auto w-full">
             <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-gray-900 capitalize">
+                <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-gray-900 capitalize">
                   {currentView === "acta" ? "Resumen Final" : currentView}
                 </h1>
                 <p className="text-gray-400 font-medium text-sm md:text-base">Control de gestión y auditoría financiera.</p>

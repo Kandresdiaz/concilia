@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         let currentUsage = profile?.usage_count || 0;
 
         // --- 3-Tier Limit Logic ---
-        let limit = 2; // Default Gratis
+        let limit = 3; // Default Gratis (3 Trial)
         if (profile?.tier === "PRO") limit = 50;
         if (profile?.tier === "ENTERPRISE") limit = 300;
         if (profile?.tier === "LIFETIME") limit = 9999;
