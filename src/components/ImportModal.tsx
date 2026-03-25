@@ -10,7 +10,7 @@ import { useShopify } from "@/providers/ShopifyProvider";
 interface ImportModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onImport: (type: "bank" | "book", source: string, content: string, isImage: boolean, country: string) => void;
+    onImport: (type: "bank" | "book", source: string, content: string, isImage: boolean, country: string) => Promise<void> | void;
     loading: boolean;
     bankLoaded?: boolean;
     bookLoaded?: boolean;
@@ -342,7 +342,11 @@ export function ImportModal({
                                   <button
                                       onClick={() => {
                                           setIsProcessing(true);
-                                          onImport(tab, source, shop || "", false, country).finally(() => setIsProcessing(false));
+                                          const processImport = async () => {
+                                              await onImport(tab, source, shop || "", false, country);
+                                              setIsProcessing(false);
+                                          };
+                                          processImport();
                                       }}
                                       disabled={loading || isProcessing || isLimited}
                                       className="btn bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold px-8"
