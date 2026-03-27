@@ -72,9 +72,12 @@ export async function GET(request: Request) {
             // Si estamos en contexto de Shopify, redirigir de vuelta al Admin de Shopify
             // para que la app se cargue incrustada (embedded) y no "salte" a la web.
             if (shop && host) {
-                const apiKey = process.env.SHOPIFY_API_KEY;
-                console.log(`REDIRECTING TO SHOPIFY ADMIN: https://${host}/apps/${apiKey}`);
-                return NextResponse.redirect(`https://${host}/apps/${apiKey}`);
+                const apiKey = process.env.SHOPIFY_API_KEY || process.env.NEXT_PUBLIC_SHOPIFY_API_KEY;
+                // Si host ya es una URL completa (como admin.shopify.com/store/xxx), la usamos. 
+                // Si no, construimos la URL de apps de Shopify.
+                const adminUrl = host.includes('://') ? host : `https://${host}`;
+                console.log(`REDIRECTING TO SHOPIFY ADMIN: ${adminUrl}/apps/${apiKey}`);
+                return NextResponse.redirect(`${adminUrl}/apps/${apiKey}`);
             }
 
             return NextResponse.redirect(`${origin}${next}${shopifyQuery}`)

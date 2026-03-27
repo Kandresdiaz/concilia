@@ -5,7 +5,7 @@ import { SupabaseSessionStorage } from "./shopify-session-storage";
 export const shopify = shopifyApi({
   apiKey: process.env.SHOPIFY_API_KEY || "",
   apiSecretKey: process.env.SHOPIFY_API_SECRET || "",
-  scopes: ["read_products", "read_orders", "read_all_orders", "write_products"],
+  scopes: ["read_products", "read_orders"],
   hostName: (process.env.HOST || process.env.VERCEL_URL || "conciliai.com").replace(/https?:\/\//, ""),
   apiVersion: LATEST_API_VERSION,
   isEmbeddedApp: true,
