@@ -176,7 +176,7 @@ export function ImportModal({
                     <div className="flex items-center gap-3">
                         <Upload className="w-6 h-6 text-primary" />
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight">Cargar Datos <span className="text-[10px] text-primary opacity-50 font-normal">v2.5</span></h2>
+                            <h2 className="text-2xl font-black tracking-tight">Cargar Datos <span className="text-[10px] text-primary opacity-50 font-normal">v2.6</span></h2>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">La IA usará formatos de {country} para mayor precisión</p>
                         </div>
                     </div>

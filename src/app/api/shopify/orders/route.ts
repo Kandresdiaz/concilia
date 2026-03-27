@@ -4,10 +4,13 @@ import { SupabaseSessionStorage } from '@/lib/shopify-session-storage';
 import { Session } from '@shopify/shopify-api';
 
 export async function GET(request: Request) {
+  let shop: string | null = null;
+  let host: string | null = null;
+
   try {
     const { searchParams } = new URL(request.url);
-    const shop = searchParams.get('shop');
-    const host = searchParams.get('host');
+    shop = searchParams.get('shop');
+    host = searchParams.get('host');
 
     if (!shop) {
       return NextResponse.json({ error: 'Falta el parámetro shop' }, { status: 400 });
