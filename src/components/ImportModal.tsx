@@ -42,7 +42,7 @@ export function ImportModal({
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    const { isShopify, shop } = useShopify();
+    const { isShopify, shop, host } = useShopify();
 
     useEffect(() => {
         if (isOpen) {
@@ -176,7 +176,7 @@ export function ImportModal({
                     <div className="flex items-center gap-3">
                         <Upload className="w-6 h-6 text-primary" />
                         <div>
-                            <h2 className="text-2xl font-black tracking-tight">Cargar Datos <span className="text-[10px] text-primary opacity-50 font-normal">v2.1</span></h2>
+                            <h2 className="text-2xl font-black tracking-tight">Cargar Datos <span className="text-[10px] text-primary opacity-50 font-normal">v2.5</span></h2>
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">La IA usará formatos de {country} para mayor precisión</p>
                         </div>
                     </div>
@@ -372,7 +372,9 @@ export function ImportModal({
                                             onClick={() => {
                                                 if (typeof window !== "undefined") {
                                                     // Redirección forzada al top para evitar problemas de iframe
-                                                    window.top!.location.href = `/api/auth/shopify?shop=${shop}`;
+                                                    // IMPORTANTE: Pasamos 'host' para que el callback sepa volver a Shopify
+                                                    const hostParam = host ? `&host=${host}` : "";
+                                                    window.top!.location.href = `/api/auth/shopify?shop=${shop}${hostParam}`;
                                                 }
                                             }}
                                             className="text-primary hover:underline font-bold bg-transparent border-none p-0 cursor-pointer"

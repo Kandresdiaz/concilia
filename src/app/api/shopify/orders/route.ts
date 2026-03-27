@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const shop = searchParams.get('shop');
+    const host = searchParams.get('host');
 
     if (!shop) {
       return NextResponse.json({ error: 'Falta el parámetro shop' }, { status: 400 });
@@ -24,9 +25,11 @@ export async function GET(request: Request) {
     }
 
     if (!sessionData || !sessionData.accessToken) {
+      const hostParam = host ? `&host=${host}` : "";
       return NextResponse.json({ 
-        error: 'No se encontró una sesión válida. Por favor, intenta "Re-conectar" la tienda desde el menu de importación.',
-        code: 'SESSION_NOT_FOUND' 
+        error: 'Tu sesión de Shopify ha expirado. Por favor, haz clic en "Re-conectar tienda aquí" abajo para continuar.',
+        code: 'SESSION_NOT_FOUND',
+        reconnect_url: `/api/auth/shopify?shop=${shop}${hostParam}`
       }, { status: 401 });
     }
 
@@ -84,6 +87,22 @@ export async function GET(request: Request) {
 
   } catch (error: any) {
     console.error('Error fetching Shopify orders:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    
+    // Si Shopify nos dice que no estamos autorizados (401), borramos la sesión vieja
+    if (error.message?.includes('401') || error.response?.status === 401) {
+      const sessionId = shopify.session.getOfflineId(shop || "");
+      console.warn(`401 detectado. Borrando sesión inválida: ${sessionId}`);
+      await SupabaseSessionStorage.deleteSession(sessionId);
+      
+      return NextResponse.json({ 
+        error: 'Conexión con Shopify perdida o expirada. Por favor, haz clic en "Re-conectar" para restaurarla.',
+        code: 'UNAUTHORIZED'
+      }, { status: 401 });
+    }
+
+    return NextResponse.json({ 
+      error: `Error de Shopify: ${error.message}`,
+      details: error.response?.body || null
+    }, { status: 500 });
   }
 }
