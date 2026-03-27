@@ -11,14 +11,20 @@ export async function GET(request: Request) {
     }
 
     // Comienza el proceso de OAuth
-    const redirectUrl = await shopify.auth.begin({
+    const authResponse = await shopify.auth.begin({
       shop,
       callbackPath: "/api/auth/shopify/callback",
       isOnline: false,
       rawRequest: request,
     });
 
-    return NextResponse.redirect(redirectUrl);
+    // En las versiones de web-api adapter de Shopify, auth.begin puede devolver una Respuesta completa.
+    // Si es un string (el link), redirigimos normalmente. Si es un Response, lo enviamos directamente.
+    if (authResponse instanceof Response) {
+      return authResponse;
+    }
+
+    return NextResponse.redirect(authResponse);
   } catch (error: any) {
     console.error("DEBUG: Shopify Auth Begin Error:", error);
     return NextResponse.json({ 
