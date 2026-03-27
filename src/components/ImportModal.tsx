@@ -372,7 +372,6 @@ export function ImportModal({
                                   )}
                                 </div>
                                 </div>
-                            </div>
                         )}
 
                         {source === "gmail" && (
