@@ -3,6 +3,12 @@ import { createClient } from "./supabase/server";
 
 export const SupabaseSessionStorage = {
   storeSession: async (session: Session): Promise<boolean> => {
+    console.log("SupabaseSessionStorage: Storing session", { 
+      id: session.id, 
+      shop: session.shop, 
+      isOnline: session.isOnline 
+    });
+
     const supabase = await createClient(true);
     const { error } = await supabase
       .from("shopify_sessions")
@@ -14,7 +20,7 @@ export const SupabaseSessionStorage = {
         scope: session.scope,
         expires: session.expires ? session.expires.toISOString() : null,
         access_token: session.accessToken,
-        user_id: session.onlineAccessInfo?.associated_user?.id || null,
+        user_id: session.onlineAccessInfo?.associated_user?.id ? String(session.onlineAccessInfo.associated_user.id) : null,
         user_first_name: session.onlineAccessInfo?.associated_user?.first_name || null,
         user_last_name: session.onlineAccessInfo?.associated_user?.last_name || null,
         user_email: session.onlineAccessInfo?.associated_user?.email || null,
@@ -25,10 +31,12 @@ export const SupabaseSessionStorage = {
 
     if (error) {
       console.error("CRITICAL: Error storing Shopify session in Supabase:", {
-        error,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
         sessionId: session.id,
-        shop: session.shop,
-        hasAccessToken: !!session.accessToken
+        shop: session.shop
       });
       return false;
     }

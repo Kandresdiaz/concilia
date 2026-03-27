@@ -29,9 +29,9 @@ export async function GET(request: Request) {
     
     // DEBUG: Si falla el guardado, informarlo directamente en el navegador
     if (!stored) {
-      console.error("Failed to store session in Supabase for shop:", shop);
+      console.error("CRITICAL: Failed to store session in Supabase for shop:", shop);
       return NextResponse.json({ 
-        error: "Fallo crítico al guardar la sesión en la base de datos.",
+        error: "Fallo crítico al guardar la sesión de Shopify en la base de datos. Verifica la conexión a Supabase y los permisos de Service Role.",
         session_id: session.id,
         shop: session.shop
       }, { status: 500 });
@@ -44,40 +44,60 @@ export async function GET(request: Request) {
     const merchantName = associatedUser
       ? `${associatedUser.first_name} ${associatedUser.last_name}`.trim()
       : shop.replace(".myshopify.com", "");
+    // Intentar encontrar el usuario por email real, o por el email auto-generado de Shopify
+    const searchEmail = merchantEmail || `owner@${shop}`;
 
-        // 2. Auto-login en Supabase con el email del merchant
-        // Shopify ya autenticó al usuario — pedir otro login viola sus políticas
-        const supabaseAdmin = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!
-        );
+    try {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY!
+      );
 
-        // Actualizar el perfil con el shopify_shop domain
-        const { data: userData } = await supabaseAdmin.auth.admin.getUserByEmail(merchantEmail);
-        if (userData?.user) {
-          await supabaseAdmin
-            .from("profiles")
-            .update({ shopify_shop: shop })
-            .eq("id", userData.user.id);
-        }
+      console.log("Shopify Callback: Updating profile for email:", searchEmail);
 
-        // Crear usuario si no existe, o simplemente generar un magic link de sesión
-        const { data: magicData, error: magicError } = await supabaseAdmin.auth.admin.generateLink({
-          type: "magiclink",
-          email: merchantEmail,
-          options: {
-            redirectTo: `${origin}/auth/callback?shop=${shop}${host ? `&host=${host}` : ""}`,
-            data: { full_name: merchantName, shopify_shop: shop }
-          }
-        });
+      const { data: profileData, error: profileError } = await (supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("email", searchEmail) as any)
+        .maybeSingle();
 
-        if (!magicError && magicData?.properties?.action_link) {
-          // Redirigir al magic link para crear la sesión automáticamente
-          return NextResponse.redirect(magicData.properties.action_link);
-        }
-      } catch (supabaseErr) {
-        console.warn("Auto-login fallo, redirigiendo al login manual:", supabaseErr);
+      if (profileError) {
+        console.error("Error fetching profile during Shopify callback:", profileError);
       }
+
+      if (profileData) {
+        const { error: updateError } = await supabaseAdmin
+          .from("profiles")
+          .update({ shopify_shop: shop } as any)
+          .eq("id", profileData.id);
+        
+        if (updateError) {
+          console.error("Error updating profile with shopify_shop:", updateError);
+        } else {
+          console.log("SUCCESS: Profile updated with shopify_shop:", shop);
+        }
+      } else {
+        console.warn("No profile found for email:", searchEmail, "Creating via magic link will handle profile creation.");
+      }
+
+      // Crear usuario si no existe, o simplemente generar un magic link de sesión
+      const { data: magicData, error: magicError } = await supabaseAdmin.auth.admin.generateLink({
+        type: "magiclink",
+        email: searchEmail,
+        options: {
+          redirectTo: `${origin}/auth/callback?shop=${shop}${host ? `&host=${host}` : ""}`,
+          data: { full_name: merchantName, shopify_shop: shop }
+        }
+      });
+
+      if (!magicError && magicData?.properties?.action_link) {
+        console.log("Shopify Callback: Redirecting to magic link auth");
+        return NextResponse.redirect(magicData.properties.action_link);
+      } else if (magicError) {
+        console.error("Error generating magic link for Shopify merchant:", magicError);
+      }
+    } catch (supabaseErr) {
+      console.error("Auto-login fallo crítico:", supabaseErr);
     }
 
     // Fallback: si no pudo hacer auto-login, ir al login pero con el contexto de Shopify
