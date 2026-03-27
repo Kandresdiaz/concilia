@@ -367,7 +367,18 @@ export function ImportModal({
                                   </button>
                                   {isShopify && (
                                       <p className="mt-4 text-[10px] text-slate-400">
-                                          ¿Falla la conexión? <a href={`/api/auth/shopify?shop=${shop}`} target="_top" className="text-primary hover:underline font-bold">Re-conectar tienda aquí</a>
+                                          ¿Falla la conexión?{" "}
+                                          <button 
+                                            onClick={() => {
+                                                if (typeof window !== "undefined") {
+                                                    // Redirección forzada al top para evitar problemas de iframe
+                                                    window.top!.location.href = `/api/auth/shopify?shop=${shop}`;
+                                                }
+                                            }}
+                                            className="text-primary hover:underline font-bold bg-transparent border-none p-0 cursor-pointer"
+                                          >
+                                            Re-conectar tienda aquí
+                                          </button>
                                       </p>
                                   )}
                                 </div>

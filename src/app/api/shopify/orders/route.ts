@@ -33,34 +33,53 @@ export async function GET(request: Request) {
     // Convert data to Session object
     const session = sessionData as Session;
 
-    // 2. Instanciar el cliente REST
-    const client = new shopify.clients.Rest({ session });
+    // 2. Instanciar el cliente GraphQL
+    const client = new shopify.clients.Graphql({ session });
 
-    // 3. Obtener las órdenes recientes
-    // Pedimos las últimas 250 órdenes, evitando datos protegidos (customer, addresses)
-    // para prevenir el error 403 Forbidden de Shopify.
-    const response = await client.get({
-      path: 'orders',
-      query: {
-        status: 'any',
-        limit: 250,
-        fields: 'id,name,total_price,current_total_price,created_at,currency,financial_status'
-      },
+    // 3. Obtener las órdenes recientes usando GraphQL
+    // Esto evita pedir datos protegidos (customer, addresses) y previene el error 403.
+    const query = `
+      query {
+        orders(first: 50, reverse: true) {
+          edges {
+            node {
+              id
+              name
+              createdAt
+              totalPriceSet {
+                presentmentMoney {
+                  amount
+                  currencyCode
+                }
+              }
+              financialStatus
+            }
+          }
+        }
+      }
+    `;
+
+    const response = await client.query({
+      data: query,
     });
 
-    const orders = (response.body as any).orders;
+    const body = response.body as any;
+    const orders = body.data?.orders?.edges || [];
 
     // 4. Formatear las órdenes para el Algoritmo Maestro de ConciliAI
     // El algoritmo espera: { amount, date, type, description, reference, id }
-    // IMPORTANTE: No usamos order.customer para evitar datos protegidos.
-    const formattedOrders = orders.map((order: any) => ({
-      amount: order.current_total_price || order.total_price,
-      date: order.created_at,
-      type: 'INCOME',
-      description: `Pedido ${order.name}`,
-      reference: order.name, // Ej: #1001
-      id: order.id.toString()
-    }));
+    // IMPORTANTE: GraphQL nos da control total para NO tocar datos de clientes.
+    const formattedOrders = orders.map((edge: any) => {
+      const node = edge.node;
+      return {
+        amount: node.totalPriceSet.presentmentMoney.amount,
+        date: node.createdAt,
+        type: 'INCOME',
+        description: `Pedido ${node.name}`,
+        reference: node.name,
+        id: node.id.split('/').pop() || node.id // Extraer ID numérico
+      };
+    });
 
     return NextResponse.json({ success: true, orders: formattedOrders });
 
