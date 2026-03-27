@@ -37,12 +37,14 @@ export async function GET(request: Request) {
     const client = new shopify.clients.Rest({ session });
 
     // 3. Obtener las órdenes recientes
-    // Pedimos las últimas 250 órdenes, de cualquier estado
+    // Pedimos las últimas 250 órdenes, evitando datos protegidos (customer, addresses)
+    // para prevenir el error 403 Forbidden de Shopify.
     const response = await client.get({
       path: 'orders',
       query: {
         status: 'any',
         limit: 250,
+        fields: 'id,name,total_price,current_total_price,created_at,currency,financial_status'
       },
     });
 
@@ -50,11 +52,12 @@ export async function GET(request: Request) {
 
     // 4. Formatear las órdenes para el Algoritmo Maestro de ConciliAI
     // El algoritmo espera: { amount, date, type, description, reference, id }
+    // IMPORTANTE: No usamos order.customer para evitar datos protegidos.
     const formattedOrders = orders.map((order: any) => ({
-      amount: order.current_total_price,
+      amount: order.current_total_price || order.total_price,
       date: order.created_at,
-      type: 'INCOME', // Las ventas de Shopify son ingresos
-      description: `Pedido ${order.name} - ${order.customer?.first_name || 'Cliente'} ${order.customer?.last_name || ''}`.trim(),
+      type: 'INCOME',
+      description: `Pedido ${order.name}`,
       reference: order.name, // Ej: #1001
       id: order.id.toString()
     }));
