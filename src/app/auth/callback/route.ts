@@ -68,6 +68,15 @@ export async function GET(request: Request) {
                     return NextResponse.redirect(`${origin}/admin`);
                 }
             }
+
+            // Si estamos en contexto de Shopify, redirigir de vuelta al Admin de Shopify
+            // para que la app se cargue incrustada (embedded) y no "salte" a la web.
+            if (shop && host) {
+                const apiKey = process.env.SHOPIFY_API_KEY;
+                console.log(`REDIRECTING TO SHOPIFY ADMIN: https://${host}/apps/${apiKey}`);
+                return NextResponse.redirect(`https://${host}/apps/${apiKey}`);
+            }
+
             return NextResponse.redirect(`${origin}${next}${shopifyQuery}`)
         }
     }

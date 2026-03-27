@@ -52,7 +52,6 @@ export async function GET(request: Request) {
                   currencyCode
                 }
               }
-              financialStatus
             }
           }
         }
