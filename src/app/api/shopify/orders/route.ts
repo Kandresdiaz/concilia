@@ -98,8 +98,9 @@ export async function GET(request: Request) {
       await SupabaseSessionStorage.deleteSession(sessionId);
       
       return NextResponse.json({ 
-        error: 'Conexión con Shopify perdida o expirada. Por favor, haz clic en "Re-conectar" para restaurarla.',
-        code: 'UNAUTHORIZED'
+        error: 'Sesión expirada. Reconectando automáticamente...',
+        code: 'SESSION_NOT_FOUND',
+        reconnect_url: `/api/auth/shopify?shop=${shop}${host ? `&host=${host}` : ""}`
       }, { status: 401 });
     }
 
