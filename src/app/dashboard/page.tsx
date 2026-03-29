@@ -235,7 +235,7 @@ export default function ConciliAI() {
           const res = await fetch(`/api/shopify/orders?shop=${content}`);
           const result = await res.json();
           if (result.code === 'SESSION_NOT_FOUND' && result.reconnect_url) {
-              setNotification({ type: "warning", message: "Sesión expirada. Reconectando automáticamente con Shopify..." });
+              setNotification({ type: "info", message: "Sesión expirada. Reconectando automáticamente con Shopify..." });
               if (window.top) window.top.location.href = result.reconnect_url;
               else window.location.href = result.reconnect_url;
               return; // Stop flow and wait for redirect
