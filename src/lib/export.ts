@@ -199,19 +199,22 @@ export function generateCSV(bankData: any, bookData: any, matchedData: any, comp
     const bookTotal = bookData?.verified_totals?.net || 0;
     const netDifference = bankTotal - bookTotal;
     
-    csv += `"RESUMEN FINANCIERO"\n`;
-    csv += `"TOTAL BANCA"${d}${bankTotal}${d}"USD/LC"\n`;
-    csv += `"TOTAL LIBROS"${d}${bookTotal}${d}"USD/LC"\n`;
-    csv += `"DIFERENCIA"${d}${netDifference}${d}"${netDifference === 0 ? "CONCILIADO" : "PENDIENTE"}"\n\n`;
-
-    csv += `"ESTADO"${d}"ORIGEN"${d}"FECHA"${d}"DESCRIPCION"${d}"MONTO"${d}"REFERENCIA"\n`;
-
+    // Resumen para humanos (niño de 10 años)
+    csv += `"RESUMEN DE TU DINERO"\n`;
+    csv += `"DINERO EN BANCO"${d}${(bankTotal || 0).toFixed(2)}${d}"SALDO"\n`;
+    csv += `"CONTABILIDAD (LIBROS)"${d}${(bookTotal || 0).toFixed(2)}${d}"SALDO"\n`;
+    
+    const diff = bankTotal - bookTotal;
+    csv += `"RESULTADO FINAL"${d}${diff.toFixed(2)}${d}"${Math.abs(diff) < 0.01 ? "¡TODO CUADRA! ✅" : "HAY UN DESCUADRE ⚠"}"\n\n`;
+    
+    csv += `"¿QUÉ PASÓ?"${d}"¿DÓNDE?"${d}"CUÁNDO"${d}"CONCEPTO"${d}"CUÁNTO"${d}"REFERENCIA"\n`;
+    
     // 1. Matches (Conciliados)
     matchedData.matches.forEach((m: any) => {
         const descBank = (m.bank.description || "").replace(/"/g, '""');
         const descBook = (m.book.description || "").replace(/"/g, '""');
-        csv += `"CONCILIADO"${d}"BANCO"${d}"${m.bank.date}"${d}"${descBank}"${d}${m.bank.amount}${d}"${m.bank.reference || ""}"\n`;
-        csv += `"CONCILIADO"${d}"LIBRO"${d}"${m.book.date}"${d}"${descBook}"${d}${m.book.amount}${d}"${m.book.reference || ""}"\n`;
+        csv += `"¡TODO CUADRA!"${d}"BANCO"${d}"${m.bank.date}"${d}"${descBank}"${d}${m.bank.amount}${d}"${m.bank.reference || ""}"\n`;
+        csv += `"¡TODO CUADRA!"${d}"LIBRO"${d}"${m.book.date}"${d}"${descBook}"${d}${m.book.amount}${d}"${m.book.reference || ""}"\n`;
     });
 
     // 2. Pending Bank

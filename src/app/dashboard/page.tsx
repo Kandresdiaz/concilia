@@ -197,6 +197,42 @@ export default function ConciliAI() {
     }
   }, [bankData, bookData, matchedData.matches.length]);
 
+  // Robust currency parser for Latin American and US formats
+  const parseCurrency = (value: any): number => {
+    if (typeof value === "number") return value;
+    if (!value) return 0;
+    
+    // Remove symbols and handle thousands/decimals
+    const clean = String(value).replace(/[^\d,.-]/g, "");
+    
+    // If it has both , and . (like 1.234,56 or 1,234.56)
+    if (clean.includes(",") && clean.includes(".")) {
+      const lastComma = clean.lastIndexOf(",");
+      const lastDot = clean.lastIndexOf(".");
+      
+      if (lastComma > lastDot) {
+        // European/Latam style: 1.234,56 -> 1234.56
+        return parseFloat(clean.replace(/\./g, "").replace(",", "."));
+      } else {
+        // US style: 1,234.56 -> 1234.56
+        return parseFloat(clean.replace(/,/g, ""));
+      }
+    }
+    
+    // If it only has one separator
+    if (clean.includes(",")) {
+      // If there's only one comma and it looks like a decimal (e.g., 2 decimals: ,00)
+      const parts = clean.split(",");
+      if (parts[parts.length - 1].length === 2) {
+        return parseFloat(clean.replace(",", "."));
+      }
+      // Otherwise assume it's a thousands separator
+      return parseFloat(clean.replace(",", ""));
+    }
+    
+    return parseFloat(clean) || 0;
+  };
+
   const handleLogout = async () => {
     router.push("/");
   };
@@ -247,9 +283,9 @@ export default function ConciliAI() {
               empresa: companyName || "Tu Empresa",
               tipo_documento: "Sincronización Directa",
               verified_totals: {
-                  total_in: result.orders.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + Number(t.amount), 0),
-                  total_out: result.orders.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(Number(t.amount)), 0),
-                  net: result.orders.reduce((acc: number, t: any) => acc + Number(t.amount), 0),
+                  total_in: result.orders.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
+                  total_out: result.orders.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount)), 0),
+                  net: result.orders.reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
               },
               precision_score: 100
           };
@@ -323,9 +359,9 @@ export default function ConciliAI() {
         empresa: data.empresa,
         // Override verified_totals with summary if AI found clearer totals in "ugly" statements
         verified_totals: data.summary?.saldo_actual !== undefined ? {
-          total_in: data.summary.total_abonos || data.verified_totals.total_in,
-          total_out: data.summary.total_cargos || data.verified_totals.total_out,
-          net: data.summary.saldo_actual || data.verified_totals.net
+          total_in: parseCurrency(data.summary.total_abonos) || parseCurrency(data.verified_totals.total_in),
+          total_out: parseCurrency(data.summary.total_cargos) || parseCurrency(data.verified_totals.total_out),
+          net: parseCurrency(data.summary.saldo_actual) || parseCurrency(data.verified_totals.net)
         } : data.verified_totals
       };
 
@@ -514,9 +550,9 @@ export default function ConciliAI() {
                   <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-4">Diferencia Neta</p>
                   <p className={cn(
                     "text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none mb-6 break-all",
-                    netDifference === 0 ? "text-emerald-400" : "text-rose-400"
+                    Math.abs(netDifference) < 0.01 ? "text-emerald-400" : "text-rose-400"
                   )}>
-                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
@@ -894,21 +930,21 @@ export default function ConciliAI() {
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-bold text-slate-500">Balance Neta</span>
+                        <span className="text-[11px] font-bold text-slate-500">Saldo Final</span>
                         <span className={cn(
                           "text-sm font-black",
-                          netDifference === 0 ? "text-emerald-600" : "text-rose-600"
+                          Math.abs(netDifference) < 0.01 ? "text-emerald-600" : "text-rose-600"
                         )}>
-                          $ {netDifference.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 0 })}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-bold text-slate-500">Estado</span>
+                        <span className="text-[11px] font-bold text-slate-500">Resultado</span>
                         <span className={cn(
                           "px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider shadow-sm",
-                          netDifference === 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                          Math.abs(netDifference) < 0.01 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
                         )}>
-                          {netDifference === 0 ? "CONCILIADO" : "PENDIENTE"}
+                          {Math.abs(netDifference) < 0.01 ? "¡TODO CUADRA! ✅" : "HAY DESCUADRE ⚠"}
                         </span>
                       </div>
                     </div>
