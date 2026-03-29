@@ -418,16 +418,35 @@ export default function ConciliAI() {
 
     setModalLoading(true);
     try {
-      const response = await fetch("/api/lemonsqueezy/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tier, shop }) // Pasar el shop para auth bypass en iframe
-      });
-      const data = await response.json();
-      if (data.url) {
-        window.open(data.url, "_blank");
+      if (isShopify && shop) {
+        // --- 1. SHOPIFY BILLING API (Para App Store) ---
+        const response = await fetch("/api/shopify/billing/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan: tier, shop })
+        });
+        const data = await response.json();
+        
+        if (data.url) {
+          // App Bridge requiere redirección a nivel top para confirmación de pago de Shopify
+          if (window.top) window.top.location.href = data.url;
+          else window.location.href = data.url;
+        } else {
+          setNotification({ type: "error", message: "Error al iniciar pago Shopify: " + (data.error || "Desconocido") });
+        }
       } else {
-        setNotification({ type: "error", message: "Error al iniciar el pago: " + (data.error || "Desconocido") });
+        // --- 2. PASARELA WEB (Stripe / Lemon Squeezy) ---
+        const response = await fetch("/api/lemonsqueezy/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tier, shop }) // Pasar el shop por si acaso
+        });
+        const data = await response.json();
+        if (data.url) {
+          window.open(data.url, "_blank");
+        } else {
+          setNotification({ type: "error", message: "Error al iniciar el pago: " + (data.error || "Desconocido") });
+        }
       }
     } catch (err: any) {
       setNotification({ type: "error", message: "Error de conexión: " + err.message });

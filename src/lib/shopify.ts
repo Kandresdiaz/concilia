@@ -1,5 +1,5 @@
 import '@shopify/shopify-api/adapters/web-api';
-import { shopifyApi, LATEST_API_VERSION, LogSeverity } from "@shopify/shopify-api";
+import { shopifyApi, LATEST_API_VERSION, LogSeverity, BillingInterval, BillingReplacementBehavior } from "@shopify/shopify-api";
 import { SupabaseSessionStorage } from "./shopify-session-storage";
 
 // Durante el build de Next.js, estas variables pueden no estar disponibles.
@@ -18,4 +18,17 @@ export const shopify = shopifyApi({
     level: LogSeverity.Info,
   },
   sessionStorage: SupabaseSessionStorage as any, 
+  billing: {
+    'PRO': {
+      amount: 24.99,
+      currencyCode: 'USD',
+      interval: BillingInterval.Every30Days,
+      replacementBehavior: BillingReplacementBehavior.ApplyImmediately,
+    },
+    'ENTERPRISE': {
+      amount: 197.00,
+      currencyCode: 'USD',
+      interval: BillingInterval.OneTime,
+    }
+  }
 });
