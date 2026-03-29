@@ -5,29 +5,57 @@ import { createClient } from "@/lib/supabase/server";
 
 const ReconcileRequestSchema = z.object({
     text: z.string().optional(),
-    image: z.string().optional(), // Base64 image
+    image: z.string().optional(),
     country: z.string().optional(),
+    shop: z.string().optional(),
 });
 
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { text, image, country } = ReconcileRequestSchema.parse(body);
+        const { text, image, country, shop } = ReconcileRequestSchema.parse(body);
 
         // --- Marc Lou Optimization: Paywall & Auth Check ---
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        let { data: { user } } = await supabase.auth.getUser();
 
-        if (!user) {
-            return NextResponse.json({ error: "Debes iniciar sesión para usar la IA." }, { status: 401 });
+        let profile: any = null;
+
+        if (user) {
+            const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+            profile = p;
+        } else if (shop) {
+             // Shopify context: Find profile using admin client (to bypass RLS for non-Supabase auth users)
+             const supabaseAdmin = await createClient(true);
+             
+             // 1. Verify that this shop actually exists and has an active session
+             const { data: session } = await supabaseAdmin
+                .from("shopify_sessions")
+                .select("id")
+                .eq("shop", shop)
+                .maybeSingle();
+
+             if (session) {
+                // 2. Find the profile linked to this shop
+                const { data: p } = await supabaseAdmin.from("profiles").select("*").eq("shopify_shop", shop).single();
+                profile = p;
+
+                if (profile) {
+                    user = { id: profile.id } as any;
+                }
+             }
         }
 
-        // --- Marc Lou Optimization: Smart Limits & Auto-Reset ---
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("tier, usage_count, plans_usage_limit, current_period_end, role")
-            .eq("id", user.id)
-            .single();
+        if (!user || !profile) {
+            return NextResponse.json({ 
+                error: "Debes iniciar sesión para usar la IA.",
+                debug: { 
+                    shop_received: shop || 'null', 
+                    has_user: !!user, 
+                    profile_found: !!profile 
+                }
+            }, { status: 401 });
+        }
 
         let currentUsage = profile?.usage_count || 0;
 

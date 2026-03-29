@@ -1,0 +1,13 @@
+BANCOLOMBIA S.A. - ESTRATO CUENTA DE AHORROS
+CLIENTE: KEVIN DIAZ - PRUEBA WEB
+PERIODO: MARZO 2026
+
+FECHA      DESCRIPCION                 MOVIMIENTO    SALDO
+-----------------------------------------------------------
+01 MAR     SALDO ANTERIOR                            5.000.000
+
+10 MAR     PAGO FACTURA #501            1.250.000    6.250.000
+12 MAR     TRANSFERENCIA RECIBIDA #502    850.000    7.100.000
+15 MAR     ABONO CLIENTE #503           2.400.000    9.500.000
+
+*** FIN DE EXTRACTO ***

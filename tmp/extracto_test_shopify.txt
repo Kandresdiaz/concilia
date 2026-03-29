@@ -1,0 +1,13 @@
+BANCOLOMBIA S.A. - EXTRACTO CUENTA DE AHORROS
+CLIENTE: PRUEBA CONCILIAI
+PERIODO: MARZO 2026
+
+FECHA      DESCRIPCION                 MOVIMIENTO    SALDO
+-----------------------------------------------------------
+27 MAR     SALDO ANTERIOR                            1.000,00
+
+28 MAR     TRANSFERENCIA SHOPIFY #1001     185,00    1.185,00
+29 MAR     PAGO PASARELA SHOPIFY #1002   2.829,95    4.014,95
+29 MAR     GMF 4X1000                       -5,00    4.009,95
+
+*** FIN DE EXTRACTO ***

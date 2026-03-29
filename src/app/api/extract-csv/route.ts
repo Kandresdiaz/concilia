@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Papa from "papaparse";
+import { parseCurrency } from "@/lib/utils";
 
 export async function POST(req: NextRequest) {
     try {
@@ -49,14 +50,14 @@ export async function POST(req: NextRequest) {
                 id: r.id || crypto.randomUUID(),
                 date: r.created || r.available_on || r.Created || new Date().toISOString(),
                 description: r.description || "Stripe Payout",
-                amount: parseFloat(r.net || r.amount || r.Amount || "0"),
-                type: (parseFloat(r.net || r.amount || r.Amount || "0") > 0) ? "INCOME" : "EXPENSE",
+                amount: parseCurrency(r.net || r.amount || r.Amount || "0"),
+                type: (parseCurrency(r.net || r.amount || r.Amount || "0") > 0) ? "INCOME" : "EXPENSE",
                 reference: r.id
             })).filter(t => !isNaN(t.amount));
         } else if (isLemonSqueezy) {
             transactions = parsedRows.map(r => {
-                const total = parseFloat(r.Total || r["Order Total"] || "0");
-                const refund = parseFloat(r["Refund amount"] || "0");
+                const total = parseCurrency(r.Total || r["Order Total"] || "0");
+                const refund = parseCurrency(r["Refund amount"] || "0");
                 return {
                     id: r["Order ID"] || crypto.randomUUID(),
                     date: r["Created At"] || r.Date || new Date().toISOString(),

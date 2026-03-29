@@ -19,7 +19,7 @@ import {
   FileCheck,
   Trash2,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, parseCurrency } from "@/lib/utils";
 import { saveConciliation, getConciliationHistory, getProfile, deleteAccount, deleteConciliation, getConciliationById } from "@/lib/actions";
 
 import { generatePDF, generateCSV } from "@/lib/export";
@@ -78,7 +78,8 @@ export default function ConciliAI() {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
 
-      const profile = await getProfile();
+      const shopFromUrl = searchParams.get('shop');
+      const profile = await getProfile((isShopify ? (shop || undefined) : (searchParams.get('shop') || undefined)));
       if (profile) {
         setTier(profile.tier);
         setUsageCount(profile.usage_count);
@@ -93,7 +94,7 @@ export default function ConciliAI() {
         setLimit(calculatedLimit);
         setRole(profile.role || "user");
       }
-      const historyData = await getConciliationHistory();
+      const historyData = await getConciliationHistory((isShopify ? (shop || undefined) : (searchParams.get('shop') || undefined)));
       setHistory(historyData);
     };
     init();
@@ -197,41 +198,6 @@ export default function ConciliAI() {
     }
   }, [bankData, bookData, matchedData.matches.length]);
 
-  // Robust currency parser for Latin American and US formats
-  const parseCurrency = (value: any): number => {
-    if (typeof value === "number") return value;
-    if (!value) return 0;
-    
-    // Remove symbols and handle thousands/decimals
-    const clean = String(value).replace(/[^\d,.-]/g, "");
-    
-    // If it has both , and . (like 1.234,56 or 1,234.56)
-    if (clean.includes(",") && clean.includes(".")) {
-      const lastComma = clean.lastIndexOf(",");
-      const lastDot = clean.lastIndexOf(".");
-      
-      if (lastComma > lastDot) {
-        // European/Latam style: 1.234,56 -> 1234.56
-        return parseFloat(clean.replace(/\./g, "").replace(",", "."));
-      } else {
-        // US style: 1,234.56 -> 1234.56
-        return parseFloat(clean.replace(/,/g, ""));
-      }
-    }
-    
-    // If it only has one separator
-    if (clean.includes(",")) {
-      // If there's only one comma and it looks like a decimal (e.g., 2 decimals: ,00)
-      const parts = clean.split(",");
-      if (parts[parts.length - 1].length === 2) {
-        return parseFloat(clean.replace(",", "."));
-      }
-      // Otherwise assume it's a thousands separator
-      return parseFloat(clean.replace(",", ""));
-    }
-    
-    return parseFloat(clean) || 0;
-  };
 
   const handleLogout = async () => {
     router.push("/");
@@ -325,17 +291,28 @@ export default function ConciliAI() {
 
       // Fallback a IA pesada si no se pudo hacer extracción directa (o era imagen)
       if (!data) {
+          const shopFromUrl = searchParams.get('shop');
           const response = await fetch("/api/reconcile", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               text: isImage ? undefined : content,
               image: isImage ? content : undefined,
-              country
+              country,
+              shop: (isShopify ? shop : shopFromUrl) || undefined
             }),
           });
           
           data = await response.json();
+
+          if (!response.ok) {
+            setNotification({ 
+                type: "error", 
+                message: "Error al procesamiento: " + (data.error || "Algo salió mal") + (data.debug ? " (Debug: " + JSON.stringify(data.debug) + ")" : "") 
+            });
+            setLoading(false);
+            return;
+          }
       }
 
       if (data.error) {
@@ -397,12 +374,12 @@ export default function ConciliAI() {
         matches: matchedData.matches,
         pendingBank: matchedData.pendingBank,
         pendingBook: matchedData.pendingBook
-      }, finalBalance);
+      }, finalBalance, (isShopify ? shop : searchParams.get('shop')) || undefined);
 
       // Refresh local state
-      const profile = await getProfile();
+      const profile = await getProfile((isShopify ? (shop || undefined) : (searchParams.get('shop') || undefined)));
       if (profile) setUsageCount(profile.usage_count);
-      const historyData = await getConciliationHistory();
+      const historyData = await getConciliationHistory((isShopify ? (shop || undefined) : (searchParams.get('shop') || undefined)));
       setHistory(historyData);
 
       setNotification({ type: "success", message: "Conciliación guardada con éxito." });
@@ -416,7 +393,7 @@ export default function ConciliAI() {
   const handleViewHistoryItem = async (item: any) => {
     setLoading(true); // Usamos el loading general para el inicio de la carga
     try {
-      const fullData = await getConciliationById(item.id);
+      const fullData = await getConciliationById(item.id, (isShopify ? shop : searchParams.get('shop')) || undefined);
       setSelectedReport(fullData);
       setIsReportModalOpen(true);
     } catch (err: any) {
@@ -436,11 +413,11 @@ export default function ConciliAI() {
     setItemToDelete(null);
 
     try {
-      const result = await deleteConciliation(id);
+      const result = await deleteConciliation(id, (isShopify ? shop : searchParams.get('shop')) || undefined);
       if (result.success) {
         setNotification({ type: "success", message: "Conciliación eliminada con éxito." });
         // Opcional: Re-validar desde el servidor para estar 100% seguros
-        const historyData = await getConciliationHistory();
+        const historyData = await getConciliationHistory((isShopify ? shop : searchParams.get('shop')) || undefined);
         setHistory(historyData);
       }
     } catch (err: any) {

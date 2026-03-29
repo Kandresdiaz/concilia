@@ -3,6 +3,8 @@
  * Este parser no gasta créditos de IA y funciona para extractos digitales (no escaneados).
  */
 
+import { parseCurrency } from "./utils";
+
 export interface Transaction {
     date: string;
     description: string;
@@ -63,25 +65,3 @@ export function parseTransactionsFromText(text: string): Transaction[] {
     return transactions;
 }
 
-function parseCurrency(val: string): number {
-    // Quitamos miles (.) y cambiamos decimal (,) a (.) si es necesario
-    // Esta es una versión simplificada
-    let clean = val.replace(/[^\d.,-]/g, '');
-
-    // Si hay puntos y comas, asumimos que la última es el decimal
-    const lastComma = clean.lastIndexOf(',');
-    const lastDot = clean.lastIndexOf('.');
-
-    if (lastComma > lastDot) {
-        // Formato 1.234,56
-        clean = clean.replace(/\./g, '').replace(',', '.');
-    } else if (lastDot > lastComma) {
-        // Formato 1,234.56
-        clean = clean.replace(/,/g, '');
-    } else {
-        // Solo un separador
-        clean = clean.replace(/[,]/g, '.');
-    }
-
-    return parseFloat(clean) || 0;
-}

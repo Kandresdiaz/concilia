@@ -4,39 +4,55 @@ import { createClient } from "@/lib/supabase/server";
 import { createClient as createClientAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 
-export async function getProfile() {
+export async function getProfile(shop?: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    if (!user) return null;
-
     const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY;
-    // We use the admin client to fetch the role bypassing RLS, but ONLY for this user's ID
     const supabaseAdmin = createClientAdmin(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         serviceKey || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data: profile } = await supabaseAdmin
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+    if (user) {
+        const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+        return profile;
+    } else if (shop) {
+        const { data: profile } = await supabaseAdmin
+            .from("profiles")
+            .select("*")
+            .eq("shopify_shop", shop)
+            .maybeSingle();
+        return profile;
+    }
 
-    return profile;
+    return null;
 }
 
-export async function saveConciliation(data: any, finalBalance: number) {
+export async function saveConciliation(data: any, finalBalance: number, shop?: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+    
+    // If shopify, use admin client to bypass RLS
+    const supabaseAdmin = await createClient(true);
+    let targetId = user?.id;
 
-    if (!user) throw new Error("Unauthorized");
+    if (!targetId && shop) {
+        const { data: p } = await supabaseAdmin.from("profiles").select("id").eq("shopify_shop", shop).maybeSingle();
+        if (p) targetId = p.id;
+    }
+
+    if (!targetId) throw new Error("Unauthorized");
 
     // Fetch profile to check usage
-    const { data: profile } = await supabase
+    const { data: profile } = await supabaseAdmin
         .from("profiles")
         .select("tier, usage_count, reconciliations_count")
-        .eq("id", user.id)
+        .eq("id", targetId)
         .single();
 
     const currentUsage = profile?.usage_count ?? profile?.reconciliations_count ?? 0;
@@ -45,19 +61,14 @@ export async function saveConciliation(data: any, finalBalance: number) {
         throw new Error("Límite de plan gratuito alcanzado.");
     }
 
-    // Extract month and year from current date
-    const now = new Date();
-    const month = now.getMonth() + 1; // JavaScript months are 0-indexed
-    const year = now.getFullYear();
-
-    // Save conciliation with organized structure
-    const { error: insertError } = await supabase
+    // Save conciliation
+    const { error: insertError } = await supabaseAdmin
         .from("conciliations")
         .insert({
-            user_id: user.id,
+            user_id: targetId,
             company_name: data.company_name || "Sin nombre",
-            month: month,
-            year: year,
+            month: new Date().getMonth() + 1,
+            year: new Date().getFullYear(),
             precision_score: data.precision_score,
             final_balance: finalBalance,
             bank_data: data.bank || {},
@@ -71,39 +82,32 @@ export async function saveConciliation(data: any, finalBalance: number) {
 
     if (insertError) throw insertError;
 
-    // Increment usage count - REMOVED (Handled in API for security)
-    /* 
-    const { error: updateError } = await supabase
-        .from("profiles")
-        .update({
-            // usage_count: currentUsage + 1, // Handled in API
-            reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
-            last_reconciliation_at: new Date().toISOString()
-        })
-        .eq("id", user.id);
-
-    if (updateError) throw updateError;
-    */
-
-    // Only update stats, not usage limits
-    await supabase.from("profiles").update({
+    await supabaseAdmin.from("profiles").update({
         reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
         last_reconciliation_at: new Date().toISOString()
-    }).eq("id", user.id);
+    }).eq("id", targetId);
 
     revalidatePath("/");
 }
 
-export async function getConciliationHistory() {
+export async function getConciliationHistory(shop?: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+    
+    const supabaseAdmin = await createClient(true);
+    let targetId = user?.id;
 
-    if (!user) return [];
+    if (!targetId && shop) {
+        const { data: p } = await supabaseAdmin.from("profiles").select("id").eq("shopify_shop", shop).maybeSingle();
+        if (p) targetId = p.id;
+    }
 
-    const { data, error } = await supabase
+    if (!targetId) return [];
+
+    const { data, error } = await supabaseAdmin
         .from("conciliations")
         .select("id, company_name, month, year, precision_score, final_balance, created_at")
-        .eq("user_id", user.id)
+        .eq("user_id", targetId)
         .order("year", { ascending: false })
         .order("month", { ascending: false })
         .limit(50);
@@ -117,17 +121,25 @@ export async function getConciliationHistory() {
     return data;
 }
 
-export async function getConciliationById(id: string) {
+export async function getConciliationById(id: string, shop?: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+    
+    const supabaseAdmin = await createClient(true);
+    let targetId = user?.id;
 
-    if (!user) throw new Error("Unauthorized");
+    if (!targetId && shop) {
+        const { data: p } = await supabaseAdmin.from("profiles").select("id").eq("shopify_shop", shop).maybeSingle();
+        if (p) targetId = p.id;
+    }
 
-    const { data, error } = await supabase
+    if (!targetId) throw new Error("Unauthorized");
+
+    const { data, error } = await supabaseAdmin
         .from("conciliations")
         .select("*")
         .eq("id", id)
-        .eq("user_id", user.id)
+        .eq("user_id", targetId)
         .single();
 
     if (error) throw error;
@@ -161,18 +173,25 @@ export async function deleteAccount() {
     return { success: true };
 }
 
-export async function deleteConciliation(id: string) {
+export async function deleteConciliation(id: string, shop?: string) {
     const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    let { data: { user } } = await supabase.auth.getUser();
+    
+    const supabaseAdmin = await createClient(true);
+    let targetId = user?.id;
 
-    if (!user) throw new Error("Unauthorized");
+    if (!targetId && shop) {
+        const { data: p } = await supabaseAdmin.from("profiles").select("id").eq("shopify_shop", shop).maybeSingle();
+        if (p) targetId = p.id;
+    }
 
-    // Borrado físico en la base de datos con doble chequeo de seguridad
-    const { error } = await supabase
+    if (!targetId) throw new Error("Unauthorized");
+
+    const { error } = await supabaseAdmin
         .from("conciliations")
         .delete()
         .eq("id", id)
-        .eq("user_id", user.id);
+        .eq("user_id", targetId);
 
     if (error) {
         console.error("Critical: Error deleting from Supabase:", error);
