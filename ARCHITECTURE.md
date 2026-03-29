@@ -23,6 +23,7 @@ ConciliAI detecta el contexto del usuario para ofrecer la fricción mínima:
     - El `middleware.ts` permite el bypass de Supabase Auth temporalmente.
     - La app llama a `/api/auth/shopify/signin` que genera un **Magic Link administrador** silencioso.
     - El usuario entra al dashboard **sin ver Google** ni formularios de login. ✅
+    - **Session Recovery**: Si el token de Shopify expira o se corrompe (Error 401), la app elimina la sesión en Supabase y fuerza una redirección usando autenticación por `host` para no escapar del iFrame de Shopify Admin.
 
 ### PASO 3: Modal de Privacidad (primera vez)
 - Aparece un modal explicando que Groq no entrena con sus datos, encriptación, y zero compartición.
@@ -39,7 +40,7 @@ El usuario selecciona:
 1. **Tipo**: Extracto Bancario o Auxiliar Contable
 2. **País**: Colombia, México, Chile, Perú, Argentina (afecta formato de números)
 3. **Fuente del documento**:
-   - **Shopify Direct Sync (CÓDIGO)**: Extracción directa vía API REST de Shopify (`/api/shopify/orders`). **Costo: 0 Tokens**.
+   - **Shopify Direct Sync (CÓDIGO)**: Extracción directa vía **API GraphQL** de Shopify (`/api/shopify/orders`). Pide exclusivamente `totalPriceSet` y `id` para cumplir con las políticas de **Protected Customer Data**. **Costo: 0 Tokens**.
    - **Archivo PDF**: Se extrae texto con `pdfjs-dist` y se procesa con IA.
    - **Imagen** (JPG/PNG): Visión artificial (IA).
    - **Texto copiado**: Procesamiento de lenguaje natural (IA).

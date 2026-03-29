@@ -15,7 +15,11 @@ if (-not (Test-Path ".git")) {
     Write-Host "Inicializando repositorio Git..." -ForegroundColor Yellow
     git init
     git branch -M main
-    git remote add origin https://github.com/annycastro9010-hue/concilia.git
+    # Añadir o actualizar remotes
+    git remote remove origin 2>$null
+    git remote add origin https://github.com/Kandresdiaz/concilia.git
+    git remote remove deploy 2>$null
+    git remote add deploy https://github.com/Kandresdiaz/concilia.git
 }
 
 # Agregar todos los archivos
