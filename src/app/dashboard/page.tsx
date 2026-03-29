@@ -529,14 +529,14 @@ export default function ConciliAI() {
                     "text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-none mb-6 break-all",
                     Math.abs(netDifference) < 0.01 ? "text-emerald-400" : "text-rose-400"
                   )}>
-                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100/50 shadow-sm group">
                     <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1">Total Asegurado</p>
                     <div className="flex items-end gap-2 text-2xl font-black text-slate-900 group-hover:scale-[1.02] transition-transform">
-                      <span>${((matchedData?.matches?.reduce((acc: number, m: any) => acc + (m.bank?.monto || 0), 0) || 0) + (history?.reduce((acc: number, h: any) => acc + (h.total_amount || 0), 0) || 0)).toLocaleString()}</span>
+                      <span>${((matchedData?.matches?.reduce((acc: number, m: any) => acc + (Math.abs(m.bank?.amount || m.bank?.monto || 0)), 0) || 0) + (history?.reduce((acc: number, h: any) => acc + (Math.abs(h.final_bank_balance || h.total_amount || 0)), 0) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       <span className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase">COP</span>
                     </div>
                   </div>
@@ -644,7 +644,7 @@ export default function ConciliAI() {
                     "text-2xl md:text-3xl font-black break-all",
                     netDifference === 0 ? "text-emerald-600" : "text-rose-600"
                   )}>
-                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>

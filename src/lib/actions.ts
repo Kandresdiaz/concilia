@@ -106,7 +106,7 @@ export async function getConciliationHistory(shop?: string) {
 
     const { data, error } = await supabaseAdmin
         .from("conciliations")
-        .select("id, company_name, month, year, precision_score, final_balance, created_at")
+        .select("id, company_name, month, year, precision_score, final_balance, final_bank_balance, created_at")
         .eq("user_id", targetId)
         .order("year", { ascending: false })
         .order("month", { ascending: false })
