@@ -46,7 +46,12 @@ export function ImportModal({
 
     useEffect(() => {
         if (isOpen) {
-            if (bankLoaded && !bookLoaded) {
+            // Optimización Shopify: Si estamos en Shopify, abrir directamente la pestaña de Libro/Sync
+            if (isShopify && !bookLoaded) {
+                setTab("book");
+                setSource("shopify");
+            }
+            else if (bankLoaded && !bookLoaded) {
                 setTab("book");
                 if (isShopify) setSource("shopify");
             }
