@@ -62,6 +62,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <meta name="shopify-api-key" content="8de6afef378f167b95b3a5a2e3ee70e2" />
         <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js" defer></script>
       </head>
       <body
