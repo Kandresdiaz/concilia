@@ -234,9 +234,13 @@ export default function ConciliAI() {
       if (source === "shopify") {
           const res = await fetch(`/api/shopify/orders?shop=${content}`);
           const result = await res.json();
-          
+          if (result.code === 'SESSION_NOT_FOUND' && result.reconnect_url) {
+              setNotification({ type: "warning", message: "Sesión expirada. Reconectando automáticamente con Shopify..." });
+              if (window.top) window.top.location.href = result.reconnect_url;
+              else window.location.href = result.reconnect_url;
+              return; // Stop flow and wait for redirect
+          }
           if (result.error) throw new Error(result.error);
-          
           data = {
               transactions: result.orders,
               banco: "Shopify",

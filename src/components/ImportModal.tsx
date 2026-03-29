@@ -365,24 +365,7 @@ export function ImportModal({
                                   >
                                       {loading || isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : "Sincronizar Órdenes Ahora"}
                                   </button>
-                                  {isShopify && (
-                                      <p className="mt-4 text-[10px] text-slate-400">
-                                          ¿Falla la conexión?{" "}
-                                          <button 
-                                            onClick={() => {
-                                                if (typeof window !== "undefined") {
-                                                    // Redirección forzada al top para evitar problemas de iframe
-                                                    // IMPORTANTE: Pasamos 'host' para que el callback sepa volver a Shopify
-                                                    const hostParam = host ? `&host=${host}` : "";
-                                                    window.top!.location.href = `/api/auth/shopify?shop=${shop}${hostParam}`;
-                                                }
-                                            }}
-                                            className="text-primary hover:underline font-bold bg-transparent border-none p-0 cursor-pointer"
-                                          >
-                                            Re-conectar tienda aquí
-                                          </button>
-                                      </p>
-                                  )}
+                                  {/* El botón manual de re-conexión fue eliminado. La app ahora maneja las redirecciones vía API al detectar 401. */}
                                 </div>
                                 </div>
                         )}

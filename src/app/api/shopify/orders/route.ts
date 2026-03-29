@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     if (!sessionData || !sessionData.accessToken) {
       const hostParam = host ? `&host=${host}` : "";
       return NextResponse.json({ 
-        error: 'Tu sesión de Shopify ha expirado. Por favor, haz clic en "Re-conectar tienda aquí" abajo para continuar.',
+        error: 'Sesión expirada. Reconectando automáticamente...',
         code: 'SESSION_NOT_FOUND',
         reconnect_url: `/api/auth/shopify?shop=${shop}${hostParam}`
       }, { status: 401 });
