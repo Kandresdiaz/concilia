@@ -116,15 +116,16 @@ export default function ConciliAI() {
 
     // FASE 1: Match Exacto (Monto + Referencia Limpia)
     bankTransactions.forEach(b => {
-      const bAmount = Math.abs(Number(b.amount));
+      const bAmount = Math.abs(parseCurrency(b.amount));
       const bRef = cleanRef(b.reference);
 
       if (bRef && pendingBankIds.has(b.id) && bRef.length > 2) {
-        const matchIndex = bookTransactions.findIndex(bk =>
-          pendingBookIds.has(bk.id) &&
-          Math.abs(Number(bk.amount)) === bAmount &&
-          cleanRef(bk.reference) === bRef
-        );
+        const matchIndex = bookTransactions.findIndex(bk => {
+          if (!pendingBookIds.has(bk.id)) return false;
+          if (Math.abs(Math.abs(parseCurrency(bk.amount)) - bAmount) > 0.05) return false;
+          const bkRef = cleanRef(bk.reference);
+          return bkRef === bRef || (bkRef.includes(bRef) && bRef.length > 3) || (bRef.includes(bkRef) && bkRef.length > 3);
+        });
 
         if (matchIndex !== -1) {
           const bk = bookTransactions[matchIndex];
@@ -138,14 +139,20 @@ export default function ConciliAI() {
     // FASE 2: Match por Monto + Proximidad de Fecha (+/- 7 días)
     bankTransactions.forEach(b => {
       if (!pendingBankIds.has(b.id)) return;
-      const bAmount = Math.abs(Number(b.amount));
+      const bAmount = Math.abs(parseCurrency(b.amount));
       const bDate = new Date(b.date);
 
       const matchIndex = bookTransactions.findIndex(bk => {
         if (!pendingBookIds.has(bk.id)) return false;
-        if (Math.abs(Number(bk.amount)) !== bAmount) return false;
+        if (Math.abs(Math.abs(parseCurrency(bk.amount)) - bAmount) > 0.05) return false;
 
         const bkDate = new Date(bk.date);
+        
+        // Handle invalid dates securely
+        if (isNaN(bDate.getTime()) || isNaN(bkDate.getTime())) {
+          return false;
+        }
+
         const diffDays = Math.abs(bDate.getTime() - bkDate.getTime()) / (1000 * 60 * 60 * 24);
         return diffDays <= 7;
       });
@@ -161,11 +168,11 @@ export default function ConciliAI() {
     // FASE 3: Match solo por Monto (Fallback)
     bankTransactions.forEach(b => {
       if (!pendingBankIds.has(b.id)) return;
-      const bAmount = Math.abs(Number(b.amount));
+      const bAmount = Math.abs(parseCurrency(b.amount));
 
       const matchIndex = bookTransactions.findIndex(bk =>
         pendingBookIds.has(bk.id) &&
-        Math.abs(Number(bk.amount)) === bAmount
+        Math.abs(Math.abs(parseCurrency(bk.amount)) - bAmount) <= 0.05
       );
 
       if (matchIndex !== -1) {
@@ -276,9 +283,9 @@ export default function ConciliAI() {
                       empresa: companyName || "Tu Empresa",
                       tipo_documento: "CSV Extraído Directamente",
                       verified_totals: {
-                          total_in: preCheckData.transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + Number(t.amount), 0),
-                          total_out: preCheckData.transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(Number(t.amount)), 0),
-                          net: preCheckData.transactions.reduce((acc: number, t: any) => acc + Number(t.amount), 0),
+                          total_in: preCheckData.transactions.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
+                          total_out: preCheckData.transactions.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount)), 0),
+                          net: preCheckData.transactions.reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
                       },
                       precision_score: 100 // It's deterministic code
                   };
@@ -536,7 +543,7 @@ export default function ConciliAI() {
                   <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-100/50 shadow-sm group">
                     <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1">Total Asegurado</p>
                     <div className="flex items-end gap-2 text-2xl font-black text-slate-900 group-hover:scale-[1.02] transition-transform">
-                      <span>${((matchedData?.matches?.reduce((acc: number, m: any) => acc + (Math.abs(m.bank?.amount || m.bank?.monto || 0)), 0) || 0) + (history?.reduce((acc: number, h: any) => acc + (Math.abs(h.final_bank_balance || h.total_amount || 0)), 0) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      <span>${((matchedData?.matches?.reduce((acc: number, m: any) => acc + (Math.abs(parseCurrency(m.bank?.amount || m.bank?.monto || 0))), 0) || 0) + (history?.reduce((acc: number, h: any) => acc + (Math.abs(parseCurrency(h.final_bank_balance || h.total_amount || 0))), 0) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                       <span className="text-[10px] text-slate-400 mb-1.5 font-bold uppercase">COP</span>
                     </div>
                   </div>
@@ -750,8 +757,8 @@ export default function ConciliAI() {
                             <p className="text-[8px] font-mono text-slate-400 mt-0.5">{t.date}</p>
                           </td>
                           <td className="py-4 text-right">
-                            <span className={cn("text-xs font-black", (t.amount || 0) > 0 ? "text-emerald-600" : "text-rose-600")}>
-                              $ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            <span className={cn("text-xs font-black", parseCurrency(t.amount || 0) > 0 ? "text-emerald-600" : "text-rose-600")}>
+                              $ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </span>
                           </td>
                           <td className="py-4 text-center">
@@ -791,8 +798,8 @@ export default function ConciliAI() {
                             <p className="text-[8px] font-mono text-slate-400 mt-0.5">{t.date}</p>
                           </td>
                           <td className="py-4 text-right">
-                            <span className={cn("text-xs font-black", (t.amount || 0) > 0 ? "text-indigo-600" : "text-rose-600")}>
-                              $ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            <span className={cn("text-xs font-black", parseCurrency(t.amount || 0) > 0 ? "text-indigo-600" : "text-rose-600")}>
+                              $ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                             </span>
                           </td>
                           <td className="py-4 text-center">
@@ -957,7 +964,7 @@ export default function ConciliAI() {
                         <div className="flex justify-between items-center py-4 px-6 bg-slate-50 rounded-2xl border border-slate-100">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Extracto</span>
                           <span className="text-sm font-black text-slate-900">
-                            $ {matchedData.pendingBank.reduce((acc: number, t: any) => acc + (t.amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            $ {matchedData.pendingBank.reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
@@ -989,7 +996,7 @@ export default function ConciliAI() {
                         <div className="flex justify-between items-center py-4 px-6 bg-emerald-50/50 rounded-2xl border border-emerald-100">
                           <span className="text-[10px] font-black text-emerald-600/50 uppercase tracking-widest">Total Auxiliar</span>
                           <span className="text-sm font-black text-slate-900">
-                            $ {matchedData.pendingBook.reduce((acc: number, t: any) => acc + (t.amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            $ {matchedData.pendingBook.reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>

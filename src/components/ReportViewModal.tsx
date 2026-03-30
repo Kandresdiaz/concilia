@@ -2,7 +2,7 @@
 
 import React from "react";
 import { X, FileText, Calendar, Building2, CheckCircle2, AlertCircle, Download, FileJson, ShieldCheck, FileCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, parseCurrency } from "@/lib/utils";
 import { generatePDF, generateCSV } from "@/lib/export";
 
 interface ReportViewModalProps {
@@ -28,8 +28,8 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
     const diff = data.final_balance !== undefined ? data.final_balance : (bankTotal - bookTotal);
 
     // Totales de pendientes
-    const totalPendingBank = (data.discrepancies?.pendingBank || []).reduce((acc: number, t: any) => acc + (t.amount || 0), 0);
-    const totalPendingBook = (data.discrepancies?.pendingBook || []).reduce((acc: number, t: any) => acc + (t.amount || 0), 0);
+    const totalPendingBank = (data.discrepancies?.pendingBank || []).reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0);
+    const totalPendingBook = (data.discrepancies?.pendingBook || []).reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0);
 
     const handleDownloadPDF = () => {
         const matchedData = {
@@ -145,7 +145,7 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
                                                             <span className="text-[8px] font-mono text-slate-400">{t.date}</span>
                                                         </td>
                                                         <td className="py-4 text-right">
-                                                            <span className="text-xs font-black text-slate-900">$ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="text-xs font-black text-slate-900">$ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -178,7 +178,7 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
                                                             <span className="text-[8px] font-mono text-slate-400">{t.date}</span>
                                                         </td>
                                                         <td className="py-4 text-right">
-                                                            <span className="text-xs font-black text-slate-900">$ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                            <span className="text-xs font-black text-slate-900">$ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                                         </td>
                                                     </tr>
                                                 ))}

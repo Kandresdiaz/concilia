@@ -113,6 +113,10 @@ export async function POST(req: Request) {
              - Si una página empieza con un "Saldo", IGNÓRALO como transacción; solo usa los movimientos reales.
              - description: Limpia (ej: "Traslado a Nequi Raul").
              - amount: Float con signo correcto según la regla 3.
+          6. ALTA RESILIENCIA A FORMATOS ROTOS (CRÍTICO):
+             - El texto puede provenir de OCR defectuoso, PDFs corruptos, fotos de baja resolución o copy-paste desorganizado.
+             - Infiera la estructura lógica de transacciones incluso si faltan saltos de línea, tabulaciones, o hay caracteres basura (ej: fechas unidas a descripciones o montos huérfanos en otra línea).
+             - Reconstruye descripciones fragmentadas y asocialas correctamente con sus montos e idenficadores (referencias).
           
           RESPONDE EXCLUSIVAMENTE CON UN JSON VÁLIDO. 
           Estructura: {"banco", "tipo_documento", "empresa", "summary": {"saldo_inicial", "total_abonos", "total_cargos", "saldo_actual"}, "precision_score", "transactions": [{"date", "description", "amount", "reference"}]}.`,
