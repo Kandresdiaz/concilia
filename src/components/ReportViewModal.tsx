@@ -28,8 +28,8 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
     const diff = data.final_balance !== undefined ? data.final_balance : (bankTotal - bookTotal);
 
     // Totales de pendientes
-    const totalPendingBank = (data.discrepancies?.pendingBank || []).reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0);
-    const totalPendingBook = (data.discrepancies?.pendingBook || []).reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0);
+    const totalPendingBank = (data.discrepancies?.pendingBank || []).reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+    const totalPendingBook = (data.discrepancies?.pendingBook || []).reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
 
     const handleDownloadPDF = () => {
         const matchedData = {

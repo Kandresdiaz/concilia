@@ -964,7 +964,7 @@ export default function ConciliAI() {
                         <div className="flex justify-between items-center py-4 px-6 bg-slate-50 rounded-2xl border border-slate-100">
                           <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Extracto</span>
                           <span className="text-sm font-black text-slate-900">
-                            $ {matchedData.pendingBank.reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            $ {matchedData.pendingBank.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
@@ -996,7 +996,7 @@ export default function ConciliAI() {
                         <div className="flex justify-between items-center py-4 px-6 bg-emerald-50/50 rounded-2xl border border-emerald-100">
                           <span className="text-[10px] font-black text-emerald-600/50 uppercase tracking-widest">Total Auxiliar</span>
                           <span className="text-sm font-black text-slate-900">
-                            $ {matchedData.pendingBook.reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount || 0)), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            $ {matchedData.pendingBook.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </span>
                         </div>
                       </div>
