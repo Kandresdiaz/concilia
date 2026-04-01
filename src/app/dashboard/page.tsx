@@ -372,7 +372,10 @@ export default function ConciliAI() {
     if (!bankData && !bookData) return;
     setLoading(true);
     try {
-      const finalBalance = (bankData?.verified_totals?.net || 0) - (bookData?.verified_totals?.net || 0);
+      const pendingBankTotal = matchedData.pendingBank.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+      const pendingBookTotal = matchedData.pendingBook.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+      const finalBalance = pendingBankTotal - pendingBookTotal;
+      
       await saveConciliation({
         bank: bankData,
         book: bookData,
@@ -480,9 +483,10 @@ export default function ConciliAI() {
   };
 
   const renderView = () => {
-    const bankTotal = bankData?.verified_totals?.net || 0;
-    const bookTotal = bookData?.verified_totals?.net || 0;
-    const netDifference = bankTotal - bookTotal;
+    // El "Saldo Final" / Diferencia Neta debe ser estrictamente lo que no se puso cruzar (Pending)
+    const pendingBankTotal = matchedData.pendingBank.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+    const pendingBookTotal = matchedData.pendingBook.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+    const netDifference = pendingBankTotal - pendingBookTotal;
 
     switch (currentView) {
       case "dashboard":
@@ -919,7 +923,7 @@ export default function ConciliAI() {
                           "text-sm font-black",
                           Math.abs(netDifference) < 0.01 ? "text-emerald-600" : "text-rose-600"
                         )}>
-                          $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 0 })}
+                          $ {Math.abs(netDifference).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -955,7 +959,7 @@ export default function ConciliAI() {
                                   <span className="text-[8px] font-mono text-slate-400">{t.date}</span>
                                 </td>
                                 <td className="py-4 text-right">
-                                  <span className="text-xs font-black text-slate-900">$ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                  <span className="text-xs font-black text-slate-900">$ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                 </td>
                               </tr>
                             ))}
@@ -987,7 +991,7 @@ export default function ConciliAI() {
                                   <span className="text-[8px] font-mono text-slate-400">{t.date}</span>
                                 </td>
                                 <td className="py-4 text-right">
-                                  <span className="text-xs font-black text-slate-900">$ {(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                  <span className="text-xs font-black text-slate-900">$ {parseCurrency(t.amount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
                                 </td>
                               </tr>
                             ))}
