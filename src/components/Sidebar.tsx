@@ -334,9 +334,13 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
               </div>
               <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Acceso Prioritario</p>
               <h4 className="text-xs font-bold text-white mb-3">¿Necesitas ayuda con algo?</h4>
-              <button className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm">
+              <Link 
+                href="https://t.me/c/3814382001/3" 
+                target="_blank"
+                className="w-full inline-flex items-center justify-center py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg transition-all shadow-sm"
+              >
                 Soporte VIP 24/7
-              </button>
+              </Link>
             </div>
 
             {/* Usage Card */}
