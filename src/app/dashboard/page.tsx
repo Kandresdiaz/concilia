@@ -183,10 +183,56 @@ export default function ConciliAI() {
       }
     });
 
+    // FASE 4: ARREGLO MATEMÁTICO (Match por Referencia con Diferencia)
+    // Cuando la referencia coincide exactamente pero el monto es diferente (ej: comisiones/tasas)
+    bankTransactions.forEach(b => {
+      if (!pendingBankIds.has(b.id)) return;
+      const bRef = cleanRef(b.reference);
+      const bAmount = parseCurrency(b.amount); // Usamos el valor real con signo
+
+      if (bRef && bRef.length > 2) {
+        const matchIndex = bookTransactions.findIndex(bk => {
+          if (!pendingBookIds.has(bk.id)) return false;
+          const bkRef = cleanRef(bk.reference);
+          return bkRef === bRef && bRef.length > 3;
+        });
+
+        if (matchIndex !== -1) {
+          const bk = bookTransactions[matchIndex];
+          const bkAmount = parseCurrency(bk.amount);
+          const adjustment = bAmount - bkAmount;
+
+          matches.push({ 
+            bank: b, 
+            book: bk, 
+            type: 'ajuste', 
+            adjustment: adjustment // Diferencia que debe justificarse
+          });
+          pendingBankIds.delete(b.id);
+          pendingBookIds.delete(bk.id);
+        }
+      }
+    });
+
     return {
       matches,
       pendingBank: bankTransactions.filter((t: any) => pendingBankIds.has(t.id)),
       pendingBook: bookTransactions.filter((t: any) => pendingBookIds.has(t.id))
+    };
+  })();
+
+  const totals = (() => {
+    // Cálculo final para el balance ("Arreglo Matemático")
+    // El balance debe ser: Total Pendientes Banco - Total Pendientes Libro + Ajustes en matches
+    const pendingBankTotal = matchedData.pendingBank.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+    const pendingBookTotal = matchedData.pendingBook.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
+    const adjustmentsTotal = matchedData.matches.filter(m => m.type === 'ajuste').reduce((acc: number, m: any) => acc + (m.adjustment || 0), 0);
+    
+    return {
+        pendingBankTotal,
+        pendingBookTotal,
+        adjustmentsTotal,
+        netDifference: pendingBankTotal - pendingBookTotal + adjustmentsTotal
     };
   })();
 
@@ -383,8 +429,9 @@ export default function ConciliAI() {
         precision_score: precisionScore,
         matches: matchedData.matches,
         pendingBank: matchedData.pendingBank,
-        pendingBook: matchedData.pendingBook
-      }, finalBalance, (isShopify ? shop : searchParams.get('shop')) || undefined);
+        pendingBook: matchedData.pendingBook,
+        totals: totals // Persistir los nuevos totales con ajustes
+      }, totals.netDifference, (isShopify ? shop : searchParams.get('shop')) || undefined);
 
       // Refresh local state
       const profile = await getProfile((isShopify ? (shop || undefined) : (searchParams.get('shop') || undefined)));
@@ -483,10 +530,7 @@ export default function ConciliAI() {
   };
 
   const renderView = () => {
-    // El "Saldo Final" / Diferencia Neta debe ser estrictamente lo que no se puso cruzar (Pending)
-    const pendingBankTotal = matchedData.pendingBank.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
-    const pendingBookTotal = matchedData.pendingBook.reduce((acc: number, t: any) => acc + parseCurrency(t.amount || 0), 0);
-    const netDifference = pendingBankTotal - pendingBookTotal;
+    const { netDifference } = totals;
 
     switch (currentView) {
       case "dashboard":
@@ -607,7 +651,7 @@ export default function ConciliAI() {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Banco</p>
-                  <p className="text-2xl md:text-3xl font-black text-slate-900 break-all">$ {(bankTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-2xl md:text-3xl font-black text-slate-900 break-all">$ {(bankData?.verified_totals?.net || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
 
@@ -627,35 +671,35 @@ export default function ConciliAI() {
                 </div>
                 <div>
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total Libros</p>
-                  <p className="text-2xl md:text-3xl font-black text-slate-900 break-all">$ {(bookTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-2xl md:text-3xl font-black text-slate-900 break-all">$ {(bookData?.verified_totals?.net || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
 
               <div className={cn(
                 "glass-card rounded-[32px] p-8 space-y-4 border-2 transition-all duration-500",
-                netDifference === 0 ? "border-emerald-500/20 bg-emerald-50/10" : "border-rose-500/20 bg-rose-50/10"
+                Math.abs(totals.netDifference) < 0.01 ? "border-emerald-500/20 bg-emerald-50/10" : "border-rose-500/20 bg-rose-50/10"
               )}>
                 <div className="flex items-center justify-between">
                   <div className={cn(
                     "w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg",
-                    netDifference === 0 ? "bg-emerald-500 shadow-emerald-200" : "bg-rose-500 shadow-rose-200"
+                    Math.abs(totals.netDifference) < 0.01 ? "bg-emerald-500 shadow-emerald-200" : "bg-rose-500 shadow-rose-200"
                   )}>
-                    {netDifference === 0 ? <CheckCircle className="w-6 h-6" /> : <ArrowRight className="w-6 h-6" />}
+                    {Math.abs(totals.netDifference) < 0.01 ? <CheckCircle className="w-6 h-6" /> : <ArrowRight className="w-6 h-6" />}
                   </div>
                   <span className={cn(
                     "text-[10px] font-black uppercase tracking-widest",
-                    netDifference === 0 ? "text-emerald-500" : "text-rose-500"
+                    Math.abs(totals.netDifference) < 0.01 ? "text-emerald-500" : "text-rose-500"
                   )}>
-                    {netDifference === 0 ? "Consolidado" : "Diferencia"}
+                    {Math.abs(totals.netDifference) < 0.01 ? "Consolidado" : "Diferencia Final"}
                   </span>
                 </div>
                 <div>
                   <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Neta de Ajuste</p>
                   <p className={cn(
                     "text-2xl md:text-3xl font-black break-all",
-                    netDifference === 0 ? "text-emerald-600" : "text-rose-600"
+                    Math.abs(totals.netDifference) < 0.01 ? "text-emerald-600" : "text-rose-600"
                   )}>
-                    $ {(netDifference || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    $ {totals.netDifference.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
               </div>
@@ -766,9 +810,17 @@ export default function ConciliAI() {
                             </span>
                           </td>
                           <td className="py-4 text-center">
-                            {matchedData?.matches.some(m => m.bank.id === t.id) ? (
-                              <div className="w-5 h-5 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto scale-90">
-                                <CheckCircle className="w-3 h-3" />
+                            {matchedData?.matches.find(m => m.bank.id === t.id) ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <div className={cn(
+                                    "w-5 h-5 rounded-full flex items-center justify-center mx-auto scale-90",
+                                    matchedData.matches.find(m => m.bank.id === t.id)?.type === 'ajuste' ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"
+                                )}>
+                                  <CheckCircle className="w-3 h-3" />
+                                </div>
+                                {matchedData.matches.find(m => m.bank.id === t.id)?.type === 'ajuste' && (
+                                    <span className="text-[7px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-1 rounded">Ajuste</span>
+                                )}
                               </div>
                             ) : (
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200 mx-auto" />
@@ -807,9 +859,17 @@ export default function ConciliAI() {
                             </span>
                           </td>
                           <td className="py-4 text-center">
-                            {matchedData?.matches.some(m => m.book.id === t.id) ? (
-                              <div className="w-5 h-5 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto scale-90">
-                                <CheckCircle className="w-3 h-3" />
+                            {matchedData?.matches.find(m => m.book.id === t.id) ? (
+                              <div className="flex flex-col items-center gap-1">
+                                <div className={cn(
+                                    "w-5 h-5 rounded-full flex items-center justify-center mx-auto scale-90",
+                                    matchedData.matches.find(m => m.book.id === t.id)?.type === 'ajuste' ? "bg-amber-50 text-amber-600" : "bg-emerald-50 text-emerald-600"
+                                )}>
+                                  <CheckCircle className="w-3 h-3" />
+                                </div>
+                                {matchedData.matches.find(m => m.book.id === t.id)?.type === 'ajuste' && (
+                                    <span className="text-[7px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-1 rounded">Ajuste</span>
+                                )}
                               </div>
                             ) : (
                               <div className="w-1.5 h-1.5 rounded-full bg-slate-200 mx-auto" />
@@ -1006,6 +1066,55 @@ export default function ConciliAI() {
                       </div>
                     ) : <p className="text-xs italic text-slate-300 py-4">Sin discrepancias</p>}
                   </div>
+                </div>
+
+                {/* Arreglo Matemático Section */}
+                <div className="bg-amber-50/30 border border-amber-100 p-8 md:p-12 rounded-[32px] space-y-6">
+                    <div className="flex items-center gap-3 border-b border-amber-100 pb-4">
+                      <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-900">Ajustes de Conciliación (Arreglo Matemático)</h3>
+                    </div>
+                    
+                    {matchedData.matches.filter(m => m.type === 'ajuste').length > 0 ? (
+                        <div className="space-y-4">
+                            <table className="w-full text-left">
+                                <thead className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">
+                                    <tr>
+                                        <th className="pb-4">Referencia</th>
+                                        <th className="pb-4">Banco</th>
+                                        <th className="pb-4">Libros</th>
+                                        <th className="pb-4 text-right">Diferencia</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-amber-100">
+                                    {matchedData.matches.filter(m => m.type === 'ajuste').map((m: any, i: number) => (
+                                        <tr key={i}>
+                                            <td className="py-4">
+                                                <p className="text-[11px] font-black text-amber-900 uppercase">{m.bank.reference || m.bank.description.substring(0,10)}</p>
+                                            </td>
+                                            <td className="py-4">
+                                                <span className="text-[10px] font-medium text-slate-500">$ {parseCurrency(m.bank.amount).toLocaleString()}</span>
+                                            </td>
+                                            <td className="py-4">
+                                                <span className="text-[10px] font-medium text-slate-500">$ {parseCurrency(m.book.amount).toLocaleString()}</span>
+                                            </td>
+                                            <td className="py-4 text-right">
+                                                <span className="text-xs font-black text-rose-600">$ {(m.adjustment || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                            <div className="flex justify-between items-center py-4 px-6 bg-white rounded-2xl border border-amber-100 shadow-sm">
+                                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Total Ajustes por Conciliar</span>
+                                <span className="text-sm font-black text-rose-600">
+                                    $ {totals.adjustmentsTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-xs italic text-amber-400 py-2">No se requirieron ajustes matemáticos para esta conciliación.</p>
+                    )}
                 </div>
 
                 {/* Bottom Signature Area */}

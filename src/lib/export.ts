@@ -138,6 +138,30 @@ export function generatePDF(bankData: any, bookData: any, matchedData: any, netD
         ],
     });
 
+    // D. Adjustments Table (ARREGLO MATEMÁTICO)
+    const adjustments = (matchedData.matches || []).filter((m: any) => m.type === 'ajuste');
+    if (adjustments.length > 0) {
+        const adjY = (doc as any).lastAutoTable.finalY + 15;
+        doc.text("AJUSTES DE CONCILIACIÓN (ARREGLO MATEMÁTICO)", 20, adjY);
+        
+        autoTable(doc, {
+            ...tableStyles,
+            startY: adjY + 5,
+            head: [['REFERENCIA', 'BANCO', 'LIBROS', 'DIFERENCIA']],
+            body: [
+                ...adjustments.map((m: any) => [
+                    (m.bank.reference || m.bank.description).toUpperCase().substring(0, 20),
+                    `$ ${m.bank.amount.toLocaleString()}`,
+                    `$ ${m.book.amount.toLocaleString()}`,
+                    `$ ${m.adjustment.toLocaleString(undefined, { minimumFractionDigits: 2 })}`
+                ]),
+                [{ content: 'TOTAL AJUSTES MATEMÁTICOS', colSpan: 3, styles: { halign: 'right', fontStyle: 'bold' } },
+                { content: `$ ${adjustments.reduce((acc: number, m: any) => acc + m.adjustment, 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`, styles: { fontStyle: 'bold', textColor: [244, 63, 94] } }]
+            ],
+            headStyles: { ...tableStyles.headStyles, fillColor: [255, 251, 235], textColor: [146, 64, 14] }, // amber theme
+        });
+    }
+
     // 5. Signature Section
     const checkY = (doc as any).lastAutoTable.finalY + 30;
     const pageHeight = doc.internal.pageSize.getHeight();

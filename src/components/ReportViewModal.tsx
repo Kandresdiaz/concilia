@@ -192,6 +192,55 @@ export const ReportViewModal: React.FC<ReportViewModalProps> = ({
                                 </div>
                             ) : <p className="text-xs italic text-slate-300 py-4">Sin discrepancias en libros</p>}
                         </div>
+
+                        {/* Arreglo Matemático (Ajustes de Conciliación) */}
+                        <div className="bg-amber-50/30 border border-amber-100 p-8 rounded-[32px] space-y-6">
+                            <div className="flex items-center gap-3 border-b border-amber-100 pb-4">
+                                <div className="w-1.5 h-6 bg-amber-500 rounded-full"></div>
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-900">Ajustes de Conciliación (Arreglo Matemático)</h3>
+                            </div>
+                            
+                            {(data.matches || []).filter((m: any) => m.type === 'ajuste').length > 0 ? (
+                                <div className="space-y-4">
+                                    <table className="w-full text-left">
+                                        <thead className="text-[9px] font-bold text-amber-600/60 uppercase tracking-widest">
+                                            <tr>
+                                                <th className="pb-4">Referencia</th>
+                                                <th className="pb-4">Banco</th>
+                                                <th className="pb-4">Libros</th>
+                                                <th className="pb-4 text-right">Diferencia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-amber-100">
+                                            {(data.matches || []).filter((m: any) => m.type === 'ajuste').map((m: any, i: number) => (
+                                                <tr key={i}>
+                                                    <td className="py-4">
+                                                        <p className="text-[11px] font-black text-amber-900 uppercase">{m.bank.reference || m.bank.description.substring(0,12)}</p>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <span className="text-[10px] font-medium text-slate-500">$ {parseCurrency(m.bank.amount).toLocaleString()}</span>
+                                                    </td>
+                                                    <td className="py-4">
+                                                        <span className="text-[10px] font-medium text-slate-500">$ {parseCurrency(m.book.amount).toLocaleString()}</span>
+                                                    </td>
+                                                    <td className="py-4 text-right">
+                                                        <span className="text-xs font-black text-rose-600">$ {(m.adjustment || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                    <div className="flex justify-between items-center py-4 px-6 bg-white rounded-2xl border border-amber-100 shadow-sm">
+                                        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Total Ajustes por Conciliar</span>
+                                        <span className="text-sm font-black text-rose-600">
+                                            $ {(data.totals?.adjustmentsTotal || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-xs italic text-amber-400 py-2 text-center">No se requirieron ajustes matemáticos.</p>
+                            )}
+                        </div>
                     </div>
 
                     {/* Area de Firmas */}
