@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createClient as createClientAdmin } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
+import { sendReconciliationSuccessEmail } from "@/lib/mail";
 
 export async function getProfile(shop?: string) {
     const supabase = await createClient();
@@ -86,6 +87,28 @@ export async function saveConciliation(data: any, finalBalance: number, shop?: s
         reconciliations_count: (profile?.reconciliations_count ?? 0) + 1,
         last_reconciliation_at: new Date().toISOString()
     }).eq("id", targetId);
+
+    // --- NEW: Send Success Email with Report Summary ---
+    try {
+        const profileFull = await getProfile(shop);
+        if (profileFull?.email) {
+            const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            const currentMonth = months[new Date().getMonth()];
+            const currentYear = new Date().getFullYear();
+            
+            await sendReconciliationSuccessEmail(
+                profileFull.email, 
+                profileFull.full_name || shop || "Merchant", 
+                {
+                    period: `${currentMonth} ${currentYear}`,
+                    totalMatches: data.matches?.length || 0,
+                    difference: finalBalance
+                }
+            );
+        }
+    } catch (mailErr) {
+        console.error("Failed to send reconciliation success email:", mailErr);
+    }
 
     revalidatePath("/");
 }

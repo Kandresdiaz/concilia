@@ -78,6 +78,13 @@ export async function GET(request: Request) {
         }
       } else {
         console.warn("No profile found for email:", searchEmail, "Creating via magic link will handle profile creation.");
+        // --- NEW: Send Welcome Email to new merchant ---
+        try {
+          const { sendWelcomeEmail } = await import("@/lib/mail");
+          await sendWelcomeEmail(searchEmail, merchantName);
+        } catch (mailErr) {
+          console.error("Failed to send welcome email:", mailErr);
+        }
       }
 
       // Crear usuario si no existe, o simplemente generar un magic link de sesión
