@@ -4,10 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
     try {
-        const { pendingBank, pendingBook, companyName } = await req.json();
+        const { pendingBank, pendingBook, companyName, shop } = await req.json();
 
+        let user: any = null;
+        let profile: any = null;
         const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        user = authUser;
+
+        if (user) {
+            const { data: p } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+            profile = p;
+        } else if (shop) {
+             const supabaseAdmin = await createClient(true);
+             const { data: session } = await supabaseAdmin.from("shopify_sessions").select("id").eq("shop", shop).maybeSingle();
+             if (session) {
+                const { data: p } = await supabaseAdmin.from("profiles").select("*").eq("shopify_shop", shop).single();
+                profile = p;
+                if (profile) user = { id: profile.id };
+             }
+        }
 
         if (!user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

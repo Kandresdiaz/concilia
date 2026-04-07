@@ -69,6 +69,15 @@ export default function ConciliAI() {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [analyzingDiscrepancy, setAnalyzingDiscrepancy] = useState(false);
 
+  // Auto-trigger AI Analysis when viewing Audit if there are discrepancies
+  useEffect(() => {
+    if (currentView === "auditoria" && !aiInsight && !analyzingDiscrepancy) {
+      if (matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) {
+        handleAnalyzeDiscrepancy();
+      }
+    }
+  }, [currentView, matchedData.pendingBank.length, matchedData.pendingBook.length]);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isShopify, shop } = useShopify();
@@ -465,7 +474,8 @@ export default function ConciliAI() {
         body: JSON.stringify({
           pendingBank: matchedData.pendingBank,
           pendingBook: matchedData.pendingBook,
-          companyName: companyName
+          companyName: companyName,
+          shop: shop
         })
       });
       
@@ -1153,56 +1163,64 @@ export default function ConciliAI() {
                     )}
                 </div>
 
-                {/* --- AI INSIGHT SECTION --- */}
+                {/* --- AI INSIGHT SECTION (AUTOMATIC) --- */}
                 {(matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900">Análisis Inteligente de Descuadres</h3>
-                      </div>
-                      <button 
-                        onClick={handleAnalyzeDiscrepancy}
-                        disabled={analyzingDiscrepancy}
-                        className={cn(
-                          "btn btn-sm h-10 rounded-xl px-6 font-black gap-2 transition-all",
-                          analyzingDiscrepancy ? "btn-ghost loading" : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
-                        )}
-                      >
-                        {analyzingDiscrepancy ? "Analizando..." : "Diagnosticar con IA"}
-                        {!analyzingDiscrepancy && <Database className="w-3 h-3" />}
-                      </button>
+                  <div className="space-y-6 pt-12 border-t border-slate-100 mt-12">
+                    <div className="flex items-center gap-3">
+                      <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900">
+                        {analyzingDiscrepancy ? "Auditor Virtual Analizando..." : "Análisis Inteligente de Descuadres"}
+                      </h3>
                     </div>
 
-                    {aiInsight ? (
-                      <div className="bg-slate-900 text-slate-50 p-8 rounded-[32px] shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-500">
-                        <div className="relative z-10 space-y-4">
-                          <div className="flex items-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
-                            <Database className="w-3 h-3" /> Reporte de Auditoría IA
-                          </div>
-                          <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-li:font-medium">
-                            {aiInsight.split('\n').map((line, i) => (
-                              <p key={i} className={cn(line.trim().startsWith('-') || line.trim().startsWith('*') ? "pl-4 border-l border-indigo-500/30 my-2" : "my-1")}>
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                          <button 
-                            onClick={() => setAiInsight(null)}
-                            className="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest pt-4"
-                          >
-                            Ocultar análisis
-                          </button>
+                    {analyzingDiscrepancy ? (
+                      <div className="bg-slate-50 border border-slate-200 p-12 rounded-[32px] text-center space-y-4 animate-pulse">
+                        <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                           <Database className="w-6 h-6 text-indigo-500 animate-bounce" />
                         </div>
-                        {/* Decorative background glow */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed border-slate-100 rounded-[32px] p-8 text-center bg-slate-50/50">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          ¿No sabes por qué no cuadra? Deja que la IA detecte errores de digitación o comisiones ocultas.
+                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                          Analizando discrepancias entre Shopify y Extracto...
                         </p>
                       </div>
+                    ) : aiInsight ? (
+                      <div className="bg-slate-900 text-slate-50 p-10 rounded-[32px] shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-500">
+                        <div className="relative z-10 space-y-6">
+                          <div className="flex items-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest border-b border-white/10 pb-4">
+                            <Database className="w-3 h-3" /> Reporte de Auditoría Generado por IA
+                          </div>
+                          <div className="prose prose-invert prose-sm max-w-none">
+                            {aiInsight.split('\n').map((line, i) => (
+                              <div key={i} className={cn(
+                                "leading-relaxed mb-3",
+                                line.trim().startsWith('-') || line.trim().startsWith('*') ? "pl-4 border-l-2 border-indigo-500/50" : "font-medium"
+                              )}>
+                                {line}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="pt-4 flex justify-between items-center border-t border-white/5">
+                            <p className="text-[8px] text-slate-500 uppercase tracking-widest">Este análisis es preliminar. Revise con su contador.</p>
+                            <button 
+                              onClick={() => setAiInsight(null)}
+                              className="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest"
+                            >
+                              Cerrar análisis
+                            </button>
+                          </div>
+                        </div>
+                        {/* Elegant background gradients */}
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-[100px] -mr-48 -mt-48"></div>
+                        <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24"></div>
+                      </div>
+                    ) : (
+                       <button 
+                         onClick={handleAnalyzeDiscrepancy}
+                         className="w-full border-2 border-dashed border-slate-200 rounded-[32px] p-8 text-center bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-200 transition-all group"
+                       >
+                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-indigo-500">
+                           ¿No sabes por qué no cuadra? Haz clic aquí para un diagnóstico instantáneo.
+                         </p>
+                       </button>
                     )}
                   </div>
                 )}
