@@ -66,6 +66,8 @@ export default function ConciliAI() {
   const [modalLoading, setModalLoading] = useState(false);
   const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [analyzingDiscrepancy, setAnalyzingDiscrepancy] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -444,6 +446,40 @@ export default function ConciliAI() {
       setNotification({ type: "error", message: err.message || "Error al guardar la conciliación." });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAnalyzeDiscrepancy = async () => {
+    if (matchedData.pendingBank.length === 0 && matchedData.pendingBook.length === 0) {
+      setNotification({ type: "info", message: "No hay discrepancias que analizar." });
+      return;
+    }
+    
+    setAnalyzingDiscrepancy(true);
+    setAiInsight(null);
+    
+    try {
+      const response = await fetch("/api/analyze-discrepancy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pendingBank: matchedData.pendingBank,
+          pendingBook: matchedData.pendingBook,
+          companyName: companyName
+        })
+      });
+      
+      const data = await response.json();
+      if (data.insight) {
+        setAiInsight(data.insight);
+        setNotification({ type: "success", message: "Análisis de IA completado." });
+      } else {
+        throw new Error(data.error || "No se pudo generar el análisis.");
+      }
+    } catch (err: any) {
+      setNotification({ type: "error", message: err.message || "Error al conectar con la IA." });
+    } finally {
+      setAnalyzingDiscrepancy(false);
     }
   };
 
@@ -1116,6 +1152,60 @@ export default function ConciliAI() {
                         <p className="text-xs italic text-amber-400 py-2">No se requirieron ajustes matemáticos para esta conciliación.</p>
                     )}
                 </div>
+
+                {/* --- AI INSIGHT SECTION --- */}
+                {(matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) && (
+                  <div className="space-y-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
+                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900">Análisis Inteligente de Descuadres</h3>
+                      </div>
+                      <button 
+                        onClick={handleAnalyzeDiscrepancy}
+                        disabled={analyzingDiscrepancy}
+                        className={cn(
+                          "btn btn-sm h-10 rounded-xl px-6 font-black gap-2 transition-all",
+                          analyzingDiscrepancy ? "btn-ghost loading" : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100"
+                        )}
+                      >
+                        {analyzingDiscrepancy ? "Analizando..." : "Diagnosticar con IA"}
+                        {!analyzingDiscrepancy && <Database className="w-3 h-3" />}
+                      </button>
+                    </div>
+
+                    {aiInsight ? (
+                      <div className="bg-slate-900 text-slate-50 p-8 rounded-[32px] shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-500">
+                        <div className="relative z-10 space-y-4">
+                          <div className="flex items-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+                            <Database className="w-3 h-3" /> Reporte de Auditoría IA
+                          </div>
+                          <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-li:font-medium">
+                            {aiInsight.split('\n').map((line, i) => (
+                              <p key={i} className={cn(line.trim().startsWith('-') || line.trim().startsWith('*') ? "pl-4 border-l border-indigo-500/30 my-2" : "my-1")}>
+                                {line}
+                              </p>
+                            ))}
+                          </div>
+                          <button 
+                            onClick={() => setAiInsight(null)}
+                            className="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest pt-4"
+                          >
+                            Ocultar análisis
+                          </button>
+                        </div>
+                        {/* Decorative background glow */}
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] -mr-32 -mt-32"></div>
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-slate-100 rounded-[32px] p-8 text-center bg-slate-50/50">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                          ¿No sabes por qué no cuadra? Deja que la IA detecte errores de digitación o comisiones ocultas.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Bottom Signature Area */}
                 <div className="grid grid-cols-2 gap-24 pt-24 border-t border-slate-100">

@@ -13,47 +13,66 @@ export function parseCurrency(value: any): number {
     if (typeof value === "number") return value;
     if (!value) return 0;
 
-    // Remove symbols and keep only relevant characters
-    let clean = String(value).replace(/[^\d,.-]/g, "");
+    // Convert to string and remove all whitespace and currency symbols
+    let clean = String(value).trim().replace(/[^\d,.-]/g, "");
 
-    // Handle both , and . (e.g., 1.234,56 or 1,234.56)
-    if (clean.includes(",") && clean.includes(".")) {
+    if (!clean) return 0;
+
+    // Detect if the string has both comma and dot
+    const hasComma = clean.includes(",");
+    const hasDot = clean.includes(".");
+
+    if (hasComma && hasDot) {
         const lastComma = clean.lastIndexOf(",");
         const lastDot = clean.lastIndexOf(".");
 
+        // The last one is likely the decimal separator
         if (lastComma > lastDot) {
-            // Latam style: 1.234,56 -> 1234.56
+            // Latam style: 1.250.000,00 or 1.250,00
+            // Remove all dots (thousands), replace comma with dot (decimal)
             return parseFloat(clean.replace(/\./g, "").replace(",", "."));
         } else {
-            // US style: 1,234.56 -> 1234.56
+            // US style: 1,250,000.00 or 1,250.00
+            // Remove all commas (thousands)
             return parseFloat(clean.replace(/,/g, ""));
         }
     }
 
     // Only one type of separator
-    if (clean.includes(",")) {
-        // If there's only one comma and it's followed by 2 digits, it's decimal (e.g., 100,50)
-        // Except if there's only 1 comma and it's like 10,000 (US style but using comma wrongly? No, that's Latam thousands)
-        // Heuristic: if it's N,XXX it's thousands. If it's N,XX it's decimal.
+    if (hasComma) {
         const parts = clean.split(",");
-        if (parts[parts.length - 1].length === 2) {
+        // If there are multiple commas, they are thousands: 1,250,000
+        if (parts.length > 2) {
+            return parseFloat(clean.replace(/,/g, ""));
+        }
+        // One comma. If followed by 2 digits, it's decimal: 100,50
+        // Or if it's followed by 3 digits, it's thousands: 1,250 (common in some formats)
+        // Check decimals:
+        const decimalPart = parts[parts.length - 1];
+        if (decimalPart.length === 2) {
             return parseFloat(clean.replace(",", "."));
         }
+        // Default to thousands if length is 3 or other
         return parseFloat(clean.replace(/,/g, ""));
     }
 
-    if (clean.includes(".")) {
+    if (hasDot) {
         const parts = clean.split(".");
-        // If multiple dots, it's thousands (e.g., 1.250.000)
+        // Multiple dots: 1.250.000
         if (parts.length > 2) {
             return parseFloat(clean.replace(/\./g, ""));
         }
-        // One dot. If followed by 3 digits, high probability it's thousands in accounting (e.g., 1.250)
-        // Especially in Colombia/Spain.
-        if (parts[parts.length - 1].length === 3) {
+        // One dot. heuristic:
+        const decimalPart = parts[parts.length - 1];
+        // If followed by 2 digits, highly likely decimal: 100.50
+        if (decimalPart.length === 2) {
+            return parseFloat(clean);
+        }
+        // If followed by 3 digits, highly likely thousands: 1.250
+        if (decimalPart.length === 3) {
             return parseFloat(clean.replace(/\./g, ""));
         }
-        // Otherwise assume decimal (e.g., 100.50)
+        // Otherwise use standard parseFloat
         return parseFloat(clean);
     }
 

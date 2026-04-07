@@ -1,4 +1,5 @@
 import { generateAICompletion } from "@/lib/ai";
+import { parseCurrency } from "@/lib/utils";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
@@ -150,7 +151,7 @@ export async function POST(req: Request) {
 
         transactions = transactions.filter((t: any) => {
             const desc = (t.description || "").toLowerCase();
-            const amt = Math.abs(typeof t.amount === 'string' ? parseFloat(t.amount.replace(/[^0-9.-]/g, "")) : Number(t.amount || 0));
+            const amt = Math.abs(parseCurrency(t.amount));
 
             // Fuerte exclusión de términos de saldo
             if (desc.includes("saldo") || desc.includes("anterior") || desc.includes("balance inicial") || desc.includes("apertura")) {
@@ -165,9 +166,7 @@ export async function POST(req: Request) {
             return true;
         }).map((t: any) => ({
             ...t,
-            amount: typeof t.amount === 'string'
-                ? parseFloat(t.amount.replace(/[^0-9.-]/g, ""))
-                : Number(t.amount || 0)
+            amount: parseCurrency(t.amount)
         }));
 
         const total_in = transactions
