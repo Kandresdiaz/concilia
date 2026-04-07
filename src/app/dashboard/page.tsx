@@ -1046,6 +1046,77 @@ export default function ConciliAI() {
                   </div>
                 </div>
 
+                {/* --- AI INSIGHT SECTION (AUTOMATIC & PROMINENT) --- */}
+                {(matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) && (
+                  <div className="space-y-6 pt-12 border-t border-slate-100 mt-12 bg-indigo-50/20 p-8 rounded-[40px] border border-indigo-100 shadow-sm animate-in fade-in slide-in-from-top-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-2 h-8 bg-indigo-600 rounded-full shadow-lg shadow-indigo-200"></div>
+                      <h3 className="text-[12px] font-black uppercase tracking-[0.2em] text-indigo-900 leading-none">
+                        {analyzingDiscrepancy ? "Auditor Virtual ConciliAI Analizando..." : "Diagnóstico Inteligente de Auditoría"}
+                      </h3>
+                    </div>
+
+                    {analyzingDiscrepancy ? (
+                      <div className="bg-white border border-indigo-100 p-16 rounded-[32px] text-center space-y-6 shadow-xl shadow-indigo-50/50">
+                        <div className="w-16 h-16 bg-gradient-to-tr from-indigo-600 to-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-6 shadow-xl animate-pulse">
+                           <Database className="w-8 h-8 text-white animate-bounce" />
+                        </div>
+                        <div className="space-y-2">
+                           <p className="text-[11px] font-black text-indigo-600 uppercase tracking-[0.2em] animate-pulse">Analizando Desfases en Tiempo Real</p>
+                           <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest max-w-xs mx-auto">Nuestro Auditor IA está revisando comisiones, fechas y referencias entre Shopify y Bancolombia.</p>
+                        </div>
+                      </div>
+                    ) : aiInsight ? (
+                      <div className="bg-slate-900 text-slate-50 p-12 rounded-[40px] shadow-2xl relative overflow-hidden ring-4 ring-indigo-500/10 transition-all duration-700">
+                        <div className="relative z-10 space-y-8">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-6">
+                            <div className="flex items-center gap-3 text-indigo-400 text-[10px] font-black uppercase tracking-[0.2em]">
+                              <Database className="w-4 h-4" /> Reporte de Auditoría Certificado v1.0
+                            </div>
+                            <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">{new Date().toLocaleTimeString()}</span>
+                          </div>
+                          
+                          <div className="prose prose-invert prose-sm max-w-none">
+                            {aiInsight.split('\n').map((line, i) => {
+                              const cleanLine = line.trim();
+                              if (!cleanLine) return null;
+                              return (
+                                <div key={i} className={cn(
+                                  "leading-relaxed mb-4 text-[13px]",
+                                  cleanLine.startsWith('-') || cleanLine.startsWith('*') 
+                                    ? "pl-6 border-l-2 border-indigo-500/40 py-1 font-medium bg-white/5 rounded-r-lg" 
+                                    : "font-black text-xs text-indigo-100 uppercase tracking-tight"
+                                )}>
+                                  {cleanLine.replace(/^[-*]\s?/, '')}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          
+                          <div className="pt-6 flex justify-between items-center border-t border-white/5 opacity-50">
+                            <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest italic">Confidencial • Generado automáticamente para ConciliAI</p>
+                            <button 
+                              onClick={() => setAiInsight(null)}
+                              className="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-[9px] font-black text-slate-300 uppercase tracking-widest transition-colors"
+                            >
+                              Ocultar Diagnóstico
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                       <button 
+                         onClick={handleAnalyzeDiscrepancy}
+                         className="w-full border-2 border-dashed border-indigo-100 rounded-[32px] p-10 text-center bg-white hover:bg-indigo-50 hover:border-indigo-300 transition-all group shadow-sm"
+                       >
+                         <p className="text-[11px] font-black text-indigo-400 uppercase tracking-[0.2em] group-hover:text-indigo-600 flex items-center justify-center gap-3">
+                           <Database className="w-4 h-4" /> Recalcular Diagnóstico de IA Instantáneo
+                         </p>
+                       </button>
+                    )}
+                  </div>
+                )}
+
                 {/* Report Tables */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 relative">
                   <div className="absolute left-1/2 top-12 bottom-12 w-px bg-slate-100 hidden md:block"></div>
@@ -1164,67 +1235,6 @@ export default function ConciliAI() {
                     )}
                 </div>
 
-                {/* --- AI INSIGHT SECTION (AUTOMATIC) --- */}
-                {(matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) && (
-                  <div className="space-y-6 pt-12 border-t border-slate-100 mt-12">
-                    <div className="flex items-center gap-3">
-                      <div className="w-1.5 h-6 bg-indigo-600 rounded-full"></div>
-                      <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-900">
-                        {analyzingDiscrepancy ? "Auditor Virtual Analizando..." : "Análisis Inteligente de Descuadres"}
-                      </h3>
-                    </div>
-
-                    {analyzingDiscrepancy ? (
-                      <div className="bg-slate-50 border border-slate-200 p-12 rounded-[32px] text-center space-y-4 animate-pulse">
-                        <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                           <Database className="w-6 h-6 text-indigo-500 animate-bounce" />
-                        </div>
-                        <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">
-                          Analizando discrepancias entre Shopify y Extracto...
-                        </p>
-                      </div>
-                    ) : aiInsight ? (
-                      <div className="bg-slate-900 text-slate-50 p-10 rounded-[32px] shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-500">
-                        <div className="relative z-10 space-y-6">
-                          <div className="flex items-center gap-2 text-indigo-400 text-[10px] font-black uppercase tracking-widest border-b border-white/10 pb-4">
-                            <Database className="w-3 h-3" /> Reporte de Auditoría Generado por IA
-                          </div>
-                          <div className="prose prose-invert prose-sm max-w-none">
-                            {aiInsight.split('\n').map((line, i) => (
-                              <div key={i} className={cn(
-                                "leading-relaxed mb-3",
-                                line.trim().startsWith('-') || line.trim().startsWith('*') ? "pl-4 border-l-2 border-indigo-500/50" : "font-medium"
-                              )}>
-                                {line}
-                              </div>
-                            ))}
-                          </div>
-                          <div className="pt-4 flex justify-between items-center border-t border-white/5">
-                            <p className="text-[8px] text-slate-500 uppercase tracking-widest">Este análisis es preliminar. Revise con su contador.</p>
-                            <button 
-                              onClick={() => setAiInsight(null)}
-                              className="text-[9px] font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest"
-                            >
-                              Cerrar análisis
-                            </button>
-                          </div>
-                        </div>
-                        {/* Elegant background gradients */}
-                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-500/20 rounded-full blur-[100px] -mr-48 -mt-48"></div>
-                        <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-emerald-500/10 rounded-full blur-[80px] -ml-24 -mb-24"></div>
-                      </div>
-                    ) : (
-                       <button 
-                         onClick={handleAnalyzeDiscrepancy}
-                         className="w-full border-2 border-dashed border-slate-200 rounded-[32px] p-8 text-center bg-slate-50/50 hover:bg-slate-50 hover:border-indigo-200 transition-all group"
-                       >
-                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest group-hover:text-indigo-500">
-                           ¿No sabes por qué no cuadra? Haz clic aquí para un diagnóstico instantáneo.
-                         </p>
-                       </button>
-                    )}
-                  </div>
-                )}
 
                 {/* Bottom Signature Area */}
                 <div className="grid grid-cols-2 gap-24 pt-24 border-t border-slate-100">
