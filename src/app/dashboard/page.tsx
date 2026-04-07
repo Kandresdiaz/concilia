@@ -69,14 +69,6 @@ export default function ConciliAI() {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [analyzingDiscrepancy, setAnalyzingDiscrepancy] = useState(false);
 
-  // Auto-trigger AI Analysis when viewing Audit if there are discrepancies
-  useEffect(() => {
-    if (currentView === "auditoria" && !aiInsight && !analyzingDiscrepancy) {
-      if (matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) {
-        handleAnalyzeDiscrepancy();
-      }
-    }
-  }, [currentView, matchedData.pendingBank.length, matchedData.pendingBook.length]);
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -231,6 +223,15 @@ export default function ConciliAI() {
       pendingBook: bookTransactions.filter((t: any) => pendingBookIds.has(t.id))
     };
   })();
+
+  // Auto-trigger AI Analysis when viewing Audit if there are discrepancies
+  useEffect(() => {
+    if (currentView === "auditoria" && !aiInsight && !analyzingDiscrepancy) {
+      if (matchedData.pendingBank.length > 0 || matchedData.pendingBook.length > 0) {
+        handleAnalyzeDiscrepancy();
+      }
+    }
+  }, [currentView, matchedData.pendingBank.length, matchedData.pendingBook.length]);
 
   const totals = (() => {
     // Cálculo final para el balance ("Arreglo Matemático")
