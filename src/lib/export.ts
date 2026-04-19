@@ -213,7 +213,7 @@ export function generateCSV(bankData: any, bookData: any, matchedData: any, comp
     const d = ","; // Universal delimiter
     
     // Universal headers and metadata
-    let csv = `${bom}`;
+    let csv = `${bom}sep=,\n`;
     csv += `"PROYECTO"${d}"CONCILIAI (AUDIT)"\n`;
     csv += `"EMPRESA"${d}"${(companyName || "S/N").replace(/"/g, '""')}"\n`;
     csv += `"FECHA EXPORT"${d}"${new Date().toISOString()}"\n`;
@@ -275,7 +275,7 @@ export function generateSoftwareExport(
     companyName: string
 ) {
     const bom = "\uFEFF";
-    let csv = `${bom}`;
+    let csv = `${bom}sep=,\n`;
     let filename = `Export_${software}_${companyName.replace(/\s+/g, "_")}.csv`;
     const d = ",";
 
