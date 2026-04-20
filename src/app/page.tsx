@@ -323,74 +323,6 @@ function AuditLaboratory({ user }: { user: any }) {
   );
 }
 
-// --- Subcomponent: Profit Leak Calculator ---
-function ProfitLeakCalculator() {
-  const [revenue, setRevenue] = useState(5000);
-  const [orders, setOrders] = useState(100);
-  const [leakage, setLeakage] = useState(0);
-
-  useEffect(() => {
-    // Media industrial: 2-5% de discrepancias en e-commerce sin conciliación automatizada
-    const calculatedLeak = (revenue * 0.035) + (orders * 0.5); // $0.5 de error promedio por orden + 3.5% de revenue
-    setLeakage(calculatedLeak);
-  }, [revenue, orders]);
-
-  return (
-    <div className="w-full max-w-4xl mx-auto bg-slate-900 rounded-[40px] p-8 md:p-12 text-white border border-white/10 shadow-3xl relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-8 opacity-10 font-black text-8xl italic select-none pointer-events-none group-hover:opacity-20 transition-opacity">
-        $ LOST
-      </div>
-      <div className="relative z-10 space-y-10">
-        <div className="text-center space-y-2">
-          <h3 className="text-3xl font-black uppercase italic tracking-tightest">Calculadora de Fugas Financieras</h3>
-          <p className="text-slate-400 font-medium italic">Descubre cuánto dinero estás dejando en manos de las pasarelas cada mes.</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Ventas Mensuales (USD)</label>
-              <input 
-                type="range" min="1000" max="100000" step="1000" value={revenue} 
-                onChange={(e) => setRevenue(parseInt(e.target.value))}
-                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-              <div className="text-3xl font-black italic tracking-tighter">${revenue.toLocaleString()}</div>
-            </div>
-            <div className="space-y-4">
-              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 italic">Pedidos por Mes</label>
-              <input 
-                type="range" min="10" max="5000" step="10" value={orders} 
-                onChange={(e) => setOrders(parseInt(e.target.value))}
-                className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-              />
-              <div className="text-3xl font-black italic tracking-tighter">{orders.toLocaleString()} órdenes</div>
-            </div>
-          </div>
-
-          <div className="bg-indigo-600/20 rounded-[35px] border border-indigo-500/30 p-10 flex flex-col items-center justify-center text-center space-y-4 animate-float">
-            <p className="text-[10px] font-black uppercase tracking-widest text-indigo-300">Pérdida Estimada Mensual</p>
-            <div className="text-6xl font-black tracking-tightest italic text-rose-500">
-              ${Math.round(leakage).toLocaleString()}
-            </div>
-            <p className="text-xs font-bold text-slate-400 max-w-[200px] leading-relaxed italic">
-              Este es el dinero que se está "evaporando" entre comisiones no reportadas y órdenes fantasma.
-            </p>
-          </div>
-        </div>
-        
-        <div className="pt-4 flex justify-center">
-          <button 
-            onClick={() => document.getElementById("demo")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-10 py-5 bg-white text-slate-900 rounded-3xl font-black uppercase italic text-xs tracking-widest hover:bg-indigo-500 hover:text-white transition-all shadow-xl"
-          >
-            Detener esta fuga ahora <ArrowRight className="inline w-4 h-4 ml-2" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 const Upload = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -616,11 +548,6 @@ export default function LandingPage() {
           <AuditLaboratory user={user} />
         </section>
 
-        {/* Profit Leak Calculator Section */}
-        <section className="py-24 px-6 bg-slate-50 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/5 blur-3xl -z-10 rounded-full translate-x-1/2 -translate-y-1/2"></div>
-          <ProfitLeakCalculator />
-        </section>
 
 
         {/* Bank & Platform Support (Trust Logos) */}
