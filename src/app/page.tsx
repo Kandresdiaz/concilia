@@ -538,8 +538,41 @@ export default function LandingPage() {
       </nav>
 
       <main>
+        {/* Video Demo Section - Live Loom Embed */}
+        <section className="pt-20 pb-12 px-6 bg-white relative">
+          <div className="max-w-5xl mx-auto space-y-12">
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-2">
+                <Clock className="w-3 h-3" /> Demo en Vivo
+              </div>
+              <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
+                Mira la IA en <span className="text-indigo-600">acción</span>
+              </h2>
+            </div>
+            
+            {/* Mac-style Video Frame */}
+            <div className="relative rounded-[40px] p-2 bg-slate-900 shadow-[0_50px_100px_-20px_rgba(79,70,229,0.4)] border border-white/10 group animate-in zoom-in duration-1000">
+              {/* Window Controls */}
+              <div className="absolute top-6 left-8 flex gap-2 z-20">
+                <div className="w-3 h-3 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></div>
+                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
+              </div>
+              
+              <div className="relative aspect-video rounded-[32px] overflow-hidden bg-slate-100 border-4 border-slate-900">
+                <iframe 
+                  src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true&autoplay=1&loop=1&muted=1" 
+                  frameBorder="0" 
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                ></iframe>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Hero Section */}
-        <section className="relative pt-32 pb-48 px-6 text-center overflow-hidden italic">
+        <section className="relative pt-12 pb-32 px-6 text-center overflow-hidden italic">
           {/* Background Decorations */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full -z-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-violet-100/30 via-transparent to-transparent"></div>
 
@@ -558,44 +591,7 @@ export default function LandingPage() {
                 Tus pasarelas de pago te están ocultando dinero. Concilia Shopify, Stripe y Bancos en <span className="text-slate-900 font-bold border-b-4 border-indigo-500/30">3 segundos</span> con Cross-Audit™ Vision-AI.
               </p>
 
-              {/* User Segmentation & Attribution */}
-              <div className="flex flex-col items-center gap-6 pt-12 animate-in fade-in duration-1000">
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">¿Quién eres tú? (Para personalizar tu reporte)</p>
-                <div className="flex flex-wrap justify-center gap-4">
-                  {[
-                    { id: 'contador', label: 'Soy Contador', icon: '💼' },
-                    { id: 'dueno', label: 'Dueño de Negocio', icon: '🚀' },
-                    { id: 'freelance', label: 'Independiente', icon: '⚡' }
-                  ].map((role) => (
-                    <button
-                      key={role.id}
-                      onClick={() => {
-                        trackClick(`role_select_${role.id}`, "landing");
-                        // Store in local storage for login later
-                        localStorage.setItem("concilia_user_role", role.id);
-                        // Also track the source
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const source = urlParams.get('ref') || urlParams.get('utm_source') || 'organico';
-                        logEvent("user_segmentation", { role: role.id, source: source });
-                        
-                        const element = document.getElementById("demo");
-                        element?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className="px-8 py-4 bg-white border-2 border-slate-100 rounded-2xl font-bold text-sm text-slate-600 hover:border-indigo-600 hover:text-indigo-600 hover:scale-105 transition-all shadow-sm"
-                    >
-                      <span className="mr-2 text-lg">{role.icon}</span> {role.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-12">
-                <div className="absolute -top-12 flex items-center gap-2 px-4 py-2 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 shadow-sm animate-bounce">
-                  <div className="flex -space-x-2">
-                    {[1,2,3].map(i => <div key={i} className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white" />)}
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest">+500 Contadores ahorrando tiempo</span>
-                </div>
                 <button
                   onClick={() => {
                     trackClick("cta_main_hero", "landing");
@@ -604,11 +600,20 @@ export default function LandingPage() {
                   }}
                   className="w-full sm:w-auto px-12 h-20 bg-indigo-600 text-white rounded-[32px] font-black uppercase tracking-widest text-sm hover:bg-slate-900 hover:scale-105 transition-all shadow-2xl shadow-indigo-200 flex items-center justify-center gap-4 group relative"
                 >
-                  Empezar Auditoría con IA <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
+                  Probar Conciliación Gratis <Zap className="w-4 h-4 fill-current group-hover:rotate-12 transition-transform" />
                 </button>
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Uploader Section - Moved up to be prominent */}
+        <section id="demo" className="py-24 px-6 bg-white relative">
+          <div className="text-center mb-12 space-y-4">
+               <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600">Paso 1: Sube tus archivos</p>
+               <h2 className="text-4xl font-black uppercase italic italic">Empieza a Conciliar <span className="text-indigo-600">Ahora</span></h2>
+          </div>
+          <AuditLaboratory user={user} />
         </section>
 
         {/* Profit Leak Calculator Section */}
@@ -617,44 +622,6 @@ export default function LandingPage() {
           <ProfitLeakCalculator />
         </section>
 
-        {/* Video Demo Section - Live Loom Embed */}
-        <section className="py-24 px-6 bg-white relative">
-          <div className="max-w-5xl mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full mb-2">
-                <Clock className="w-3 h-3" /> Demo en Vivo
-              </div>
-              <h2 className="text-4xl md:text-6xl font-black uppercase italic tracking-tightest">
-                Mira la IA en <span className="text-indigo-600">acción</span>
-              </h2>
-              <p className="text-slate-500 font-medium text-lg max-w-2xl mx-auto">
-                No confíes en nuestra palabra. Mira cómo ConciliAI encuentra discrepancias en un extracto real en segundos.
-              </p>
-            </div>
-            
-            {/* Mac-style Video Frame */}
-            <div className="relative rounded-[40px] p-2 bg-slate-900 shadow-[0_50px_100px_-20px_rgba(79,70,229,0.4)] border border-white/10 group animate-in zoom-in duration-1000">
-              {/* Window Controls */}
-              <div className="absolute top-6 left-8 flex gap-2 z-20">
-                <div className="w-3 h-3 rounded-full bg-rose-500 shadow-sm shadow-rose-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50"></div>
-                <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50"></div>
-              </div>
-              
-              <div className="relative aspect-video rounded-[32px] overflow-hidden bg-slate-100 border-4 border-slate-900">
-                <iframe 
-                  src="https://www.loom.com/embed/0e264bed390548f7a95d76b7450be6f5?hide_owner=true&hide_share=true&hide_title=true&hide_status_bar=true&autoplay=1&loop=1" 
-                  frameBorder="0" 
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                ></iframe>
-              </div>
-            </div>
-            <div className="flex justify-center italic text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] opacity-50">
-              Cross-Audit™ Vision-AI Recording • Medellín, CO
-            </div>
-          </div>
-        </section>
 
         {/* Bank & Platform Support (Trust Logos) */}
         <section className="py-12 border-y border-slate-100 bg-slate-50/50">
@@ -670,11 +637,6 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Uploader Section */}
-        <section id="demo" className="py-24 px-6 bg-white relative">
-          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-slate-50 to-white"></div>
-          <AuditLaboratory user={user} />
-        </section>
 
         {/* Niche Solutions Section */}
         <section className="py-32 px-6 bg-slate-50">
