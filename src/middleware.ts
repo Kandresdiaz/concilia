@@ -1,17 +1,25 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Only check auth on protected routes to avoid getUser() network timeouts on Edge Runtime
+const PROTECTED_PATHS = ['/dashboard', '/admin']
+
 export async function middleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
 
-    // Bypass middleware for API routes and authentication callbacks to prevent timeouts
-    if (pathname.startsWith('/api') || pathname.startsWith('/auth')) {
+    // Only run auth logic on protected routes — avoids unnecessary network calls
+    const isProtected = PROTECTED_PATHS.some(p => pathname.startsWith(p))
+    if (!isProtected) {
         return NextResponse.next()
     }
 
-    let supabaseResponse = NextResponse.next({
-        request,
-    })
+    // Si viene con ?shop=, es un merchant autenticado por Shopify → dejar pasar sin login de Supabase
+    const shop = request.nextUrl.searchParams.get('shop')
+    if (shop) {
+        return NextResponse.next()
+    }
+
+    let supabaseResponse = NextResponse.next({ request })
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,10 +30,8 @@ export async function middleware(request: NextRequest) {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    })
+                    cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+                    supabaseResponse = NextResponse.next({ request })
                     cookiesToSet.forEach(({ name, value, options }) =>
                         supabaseResponse.cookies.set(name, value, options)
                     )
@@ -34,20 +40,12 @@ export async function middleware(request: NextRequest) {
         }
     )
 
-    // Do not run middleware on static files or API routes that don't need auth
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Si viene con ?shop=, es un merchant autenticado por Shopify → dejar pasar sin login de Supabase
-    const shop = request.nextUrl.searchParams.get('shop')
-    if (shop && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/admin'))) {
-        return supabaseResponse
-    }
-
-    if (!user && (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/admin'))) {
+    if (!user) {
         const url = request.nextUrl.clone()
         url.pathname = '/login'
         const host = request.nextUrl.searchParams.get('host')
-        if (shop) url.searchParams.set('shop', shop)
         if (host) url.searchParams.set('host', host)
         return NextResponse.redirect(url)
     }
@@ -56,7 +54,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-    ],
+    // Only match protected routes — skip everything else entirely
+    matcher: ['/dashboard/:path*', '/admin/:path*'],
 }
