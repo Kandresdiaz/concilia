@@ -1,11 +1,12 @@
 import { Metadata } from "next";
 
 type Props = {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const bankName = params.slug
+    const { slug } = await params;
+    const bankName = slug
         .split("-")
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
         .join(" ");

@@ -303,8 +303,9 @@ export default function ConciliAI() {
           const result = await res.json();
           if (result.code === 'SESSION_NOT_FOUND' && result.reconnect_url) {
               setNotification({ type: "info", message: "Sesión expirada. Reconectando automáticamente con Shopify..." });
-              if (window.top) window.top.location.href = result.reconnect_url;
-              else window.location.href = result.reconnect_url;
+              const absoluteUrl = window.location.origin + result.reconnect_url;
+              if (window.top) window.top.location.href = absoluteUrl;
+              else window.location.href = absoluteUrl;
               return; // Stop flow and wait for redirect
           }
           if (result.error) throw new Error(result.error);

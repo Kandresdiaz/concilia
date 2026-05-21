@@ -46,7 +46,8 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
     const isAdmin = role === "admin" || role === "superadmin";
     const isFree = tier === "FREE";
     const pathname = usePathname();
-    const { isShopify } = useShopify();
+    const { isShopify, shop, host } = useShopify();
+    const shopifyQuery = shop ? `?shop=${shop}${host ? `&host=${host}` : ''}` : '';
 
     const navItems = [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -185,7 +186,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                         <>
                             {pathname === "/admin" ? (
                                 <Link
-                                    href="/dashboard"
+                                    href={`/dashboard${shopifyQuery}`}
                                     className={cn(
                                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-bold text-[13px] bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100 mt-4"
                                     )}
@@ -195,7 +196,7 @@ export function Sidebar({ currentView, onViewChange, usageCount, limit, tier, em
                                 </Link>
                             ) : (
                                 <Link
-                                    href="/admin"
+                                    href={`/admin${shopifyQuery}`}
                                     className={cn(
                                         "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-bold text-[13px] bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200 mt-4"
                                     )}

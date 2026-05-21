@@ -30,7 +30,11 @@ function LoginContent() {
             .then(r => r.json())
             .then(data => {
                 if (data.url) {
-                    window.location.href = data.url;
+                    if (window.top) {
+                        window.top.location.href = data.url;
+                    } else {
+                        window.location.href = data.url;
+                    }
                 } else {
                     setShopifyConnecting(false); // Mostrar login manual como fallback
                 }
