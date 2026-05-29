@@ -95,7 +95,7 @@ export async function GET(request: Request) {
       // Preferir offline, luego online
       sessionData = sessions.find(s => s.accessToken && !s.isOnline)
         ?? sessions.find(s => s.accessToken && s.isOnline)
-        ?? null;
+        ?? undefined;
     }
 
     if (!sessionData || !sessionData.accessToken) {
