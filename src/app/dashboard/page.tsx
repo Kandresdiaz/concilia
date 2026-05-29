@@ -299,29 +299,35 @@ export default function ConciliAI() {
 
       // Optimizacion especial para Conexion Directa con Shopify
       if (source === "shopify") {
-          const res = await fetch(`/api/shopify/orders?shop=${content}`);
+          // content puede ser "shop.myshopify.com" o "shop.myshopify.com|YYYY-MM"
+          const [shopValue, monthValue] = content.split('|');
+          const monthParam = monthValue ? `&month=${monthValue}` : '';
+          const res = await fetch(`/api/shopify/orders?shop=${shopValue}${monthParam}`);
           const result = await res.json();
           if (result.code === 'SESSION_NOT_FOUND' && result.reconnect_url) {
               setNotification({ type: "info", message: "Sesión expirada. Reconectando automáticamente con Shopify..." });
               const absoluteUrl = window.location.origin + result.reconnect_url;
               if (window.top) window.top.location.href = absoluteUrl;
               else window.location.href = absoluteUrl;
-              return; // Stop flow and wait for redirect
+              return;
           }
           if (result.error) throw new Error(result.error);
+          const orders = result.orders || [];
           data = {
-              transactions: result.orders,
+              transactions: orders,
               banco: "Shopify",
               empresa: companyName || "Tu Empresa",
-              tipo_documento: "Sincronización Directa",
+              tipo_documento: `Sincronización Shopify ${monthValue || ''}`.trim(),
               verified_totals: {
-                  total_in: result.orders.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
-                  total_out: result.orders.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount)), 0),
-                  net: result.orders.reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
+                  total_in: orders.filter((t: any) => t.type === "INCOME").reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
+                  total_out: orders.filter((t: any) => t.type === "EXPENSE").reduce((acc: number, t: any) => acc + Math.abs(parseCurrency(t.amount)), 0),
+                  net: orders.reduce((acc: number, t: any) => acc + parseCurrency(t.amount), 0),
               },
               precision_score: 100
           };
+          setNotification({ type: "success", message: `✅ ${orders.length} órdenes sincronizadas desde Shopify.` });
       }
+
 
       // Optimización: Intentar ruta $0 si es texto y no imagen
       if (!data && !isImage && content && source !== "shopify") {

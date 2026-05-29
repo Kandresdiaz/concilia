@@ -39,6 +39,10 @@ export function ImportModal({
     const [source, setSource] = useState<"file" | "ai" | "gmail" | "shopify">("file");
     const [text, setText] = useState("");
     const [password, setPassword] = useState("");
+    // Mes/Año para sincronización Shopify
+    const now = new Date();
+    const [shopifyYear, setShopifyYear] = useState(now.getFullYear());
+    const [shopifyMonth, setShopifyMonth] = useState(now.getMonth() + 1); // 1-12
     const [showPasswordInput, setShowPasswordInput] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -344,35 +348,74 @@ export function ImportModal({
                         )}
 
                         {source === "shopify" && isShopify && tab === "book" && (
-                            <div className="text-center py-12 space-y-4">
-                                <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-2 relative">
+                            <div className="text-center py-8 space-y-6">
+                                <div className="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto relative">
                                     <ShoppingBag className="w-8 h-8" />
                                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white border-2 border-white">
                                         <CheckCircle className="w-4 h-4" />
                                     </div>
                                 </div>
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight">Sincronización Directa de Shopify</h3>
-                                <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
-                                    Extraeremos automáticamente tus órdenes recientes para que no tengas que subir ningún documento.
-                                </p>
-                                <div className="pt-2">
-                                  <button
-                                      onClick={() => {
-                                          setIsProcessing(true);
-                                          const processImport = async () => {
-                                              await onImport(tab, source, shop || "", false, country);
-                                              setIsProcessing(false);
-                                          };
-                                          processImport();
-                                      }}
-                                      disabled={loading || isProcessing || isLimited}
-                                      className="btn bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold px-8"
-                                  >
-                                      {loading || isProcessing ? <Loader2 className="animate-spin w-5 h-5" /> : "Sincronizar Órdenes Ahora"}
-                                  </button>
-                                  {/* El botón manual de re-conexión fue eliminado. La app ahora maneja las redirecciones vía API al detectar 401. */}
+                                <div>
+                                    <h3 className="text-xl font-black text-slate-900 tracking-tight">Sincronización Directa de Shopify</h3>
+                                    <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed mt-1">
+                                        Selecciona el mes y año para traer <strong>todas</strong> las órdenes de ese período.
+                                    </p>
                                 </div>
+
+                                {/* Selector de Mes y Año */}
+                                <div className="flex items-center justify-center gap-3">
+                                    <div className="flex flex-col items-start gap-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Mes</label>
+                                        <select
+                                            value={shopifyMonth}
+                                            onChange={(e) => setShopifyMonth(Number(e.target.value))}
+                                            className="select select-bordered rounded-xl font-bold text-sm min-w-[130px]"
+                                        >
+                                            {[
+                                                "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+                                                "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+                                            ].map((m, i) => (
+                                                <option key={i + 1} value={i + 1}>{m}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col items-start gap-1">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Año</label>
+                                        <select
+                                            value={shopifyYear}
+                                            onChange={(e) => setShopifyYear(Number(e.target.value))}
+                                            className="select select-bordered rounded-xl font-bold text-sm min-w-[100px]"
+                                        >
+                                            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(y => (
+                                                <option key={y} value={y}>{y}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
+
+                                <div className="pt-1">
+                                    <button
+                                        onClick={() => {
+                                            setIsProcessing(true);
+                                            // Pasamos el periodo como parte del content: "shop|YYYY-MM"
+                                            const period = `${shopifyYear}-${String(shopifyMonth).padStart(2, '0')}`;
+                                            const payload = `${shop}|${period}`;
+                                            const processImport = async () => {
+                                                await onImport(tab, source, payload, false, country);
+                                                setIsProcessing(false);
+                                            };
+                                            processImport();
+                                        }}
+                                        disabled={loading || isProcessing || isLimited}
+                                        className="btn bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold px-10 h-12"
+                                    >
+                                        {loading || isProcessing
+                                            ? <><Loader2 className="animate-spin w-5 h-5 mr-2" />Sincronizando...</>
+                                            : <><ShoppingBag className="w-4 h-4 mr-2" />Sincronizar Órdenes</>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
                         )}
 
                         {source === "gmail" && (
