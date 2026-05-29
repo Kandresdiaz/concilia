@@ -10,7 +10,7 @@ const apiSecretKey = process.env.SHOPIFY_API_SECRET || "BUILD_TIME_SECRET";
 export const shopify = shopifyApi({
   apiKey,
   apiSecretKey,
-  scopes: ["read_products", "read_orders"],
+  scopes: ["read_orders", "read_products", "write_products"],
   hostName: (process.env.HOST || process.env.VERCEL_URL || "conciliai.com").replace(/https?:\/\//, ""),
   apiVersion: LATEST_API_VERSION,
   isEmbeddedApp: true,
