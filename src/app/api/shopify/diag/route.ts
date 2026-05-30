@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
     const TEST_QUERY = `
       query {
-        orders(first: 5, query: "created_at:>=2020-01-01") {
+        orders(first: 5, query: "status:any AND created_at:>=2020-01-01") {
           edges {
             node { id name createdAt }
           }

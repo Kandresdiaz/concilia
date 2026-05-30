@@ -81,7 +81,8 @@ export async function GET(request: Request) {
 
     // Formato correcto Shopify: created_at:>=2025-05-01 created_at:<=2025-05-31
     // SIN comillas simples, SIN ISO timestamp — solo YYYY-MM-DD
-    const graphqlFilter = `created_at:>=${dateStart} AND created_at:<=${dateEnd}`;
+    // IMPORTANTE: status:any es obligatorio para traer órdenes cerradas/archivadas
+    const graphqlFilter = `status:any AND created_at:>=${dateStart} AND created_at:<=${dateEnd}`;
     console.log(`[Orders] Shop: ${shop} | Period: ${periodLabel} | Filter: ${graphqlFilter}`);
 
     // --- Obtener sesión ---
@@ -98,11 +99,18 @@ export async function GET(request: Request) {
         ?? undefined;
     }
 
-    if (!sessionData || !sessionData.accessToken) {
+    // Verificar si la sesión guardada contiene el alcance obligatorio para órdenes históricas
+    const hasRequiredScopes = sessionData?.scope?.includes('read_all_orders');
+
+    if (!sessionData || !sessionData.accessToken || !hasRequiredScopes) {
       const hostParam = host ? `&host=${host}` : '';
-      console.warn(`[Orders] No valid session for ${shop}`);
+      console.warn(`[Orders] No valid session or missing scopes for ${shop}. hasRequiredScopes: ${hasRequiredScopes}`);
+      // Si la sesión existe pero no tiene los alcances necesarios (es obsoleta), la borramos para forzar re-auth
+      if (sessionData) {
+        await SupabaseSessionStorage.deleteSession(sessionData.id);
+      }
       return NextResponse.json({
-        error: 'No hay sesión de Shopify activa. Reconectando...',
+        error: 'Se requieren permisos adicionales de Shopify para acceder a órdenes históricas. Redireccionando...',
         code: 'SESSION_NOT_FOUND',
         reconnect_url: `/api/auth/shopify?shop=${shop}${hostParam}`
       }, { status: 401 });
